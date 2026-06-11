@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>第五章 继承与接口 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-第五章-继承与接口"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  第五章 继承与接口
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/05/12/%E7%AC%AC%E4%BA%94%E7%AB%A0-%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%8E%A5%E5%8F%A3/" class="article-date">
+  <time datetime="2026-05-12T05:38:20.000Z" itemprop="datePublished">2026-05-12</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">19 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、本章知识回顾</p>
+<p>知识点	说明<br>继承	子类继承父类的成员变量和方法<br>方法重写	子类重新定义父类的方法<br>super关键字	访问父类的成员变量、方法和构造方法<br>多态	父类引用指向子类对象<br>final关键字	防止继承、防止重写、定义常量<br>抽象类	包含抽象方法的类，不能实例化<br>接口	完全抽象的规范，支持多实现<br> 二、为什么要继承？</p>
+<p>2.1 问题引入</p>
+<p>假设要设计学生和教师两个类：</p>
+<p>学生类：姓名、年龄、学号、学习()</p>
+<p>教师类：姓名、年龄、工号、教学()</p>
+<p>你会发现，学生和教师都有相同的属性（姓名、年龄）。如果每个类都重复写一遍，代码会非常冗余。</p>
+<p>继承的解决方案：把共同的特征提取到“人类”中，让学生和教师继承这个类。</p>
+<p>2.2 继承的概念</p>
+<ul>
+<li>父类（超类）：被继承的类</li>
+<li>子类（派生类）：继承父类的类</li>
+<li>关键字：<code>extends</code></li>
+</ul>
+<p>&#x2F;&#x2F; 父类<br>class Person {<br>    String name;<br>    int age;</p>
+<pre><code>void eat() &#123;
+    System.out.println(name + &quot;正在吃饭&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F; 子类继承父类<br>class Student extends Person {<br>    String studentId; &#x2F;&#x2F; 子类特有的属性</p>
+<pre><code>void study() &#123;   // 子类特有的方法
+    System.out.println(name + &quot;正在学习&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>2.3 继承的好处</p>
+<table>
+<thead>
+<tr>
+<th>好处</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>代码复用</td>
+<td>子类自动拥有父类的属性和方法</td>
+</tr>
+<tr>
+<td>易于维护</td>
+<td>修改父类即可影响所有子类</td>
+</tr>
+<tr>
+<td>体现is-a关系</td>
+<td>Student is a Person（学生是一个人）</td>
+</tr>
+<tr>
+<td>AI写代码</td>
+<td></td>
+</tr>
+<tr>
+<td>markdown</td>
+<td></td>
+</tr>
+<tr>
+<td>三、子类与父类</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>3.1 继承的基本语法</p>
+<p>class 子类名 extends 父类名 {<br>    &#x2F;&#x2F; 子类特有的成员变量<br>    &#x2F;&#x2F; 子类特有的成员方法<br>}<br>AI写代码<br>java<br>运行<br>3.2 继承示例：银行账户</p>
+<p>代码解析<br>&#x2F;**</p>
+<ul>
+<li><p>父类：银行账户<br> *&#x2F;<br>class BankAccount {<br> String accountNo;  &#x2F;&#x2F; 账号<br> double balance;   &#x2F;&#x2F; 余额</p>
+<p> &#x2F;&#x2F; 构造方法<br> BankAccount(String accountNo, double balance) {<br> this.accountNo &#x3D; accountNo;<br> this.balance &#x3D; balance;<br> }</p>
+<p> &#x2F;&#x2F; 存款<br> void deposit(double amount) {<br> balance +&#x3D; amount;<br> System.out.println(“存入 “ + amount + “ 元，余额：” + balance);<br> }</p>
+<p> &#x2F;&#x2F; 取款<br> void withdraw(double amount) {<br> if (balance &gt;&#x3D; amount) {<br>     balance -&#x3D; amount;<br>     System.out.println(“取出 “ + amount + “ 元，余额：” + balance);<br> } else {<br>     System.out.println(“余额不足！”);<br> }<br> }</p>
+<p> void showInfo() {<br> System.out.println(“账号：” + accountNo + “，余额：” + balance);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>子类：储蓄账户（继承BankAccount）</p>
+</li>
+<li><p>特点：有利息<br> *&#x2F;<br>class SavingsAccount extends BankAccount {<br> double interestRate; &#x2F;&#x2F; 子类特有的属性：利率</p>
+<p> SavingsAccount(String accountNo, double balance, double interestRate) {<br> super(accountNo, balance); &#x2F;&#x2F; 调用父类构造方法<br> this.interestRate &#x3D; interestRate;<br> }</p>
+<p> &#x2F;&#x2F; 子类特有的方法：计算利息<br> void addInterest() {<br> double interest &#x3D; balance * interestRate;<br> balance +&#x3D; interest;<br> System.out.println(“增加利息：” + interest + “ 元，余额：” + balance);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class InheritanceDemo {<br>    public static void main(String[] args) {<br>        System.out.println(“&#x3D;&#x3D;&#x3D; 普通账户 &#x3D;&#x3D;&#x3D;”);<br>        BankAccount acc1 &#x3D; new BankAccount(“1001”, 1000);<br>        acc1.deposit(500);<br>        acc1.withdraw(200);</p>
+<pre><code>    System.out.println(&quot;\n=== 储蓄账户 ===&quot;);
+    SavingsAccount acc2 = new SavingsAccount(&quot;2001&quot;, 2000, 0.03);
+    acc2.deposit(300);
+    acc2.addInterest();
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果<br>&#x3D;&#x3D;&#x3D; 普通账户 &#x3D;&#x3D;&#x3D;<br>存入 500.0 元，余额：1500.0<br>取出 200.0 元，余额：1300.0</p>
+<p>&#x3D;&#x3D;&#x3D; 储蓄账户 &#x3D;&#x3D;&#x3D;<br>存入 300.0 元，余额：2300.0<br>增加利息：69.0 元，余额：2369.0<br>AI写代码<br>关键点说明<br>父类 BankAccount 定义了银行账户的基本属性和方法，包括账号、余额、存款、取款和显示账户信息。</p>
+<p>子类 SavingsAccount 继承了 BankAccount，并增加了特有的属性 interestRate 和方法 addInterest()，用于计算并添加利息。</p>
+<p>在 main 方法中，分别创建了普通账户和储蓄账户的实例，演示了存款、取款和利息计算的功能。<br>四、方法重写（Override）</p>
+<p>4.1 什么是方法重写？</p>
+<p>子类可以重新定义（覆盖）父类中已有的方法，这叫做<strong>方法重写</strong>。</p>
+<p>重写规则：</p>
+<ul>
+<li>方法名相同</li>
+<li>参数列表相同</li>
+<li>返回值类型相同（或是其子类）</li>
+<li>访问权限不能比父类更严格</li>
+</ul>
+<p>4.2 示例：信用卡账户（重写取款方法）</p>
+<p>信用卡账户实现代码<br>&#x2F;**</p>
+<ul>
+<li><p>子类：信用卡账户（继承BankAccount）</p>
+</li>
+<li><p>特点：可以透支<br> *&#x2F;<br>class CreditAccount extends BankAccount {<br> double creditLimit; &#x2F;&#x2F; 透支额度</p>
+<p> CreditAccount(String accountNo, double balance, double creditLimit) {<br> super(accountNo, balance);<br> this.creditLimit &#x3D; creditLimit;<br> }</p>
+<p> &#x2F;&#x2F; 重写取款方法（支持透支）<br> @Override<br> void withdraw(double amount) {<br> if (balance + creditLimit &gt;&#x3D; amount) {<br>     balance -&#x3D; amount;<br>     System.out.println(“取出 “ + amount + “ 元，余额：” + balance);<br> } else {<br>     System.out.println(“超过透支额度！”);<br> }<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class OverrideDemo {<br>    public static void main(String[] args) {<br>        CreditAccount acc &#x3D; new CreditAccount(“3001”, 0, 5000);<br>        acc.withdraw(2000);  &#x2F;&#x2F; 可以透支<br>        acc.withdraw(4000);  &#x2F;&#x2F; 超出额度<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果示例<br>取出 2000.0 元，余额：-2000.0<br>超过透支额度！<br>AI写代码<br>text<br>代码说明<br>信用卡账户类继承自银行账户基类，通过重写取款方法实现透支功能。当取款金额不超过账户余额与透支额度之和时允许交易，否则拒绝交易并提示超额。</p>
+<p>构造方法接收账户号、初始余额和透支额度三个参数，初始化时需调用父类构造方法。透支额度作为信用卡账户特有的属性单独存储。</p>
+<p>4.3 @Override注解</p>
+<p><code>@Override</code>是可选的，但推荐加上：</p>
+<ul>
+<li>让编译器 帮忙检查是否正确的重写了父类方法</li>
+<li>提高代码可读性</li>
+</ul>
+<p>4.4 重写 vs 重载</p>
+<p>方法重写（Override）与方法重载（Overload）对比<br>比较项	方法重写（Override）	方法重载（Overload）<br>发生位置	子类和父类之间	同一个类中<br>方法名	必须相同	必须相同<br>参数列表	必须相同	必须不同<br>返回值	相同或子类（协变返回类型）	无关<br>访问修饰符	不能比父类更严格（如父类为 protected，子类可为 public，但不能为 private）	无限制<br>异常抛出	不能抛出比父类更宽泛的检查异常	无限制<br>作用	实现多态，子类提供特定实现	提供同名方法的不同参数版本<br>关键区别说明<br>方法重写（Override）</p>
+<p>发生在继承关系中，子类重新定义父类的方法。<br>方法签名（名称和参数列表）必须完全一致。<br>返回类型可以是原类型的子类型（协变返回）。<br>访问权限不能比父类方法更严格。<br>方法重载（Overload）</p>
+<p>发生在同一类中，通过不同参数列表区分同名方法。<br>返回值类型、访问修饰符和异常声明可自由变化。<br>仅需参数列表不同（类型、顺序或数量）。<br>示例代码<br>方法重写示例<br>class Parent {<br>    protected void show() {<br>        System.out.println(“Parent’s show”);<br>    }<br>}</p>
+<p>class Child extends Parent {<br>    @Override<br>    public void show() {  &#x2F;&#x2F; 访问修饰符更宽松，参数列表相同<br>        System.out.println(“Child’s show”);<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>方法重载示例<br>class Calculator {<br>    int add(int a, int b) {<br>        return a + b;<br>    }</p>
+<pre><code>double add(double a, double b) &#123;  // 参数类型不同
+    return a + b;
+&#125;
+
+int add(int a, int b, int c) &#123;  // 参数数量不同
+    return a + b + c;
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>五、super关键字</p>
+<p>5.1 super的作用</p>
+<p><code>super</code>用于在子类中访问父类的成员。</p>
+<p>表格转换结果<br>用法	说明<br>super.成员变量	访问父类成员变量<br>super.成员方法()	调用父类成员方法<br>super(参数)	调用父类构造方法（必须在第一行）<br>注意事项<br>表格已按照原始内容格式转换，保持清晰对齐<br>每列内容准确对应原始数据<br>表格边框采用标准Markdown表格语法<br>列宽根据内容自动调整<br>5.2 示例：电脑</p>
+<p>代码解析<br>&#x2F;**</p>
+<ul>
+<li><p>父类：电脑<br> *&#x2F;<br>class Computer {<br> String cpu;<br> int ram;</p>
+<p> Computer(String cpu, int ram) {<br> this.cpu &#x3D; cpu;<br> this.ram &#x3D; ram;<br> }</p>
+<p> void showSpec() {<br> System.out.println(“CPU：” + cpu + “，内存：” + ram + “GB”);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>子类：游戏电脑<br> *&#x2F;<br>class GamingComputer extends Computer {<br> String gpu; &#x2F;&#x2F; 显卡</p>
+<p> GamingComputer(String cpu, int ram, String gpu) {<br> super(cpu, ram);   &#x2F;&#x2F; 调用父类构造方法<br> this.gpu &#x3D; gpu;<br> }</p>
+<p> @Override<br> void showSpec() {<br> super.showSpec();   &#x2F;&#x2F; 调用父类的方法<br> System.out.println(“显卡：” + gpu);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class SuperDemo {<br>    public static void main(String[] args) {<br>        GamingComputer gc &#x3D; new GamingComputer(“i7-13700K”, 32, “RTX 4080”);<br>        gc.showSpec();<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果<br>CPU：i7-13700K，内存：32GB<br>显卡：RTX 4080<br>AI写代码<br>关键点说明<br>super关键字用于在子类中访问父类的成员变量或方法。在构造方法中，super()用于调用父类的构造方法，必须放在子类构造方法的第一行。</p>
+<p>方法重写时，使用super.方法名()可以调用父类被重写的方法，实现功能的扩展而非完全覆盖。</p>
+<p>继承关系中，子类可以继承父类的非私有成员，同时可以添加自己的特有成员，形成更具体的类。</p>
+<p>5.3 注意事项</p>
+<p>子类构造方法必须先调用父类构造方法</p>
+<p>class Parent {<br>  Parent(String name) { &#x2F;&#x2F; 有参构造<br>    System.out.println(“Parent: “ + name);<br>  }<br>}</p>
+<p>&#x2F;&#x2F; 正确写法<br>class Child extends Parent {<br>  Child(String name) {<br>    super(name); &#x2F;&#x2F; 必须手动调用父类有参构造<br>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>六、多态</p>
+<p>6.1 什么是多态？</p>
+<p>多态：同一个方法调用，作用于不同的对象，产生不同的行为。</p>
+<p>实现多态的三个条件：</p>
+<ol>
+<li>有继承关系</li>
+<li>子类重写父类的方法</li>
+<li>父类引用指向子类对象6.2 多态示例</li>
+</ol>
+<p>&#x2F;*** 父类：动物*&#x2F;<br>class Animal {<br>    void sound() {<br>        System.out.println(“动物发出声音”);<br>    }<br>}</p>
+<p>&#x2F;*** 子类：狗*&#x2F;<br>class Dog extends Animal {<br>    @Override<br>    void sound() {<br>        System.out.println(“狗：汪汪汪！”);<br>    }<br>}</p>
+<p>&#x2F;*** 子类：猫*&#x2F;<br>class Cat extends Animal {<br>    @Override<br>    void sound() {<br>        System.out.println(“猫：喵喵喵！”);<br>    }<br>}</p>
+<p>public class PolymorphismDemo {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 多态：父类引用指向子类对象<br>        Animal animal1 &#x3D; new Dog();<br>        Animal animal2 &#x3D; new Cat();</p>
+<pre><code>    // 同一个方法调用，产生不同行为
+    animal1.sound(); // 狗：汪汪汪！
+    animal2.sound(); // 猫：喵喵喵！
+    
+    // 多态的方便之处：用一个数组存放多种动物
+    Animal[] animals = &#123;new Dog(), new Cat(), new Dog()&#125;;
+    for (Animal animal : animals) &#123;
+        animal.sound(); // 不需要知道具体是哪种动物
+    &#125;
+&#125;
+</code></pre>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>6.3 对象类型转换</p>
+<p>&#x2F;&#x2F; 向上转型（自动，安全）<br>Animal animal &#x3D; new Dog();</p>
+<p>&#x2F;&#x2F; 向下转型（强制，有风险）<br>Dog dog &#x3D; (Dog) animal;</p>
+<p>&#x2F;&#x2F; instanceof 判断类型（避免转型异常）<br>if (animal instanceof Dog) {<br>    Dog dog &#x3D; (Dog) animal;<br>}<br>AI写代码<br>java<br>运行</p>
+<p>七、final关键字</p>
+<p>7.1 final的三种用法</p>
+<p>修饰符作用示例表<br>修饰符	作用	示例<br>final 类	不能被继承	final class String<br>final 方法	不能被重写	public final void print()<br>final 变量	只能赋值一次（常量）	final double PI &#x3D; 3.14<br>7.2 示例</p>
+<p>&#x2F;&#x2F; 1. final变量：常量<br>class Constants {<br>  final double PI &#x3D; 3.14159;    &#x2F;&#x2F; 声明时初始化<br>  void test() {<br>    &#x2F;&#x2F; PI &#x3D; 3.14; &#x2F;&#x2F; 编译错误：不能修改<br>  }<br>}</p>
+<p>&#x2F;&#x2F; 2. final方法：子类不能重写<br>class Parent {<br>  final void finalMethod() {<br>    System.out.println(“这个方法不能被重写”);<br>  }<br>}</p>
+<p>&#x2F;&#x2F; 3. final类：不能有子类<br>final class FinalClass {<br>  &#x2F;&#x2F; 类体<br>}<br>&#x2F;&#x2F; class SubClass extends FinalClass {} &#x2F;&#x2F; 编译错误</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>八、抽象类</p>
+<p>8.1 什么是抽象类？</p>
+<p>当一个父类只知道子类应该有什么方法，但不知道如何实现时，使用抽象类。</p>
+<ul>
+<li>用 <code>abstract</code> 关键字修饰</li>
+<li>抽象方法没有方法体</li>
+<li>抽象类不能实例化（不能 new）</li>
+</ul>
+<p>8.2 示例：图形面积计算</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>抽象类：图形<br> *&#x2F;<br>abstract class Shape {<br> String color;</p>
+<p> Shape(String color) {<br> this.color &#x3D; color;<br> }</p>
+<p> &#x2F;&#x2F; 抽象方法：只有声明，没有实现<br> abstract double getArea();<br> abstract double getPerimeter();</p>
+<p> &#x2F;&#x2F; 普通方法（可以被子类继承）<br> void showColor() {<br> System.out.println(“颜色：” + color);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>子类：圆形<br> *&#x2F;<br>class Circle extends Shape {<br> double radius;</p>
+<p> Circle(String color, double radius) {<br> super(color);<br> this.radius &#x3D; radius;<br> }</p>
+<p> @Override<br> double getArea() {<br> return Math.PI * radius * radius;<br> }</p>
+<p> @Override<br> double getPerimeter() {<br> return 2 * Math.PI * radius;<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>子类：矩形<br> *&#x2F;<br>class Rectangle extends Shape {<br> double width;<br> double height;</p>
+<p> Rectangle(String color, double width, double height) {<br> super(color);<br> this.width &#x3D; width;<br> this.height &#x3D; height;<br> }</p>
+<p> @Override<br> double getArea() {<br> return width * height;<br> }</p>
+<p> @Override<br> double getPerimeter() {<br> return 2 * (width + height);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class AbstractDemo {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; Shape shape &#x3D; new Shape(“红色”); &#x2F;&#x2F; 错误：抽象类不能实例化</p>
+<pre><code>    Shape circle = new Circle(&quot;红色&quot;, 5);
+    Shape rectangle = new Rectangle(&quot;蓝色&quot;, 4, 6);
+    
+    System.out.println(&quot;=== 圆形 ===&quot;);
+    circle.showColor();
+    System.out.println(&quot;面积：&quot; + circle.getArea());
+    System.out.println(&quot;周长：&quot; + circle.getPerimeter());
+    
+    System.out.println(&quot;\n=== 矩形 ===&quot;);
+    rectangle.showColor();
+    System.out.println(&quot;面积：&quot; + rectangle.getArea());
+    System.out.println(&quot;周长：&quot; + rectangle.getPerimeter());
+&#125;
+</code></pre>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>抽象类要点：</p>
+<ul>
+<li>含有抽象方法的类必须是抽象类</li>
+<li>抽象类可以没有抽象方法</li>
+<li>子类必须实现所有抽象方法，否则子类也是抽象类</li>
+</ul>
+<p> 九、接口</p>
+<p>9.1 什么是接口？</p>
+<p>接口是完全抽象的规范，定义了“能做什么”，但不关心“怎么做”。</p>
+<ul>
+<li>用 <code>interface</code> 关键字定义</li>
+<li>用 <code>implements</code> 关键字实现</li>
+</ul>
+<p> 9.2 接口的特性</p>
+<p>成员类型与默认修饰符对照表<br>成员类型	默认修饰符	说明<br>常量	public static final	接口中定义的变量自动是常量<br>抽象方法	public abstract	接口中的方法自动是抽象的<br>9.3 示例：USB接口</p>
+<p>代码解析<br>&#x2F;**</p>
+<ul>
+<li><p>USB接口规范<br> *&#x2F;<br>interface USB {<br> &#x2F;&#x2F; 常量（自动是 public static final）<br> String STANDARD &#x3D; “USB 3.0”;</p>
+<p> &#x2F;&#x2F; 抽象方法（自动是 public abstract）<br> void plugIn();  &#x2F;&#x2F; 插入<br> void work();    &#x2F;&#x2F; 工作<br> void plugOut(); &#x2F;&#x2F; 拔出</p>
+</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>鼠标实现USB接口<br> *&#x2F;<br>class Mouse implements USB {<br> @Override<br> public void plugIn() {<br> System.out.println(“鼠标已插入”);<br> }</p>
+<p> @Override<br> public void work() {<br> System.out.println(“鼠标：移动光标、点击”);<br> }</p>
+<p> @Override<br> public void plugOut() {<br> System.out.println(“鼠标已拔出”);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>键盘实现USB接口<br> *&#x2F;<br>class Keyboard implements USB {<br> @Override<br> public void plugIn() {<br> System.out.println(“键盘已插入”);<br> }</p>
+<p> @Override<br> public void work() {<br> System.out.println(“键盘：输入文字”);<br> }</p>
+<p> @Override<br> public void plugOut() {<br> System.out.println(“键盘已拔出”);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class InterfaceDemo {<br>    public static void main(String[] args) {<br>        USB mouse &#x3D; new Mouse();<br>        USB keyboard &#x3D; new Keyboard();</p>
+<pre><code>    System.out.println(&quot;=== 鼠标 ===&quot;);
+    mouse.plugIn();
+    mouse.work();
+    mouse.plugOut();
+    
+    System.out.println(&quot;\n=== 键盘 ===&quot;);
+    keyboard.plugIn();
+    keyboard.work();
+    keyboard.plugOut();
+    
+    System.out.println(&quot;\nUSB标准：&quot; + USB.STANDARD);
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果<br>代码执行后的输出结果如下：</p>
+<p>&#x3D;&#x3D;&#x3D; 鼠标 &#x3D;&#x3D;&#x3D;<br>鼠标已插入<br>鼠标：移动光标、点击<br>鼠标已拔出</p>
+<p>&#x3D;&#x3D;&#x3D; 键盘 &#x3D;&#x3D;&#x3D;<br>键盘已插入<br>键盘：输入文字<br>键盘已拔出</p>
+<p>USB标准：USB 3.0<br>AI写代码</p>
+<p>关键点说明<br>接口USB定义了三个抽象方法和一个常量。Mouse和Keyboard类实现了USB接口，并提供了具体的方法实现。</p>
+<p>在InterfaceDemo类的main方法中，创建了Mouse和Keyboard的实例，并通过接口类型引用调用各自的方法。最后打印了接口中定义的常量STANDARD。</p>
+<p>该示例展示了Java接口的基本特性，包括抽象方法的定义、实现类的编写以及接口常量的使用。</p>
+<p>9.4 接口的多实现</p>
+<p>一个类可以实现多个接口，这是Java实现多继承的方式。</p>
+<p>interface A {<br>  void methodA();<br>}</p>
+<p>interface B {<br>  void methodB();<br>}</p>
+<p>class MultipleImpl implements A, B {<br>  @Override<br>  public void methodA() {<br>    System.out.println(“实现A的方法”);<br>  }  </p>
+<p>  @Override<br>  public void methodB() {<br>    System.out.println(“实现B的方法”);<br>  }<br>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p> 9.5 接口与抽象类的对比</p>
+<p>抽象类与接口对比<br>比较项	抽象类	接口<br>关键字	abstract class	interface<br>继承&#x2F;实现	extends	implements<br>多继承	不支持	支持<br>成员变量	可以有各种类型	只能是常量<br>构造方法	有	没有<br>普通方法	可以有	只有抽象方法（Java 8前）<br>使用场景	有共同代码的基类	定义规范&#x2F;能力<br>注：Java 8及以后版本允许接口包含默认方法（default方法）和静态方法。</p>
+<p>十、综合示例：教材“银行与利息”案例</p>
+<p>&#x2F;*** 抽象类：银行账户*&#x2F;<br>abstract class BankAccount {<br>    String accountNo;<br>    double balance;</p>
+<pre><code>BankAccount(String accountNo, double balance) &#123;
+    this.accountNo = accountNo;
+    this.balance = balance;
+&#125;
+
+// 抽象方法：计算利息
+abstract double calculateInterest();
+
+void showInfo() &#123;
+    System.out.println(&quot;账号：&quot; + accountNo + &quot;，余额：&quot; + balance);
+    System.out.println(&quot;利息：&quot; + calculateInterest());
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;*** 定期账户*&#x2F;<br>class FixedAccount extends BankAccount {<br>    double rate; &#x2F;&#x2F; 利率</p>
+<pre><code>FixedAccount(String accountNo, double balance, double rate) &#123;
+    super(accountNo, balance);
+    this.rate = rate;
+&#125;
+
+@Override
+double calculateInterest() &#123;
+    return balance * rate;
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;*** 活期账户*&#x2F;<br>class CurrentAccount extends BankAccount {<br>    double rate;<br>    int days; &#x2F;&#x2F; 存款天数</p>
+<pre><code>CurrentAccount(String accountNo, double balance, double rate, int days) &#123;
+    super(accountNo, balance);
+    this.rate = rate;
+    this.days = days;
+&#125;
+
+@Override
+double calculateInterest() &#123;
+    return balance * rate * days / 365;
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class BankDemo {<br>    public static void main(String[] args) {<br>        BankAccount account1 &#x3D; new FixedAccount(“1001”, 10000, 0.035);<br>        BankAccount account2 &#x3D; new CurrentAccount(“2001”, 10000, 0.003, 180);</p>
+<pre><code>    System.out.println(&quot;=== 定期账户 ===&quot;);
+    account1.showInfo();
+    
+    System.out.println(&quot;\n=== 活期账户 ===&quot;);
+    account2.showInfo();
+&#125;
+</code></pre>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>十一、常见错误与注意点</p>
+<p>常见Java继承与接口错误对照表<br>错误写法	正确写法	关键说明<br>class Child extends Parent1, Parent2	class Child implements Interface1, Interface2	Java单继承限制，类只能继承一个父类，但可实现多个接口<br>子类构造方法未调用super()	显式调用super(参数)	父类不存在默认构造器时，子类必须显式调用父类构造器<br>误用@Override注解	保持方法签名完全一致	包括方法名、参数列表、返回类型，否则触发编译错误<br>抽象类遗漏抽象方法声明	使用abstract修饰无实现的方法	抽象方法必须以分号结尾，不能包含方法体<br>接口实现类未声明public	显式添加public修饰符	接口方法默认public，但实现类必须显式声明为public<br>典型问题深度解析<br>多继承限制 Java通过单继承+多接口实现解决菱形继承问题。当需要复用多个父类功能时，应改用组合模式或接口默认方法。</p>
+<p>构造器链规则 子类构造器必须调用父类构造器，若未显式调用且父类无默认构造器，编译器报错。调用语句必须作为构造器首行代码。</p>
+<p>注解校验机制 @Override严格校验重写规范，包括协变返回类型等细节。现代IDE通常能实时提示签名不匹配问题。</p>
+<p>抽象方法特征 抽象类可以包含具体方法，但抽象方法必须由子类实现。注意与接口方法的区别：抽象方法可受保护，接口方法始终公开。</p>
+<p>访问控制一致性 接口方法默认公开且不可降低可见性。实现类若省略public修饰符会导致访问权限收缩，违反里氏替换原则。</p>
+<p>十二、小结</p>
+<p>本章学习了：</p>
+<ul>
+<li>继承：子类继承父类，实现代码复用<br>-方法重写：子类重新定义父类的方法</li>
+<li>super关键字：访问父类的成员</li>
+<li>多态：父类引用指向子类对象</li>
+<li>final关键字：防止继承、防止重写、定义常量</li>
+<li>抽象类：包含抽象方法的类，不能实例化</li>
+<li>接口：完全抽象的规范，支持多实现</li>
+</ul>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F05%2F12%2F%25E7%25AC%25AC%25E4%25BA%2594%25E7%25AB%25A0-%25E7%25BB%25A7%25E6%2589%25BF%25E4%25B8%258E%25E6%258E%25A5%25E5%258F%25A3%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2026/05/20/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E5%BD%A2%E5%BC%8F%E5%8C%96%E6%96%B9%E6%B3%95%E5%AD%A6%E4%B9%A0%E4%B8%8E%E3%80%8A%E5%A4%A7%E8%B1%A1%E2%80%94%E2%80%94Thinking-in-UML%E3%80%8B%E9%98%85%E8%AF%BB%E6%8E%A8%E8%8D%90/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JAVA作业：形式化方法学习与《大象——Thinking in UML》阅读推荐
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2026/05/10/%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1%E2%80%94%E2%80%94%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">第四章 类与对象——面向对象编程入门</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=9231355229&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

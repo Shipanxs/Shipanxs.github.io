@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>第四章 类与对象——面向对象编程入门 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-第四章-类与对象——面向对象编程入门"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  第四章 类与对象——面向对象编程入门
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/05/10/%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1%E2%80%94%E2%80%94%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" class="article-date">
+  <time datetime="2026-05-10T05:37:53.000Z" itemprop="datePublished">2026-05-10</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、本章知识回顾</p>
+<p>面向对象基础概念表格<br>知识点	说明<br>类	对象的模板，描述一类事物的共同特征<br>对象	类的具体实例<br>成员变量	对象的属性（状态）<br>成员方法	对象的行为（功能）<br>构造方法	创建对象时初始化成员变量<br>this关键字	指向当前对象的引用<br>对象的组合	一个类把其他类的对象作为成员</p>
+<p>二、为什么需要类与对象？</p>
+<p>2.1 问题引入</p>
+<p>假设要处理小明养的两只狗的信息：</p>
+<table>
+<thead>
+<tr>
+<th>狗名</th>
+<th>年龄</th>
+<th>颜色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>小白</td>
+<td>3岁</td>
+<td>白色</td>
+</tr>
+<tr>
+<td>小花</td>
+<td>10岁</td>
+<td>花色</td>
+</tr>
+</tbody></table>
+<p>表格转换结果<br>狗名	年龄	颜色<br>小白	3岁	白色<br>小花	10岁	花色<br>如果用之前学过的数组来处理：</p>
+<p>String[] dog1 &#x3D; {“小白”, “3”, “白色”};<br>String[] dog2 &#x3D; {“小花”, “10”, “花色”};</p>
+<p>AI写代码<br>java<br>运行<br>数组方式的问题：</p>
+<p>数据类型不明确（年龄”3”是字符串，不方便计算）</p>
+<p>通过下标获取信息（dog1[0]是名字，dog1[1]是年龄，容易混淆）</p>
+<p>不能体现狗的行为（如”叫”、”跑”等）</p>
+<p>解决方式：用类来定义狗的特征和行为，用对象来表示具体的某只狗。</p>
+<p>三、类的定义<br>3.1 类的基本结构<br>类是Java中最基本的”模板”，用来描述一类事物的属性（成员变量）和行为（成员方法）。</p>
+<p>java</p>
+<p>class Dog {<br>    &#x2F;&#x2F; 1. 成员变量（属性）<br>    String name;   &#x2F;&#x2F; 名字<br>    int age;       &#x2F;&#x2F; 年龄<br>    String color;  &#x2F;&#x2F; 颜色</p>
+<pre><code>// 2. 成员方法（行为）
+void bark() &#123;
+    System.out.println(name + &quot;：汪汪汪！&quot;);
+&#125;
+
+void run() &#123;
+    System.out.println(name + &quot;正在奔跑&quot;);
+&#125;
+
+void showInfo() &#123;
+    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age + &quot;岁，颜色：&quot; + color);
+&#125;
+</code></pre>
+<p>}<br>3.2 成员变量<br>位置：在类中、方法外部定义</p>
+<p>作用：描述对象的属性（状态）</p>
+<p>默认值：即使不赋值，也有默认初始值</p>
+<p>类型	默认值<br>int	0<br>double	0.0<br>boolean	false<br>char	‘\u0000’<br>引用类型（String等）	null<br>3.3 成员方法<br>位置：在类中定义</p>
+<p>作用：描述对象的行为（功能）</p>
+<p>结构：修饰符 + 返回值类型 + 方法名 + 参数列表 + 方法体</p>
+<p>java</p>
+<p>&#x2F;&#x2F; 方法结构示例<br>public void bark() {           &#x2F;&#x2F; 无返回值，无参数<br>    System.out.println(“叫”);<br>}</p>
+<p>public int add(int a, int b) { &#x2F;&#x2F; 有返回值，有参数<br>    return a + b;<br>}<br>四、对象的创建与使用<br>4.1 创建对象（实例化）<br>使用 new 关键字 + 构造方法创建对象：</p>
+<p>java</p>
+<p>public class DogTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建Dog类的对象<br>        Dog dog1 &#x3D; new Dog();  &#x2F;&#x2F; 声明 + 创建 + 赋值</p>
+<pre><code>    // 或者分两步写
+    Dog dog2;              // 1.声明对象变量
+    dog2 = new Dog();      // 2.创建对象（分配内存）
+&#125;
+</code></pre>
+<p>}<br>4.2 使用对象<br>通过 对象名.成员变量 和 对象名.成员方法() 来访问：</p>
+<p>java</p>
+<p>public class DogTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建对象<br>        Dog dog1 &#x3D; new Dog();<br>        Dog dog2 &#x3D; new Dog();</p>
+<pre><code>    // 给成员变量赋值
+    dog1.name = &quot;小白&quot;;
+    dog1.age = 3;
+    dog1.color = &quot;白色&quot;;
+    
+    dog2.name = &quot;小花&quot;;
+    dog2.age = 10;
+    dog2.color = &quot;花色&quot;;
+    
+    // 调用成员方法
+    dog1.showInfo();   // 输出：名字：小白，年龄：3岁，颜色：白色
+    dog1.bark();       // 输出：小白：汪汪汪！
+    
+    dog2.showInfo();   // 输出：名字：小花，年龄：10岁，颜色：花色
+    dog2.run();        // 输出：小花正在奔跑
+&#125;
+</code></pre>
+<p>}<br>运行结果：</p>
+<p>text</p>
+<p>名字：小白，年龄：3岁，颜色：白色<br>小白：汪汪汪！<br>名字：小花，年龄：10岁，颜色：花色<br>小花正在奔跑<br>4.3 类与对象的关系图<br>text</p>
+<p>┌─────────────────────────────────────┐<br>│           类（模板）                  │<br>│  ┌─────────────────────────────────┐ │<br>│  │ class Dog {                     │ │<br>│  │     String name;   &#x2F;&#x2F; 成员变量   │ │<br>│  │     int age;                    │ │<br>│  │     void bark() {…} &#x2F;&#x2F; 方法    │ │<br>│  │ }                               │ │<br>│  └─────────────────────────────────┘ │<br>└─────────────────────────────────────┘<br>                  │<br>                  │ 实例化（new）<br>                  ↓<br>┌───────────────────────┐  ┌───────────────────────┐<br>│   对象1（实例1）        │  │   对象2（实例2）        │<br>│  ┌─────────────────┐  │  │  ┌─────────────────┐  │<br>│  │ name &#x3D; “小白”   │  │  │  │ name &#x3D; “小花”   │  │<br>│  │ age &#x3D; 3         │  │  │  │ age &#x3D; 10        │  │<br>│  │ color &#x3D; “白色”  │  │  │  │ color &#x3D; “花色”  │  │<br>│  └─────────────────┘  │  │  └─────────────────┘  │<br>└───────────────────────┘  └───────────────────────┘<br>核心理解：</p>
+<p>类：图纸（抽象）</p>
+<p>对象：根据图纸造出的房子（具体）</p>
+<p>同一个类可以创建多个对象，每个对象有自己的属性值</p>
+<p>五、构造方法<br>5.1 什么是构造方法？<br>构造方法是专门用来创建对象时初始化成员变量的特殊方法。</p>
+<p>特点：</p>
+<p>方法名与类名相同</p>
+<p>没有返回值类型（连void都不写）</p>
+<p>创建对象时自动调用</p>
+<p>5.2 无参构造方法<br>java</p>
+<p>class Dog {<br>    String name;<br>    int age;</p>
+<pre><code>// 无参构造方法
+Dog() &#123;
+    System.out.println(&quot;一只新的狗被创建了&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Test {<br>    public static void main(String[] args) {<br>        Dog dog &#x3D; new Dog();  &#x2F;&#x2F; 自动调用构造方法，输出：一只新的狗被创建了<br>    }<br>}<br>5.3 有参构造方法<br>java</p>
+<p>class Dog {<br>    String name;<br>    int age;<br>    String color;</p>
+<pre><code>// 有参构造方法
+Dog(String n, int a, String c) &#123;
+    name = n;
+    age = a;
+    color = c;
+    System.out.println(&quot;创建了：&quot; + name);
+&#125;
+
+void showInfo() &#123;
+    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age + &quot;，颜色：&quot; + color);
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Test {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建对象时直接传入参数<br>        Dog dog1 &#x3D; new Dog(“小白”, 3, “白色”);<br>        Dog dog2 &#x3D; new Dog(“小花”, 10, “花色”);</p>
+<pre><code>    dog1.showInfo();  // 名字：小白，年龄：3，颜色：白色
+    dog2.showInfo();  // 名字：小花，年龄：10，颜色：花色
+&#125;
+</code></pre>
+<p>}<br>5.4 注意事项<br>情况	说明<br>没有定义任何构造方法	系统自动提供无参构造方法<br>定义了有参构造方法	系统不再提供无参构造方法<br>想同时使用两种	需要重载构造方法（手动写两个）<br>六、this关键字<br>6.1 解决命名冲突<br>当成员变量和局部变量（包括参数）同名时，this.成员变量 表示成员变量。</p>
+<p>java</p>
+<p>class Dog {<br>    String name;<br>    int age;</p>
+<pre><code>// 参数名和成员变量名相同
+Dog(String name, int age) &#123;
+    this.name = name;  // this.name 是成员变量，name 是参数
+    this.age = age;
+&#125;
+
+void showInfo() &#123;
+    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age);
+&#125;
+</code></pre>
+<p>}<br>为什么需要this？</p>
+<p>如果不写this，会发生”局部变量覆盖成员变量”：</p>
+<p>java</p>
+<p>&#x2F;&#x2F; 错误写法<br>Dog(String name, int age) {<br>    name &#x3D; name;   &#x2F;&#x2F; 左边和右边都是参数name，成员变量name没有被赋值<br>    age &#x3D; age;     &#x2F;&#x2F; 同样的问题<br>}<br>6.2 this的其他用法<br>java</p>
+<p>class Dog {<br>    String name;</p>
+<pre><code>Dog() &#123;
+    this(&quot;无名&quot;);  // 调用本类的有参构造方法
+&#125;
+
+Dog(String name) &#123;
+    this.name = name;
+&#125;
+</code></pre>
+<p>}<br>七、对象的组合<br>一个类可以把其他类的对象作为自己的成员变量，这叫对象的组合。</p>
+<p>示例：人养狗<br>java</p>
+<p>&#x2F;&#x2F; 狗类<br>class Dog {<br>    String name;<br>    int age;</p>
+<pre><code>Dog(String name, int age) &#123;
+    this.name = name;
+    this.age = age;
+&#125;
+
+void bark() &#123;
+    System.out.println(name + &quot;：汪汪！&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F; 人类（组合了Dog类）<br>class Person {<br>    String name;<br>    Dog pet;      &#x2F;&#x2F; 把Dog对象作为成员变量</p>
+<pre><code>Person(String name, Dog pet) &#123;
+    this.name = name;
+    this.pet = pet;
+&#125;
+
+void walkPet() &#123;
+    System.out.println(name + &quot;正在遛 &quot; + pet.name);
+    pet.bark();
+&#125;
+
+void showInfo() &#123;
+    System.out.print(name + &quot;的宠物：&quot;);
+    System.out.println(&quot;名字：&quot; + pet.name + &quot;，年龄：&quot; + pet.age + &quot;岁&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Test {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 先创建狗<br>        Dog dog &#x3D; new Dog(“小白”, 3);</p>
+<pre><code>    // 再创建人（把狗作为参数传入）
+    Person person = new Person(&quot;小明&quot;, dog);
+    
+    person.showInfo();   // 小明的宠物：名字：小白，年龄：3岁
+    person.walkPet();    // 小明正在遛小白 \n 小白：汪汪！
+&#125;
+</code></pre>
+<p>}<br>运行结果：</p>
+<p>text</p>
+<p>小明的宠物：名字：小白，年龄：3岁<br>小明正在遛小白<br>小白：汪汪！<br>八、完整示例：有理数类（教材例题）<br>根据教材第4章的有理数类例题，以下是一个完整的封装示例：</p>
+<p>java</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>有理数类（封装分数）</p>
+</li>
+<li><p>成员变量：分子、分母</p>
+</li>
+<li><p>成员方法：加法、减法、乘法、除法、化简<br> *&#x2F;<br>class Rational {<br> int numerator;      &#x2F;&#x2F; 分子<br> int denominator;    &#x2F;&#x2F; 分母</p>
+<p> &#x2F;&#x2F; 构造方法<br> Rational(int numerator, int denominator) {<br> this.numerator &#x3D; numerator;<br> this.denominator &#x3D; denominator;<br> reduce();        &#x2F;&#x2F; 创建时自动化简<br> }</p>
+<p> &#x2F;&#x2F; 求最大公约数（用于化简）<br> int gcd(int a, int b) {<br> return b &#x3D;&#x3D; 0 ? a : gcd(b, a % b);<br> }</p>
+<p> &#x2F;&#x2F; 化简分数<br> void reduce() {<br> int g &#x3D; gcd(numerator, denominator);<br> numerator &#x2F;&#x3D; g;<br> denominator &#x2F;&#x3D; g;<br> }</p>
+<p> &#x2F;&#x2F; 加法<br> Rational add(Rational r) {<br> int newNum &#x3D; this.numerator * r.denominator + r.numerator * this.denominator;<br> int newDen &#x3D; this.denominator * r.denominator;<br> return new Rational(newNum, newDen);<br> }</p>
+<p> &#x2F;&#x2F; 减法<br> Rational subtract(Rational r) {<br> int newNum &#x3D; this.numerator * r.denominator - r.numerator * this.denominator;<br> int newDen &#x3D; this.denominator * r.denominator;<br> return new Rational(newNum, newDen);<br> }</p>
+<p> &#x2F;&#x2F; 输出分数<br> void display() {<br> if (denominator &#x3D;&#x3D; 1) {<br>     System.out.println(numerator);<br> } else {<br>     System.out.println(numerator + “&#x2F;“ + denominator);<br> }<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class RationalTest {<br>    public static void main(String[] args) {<br>        Rational r1 &#x3D; new Rational(1, 3);   &#x2F;&#x2F; 1&#x2F;3<br>        Rational r2 &#x3D; new Rational(2, 5);   &#x2F;&#x2F; 2&#x2F;5</p>
+<pre><code>    System.out.print(&quot;1/3 + 2/5 = &quot;);
+    r1.add(r2).display();                // 11/15
+    
+    System.out.print(&quot;1/3 - 2/5 = &quot;);
+    r1.subtract(r2).display();           // -1/15
+&#125;
+</code></pre>
+<p>}<br>九、常见错误与注意点<br>错误写法	正确写法	说明<br>Dog dog; dog.name &#x3D; “小白”;	Dog dog &#x3D; new Dog();	必须先创建对象才能使用<br>class dog { … }	class Dog { … }	类名首字母大写（规范）<br>构造方法写了返回值类型	Dog() { }（无void）	构造方法不能有返回值<br>this 在静态方法中使用	只能在非静态方法中使用	static方法中不能用this<br>忘记写构造方法导致无法初始化	提供合适的构造方法	或使用setter方法赋值<br>十、小结<br>本章学习了：</p>
+<p> 类的定义：成员变量 + 成员方法</p>
+<p> 对象的创建：使用 new 关键字</p>
+<p> 构造方法：与类同名，无返回值，用于初始化</p>
+<p> this关键字：区分成员变量和局部变量</p>
+<p> 对象的组合：一个类包含其他类的对象</p>
+<p>核心代码模板：</p>
+<p>java</p>
+<p>class 类名 {<br>    &#x2F;&#x2F; 1. 成员变量<br>    数据类型 变量名;</p>
+<pre><code>// 2. 构造方法
+类名(参数列表) &#123;
+    this.成员变量 = 参数;
+&#125;
+
+// 3. 成员方法
+返回值类型 方法名(参数列表) &#123;
+    // 方法体
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F; 使用<br>类名 对象名 &#x3D; new 类名(参数);<br>对象名.方法名();</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F05%2F10%2F%25E7%25AC%25AC%25E5%259B%259B%25E7%25AB%25A0-%25E7%25B1%25BB%25E4%25B8%258E%25E5%25AF%25B9%25E8%25B1%25A1%25E2%2580%2594%25E2%2580%2594%25E9%259D%25A2%25E5%2590%2591%25E5%25AF%25B9%25E8%25B1%25A1%25E7%25BC%2596%25E7%25A8%258B%25E5%2585%25A5%25E9%2597%25A8%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2026/05/12/%E7%AC%AC%E4%BA%94%E7%AB%A0-%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%8E%A5%E5%8F%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            第五章 继承与接口
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2026/05/08/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E7%B4%A0%E6%95%B0%E6%9F%A5%E6%89%BE%E2%80%94%E2%80%94%E7%94%A8%E5%BE%AA%E7%8E%AF%E5%92%8C%E5%88%86%E6%94%AF%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">JAVA作业：素数查找——用循环和分支解决问题</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=9231355229&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

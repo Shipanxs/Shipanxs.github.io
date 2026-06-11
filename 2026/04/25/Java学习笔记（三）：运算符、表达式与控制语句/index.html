@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java学习笔记（三）：运算符、表达式与控制语句 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java学习笔记（三）：运算符、表达式与控制语句"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java学习笔记（三）：运算符、表达式与控制语句
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/04/25/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E8%BF%90%E7%AE%97%E7%AC%A6%E3%80%81%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%8E%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5/" class="article-date">
+  <time datetime="2026-04-25T05:35:48.000Z" itemprop="datePublished">2026-04-25</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">15 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、学习内容</p>
+<p>学习了《Java面向对象程序设计（第4版）》第三章，主要内容包括：</p>
+<ol>
+<li>算术运算符与算术表达式</li>
+<li>关系运算符与关系表达式</li>
+<li>逻辑运算符与逻辑表达式</li>
+<li>赋值运算符与赋值表达式</li>
+<li>位运算符</li>
+<li>instanceof 运算符</li>
+<li>一般表达式</li>
+<li>语句概述</li>
+<li>控制语句（if、switch、循环）</li>
+</ol>
+<p>二、重点知识整理</p>
+<p> 2.1 算术运算符</p>
+<p>运算符表格<br>运算符	含义	示例	结果（示例）<br>+	加	5 + 3	8<br>-	减	5 - 3	2<br>*	乘	5 * 3	15<br>&#x2F;	除	5 &#x2F; 2	2（整数除法）<br>%	取余	5 % 2	1<br>++	自增	i++ 或 ++i	变量加1<br>–	自减	i– 或 –i	变量减1</p>
+<blockquote>
+<p>注意：整数除法会舍弃小数部分，想要保留小数需要用浮点数。</p>
+</blockquote>
+<p>自增运算符的细节（重要！）：</p>
+<p>int a &#x3D; 5;<br>int b &#x3D; a++; &#x2F;&#x2F; 先赋值（b&#x3D;5），后自增（a&#x3D;6）<br>int c &#x3D; ++a; &#x2F;&#x2F; 先自增（a&#x3D;7），后赋值（c&#x3D;7）<br>System.out.println(“a&#x3D;” + a); &#x2F;&#x2F; 7<br>System.out.println(“b&#x3D;” + b); &#x2F;&#x2F; 5<br>System.out.println(“c&#x3D;” + c); &#x2F;&#x2F; 7<br>AI写代码<br>java<br>运行<br>这个代码块展示了Java中的自增操作符（++）的两种用法：后缀（a++）和前缀（++a），以及它们的执行顺序对变量值的影响。注释部分解释了关键步骤的行为。</p>
+<p>2.2 关系运算符</p>
+<p>运算符与含义对照表<br>运算符	含义	示例</p>
+<blockquote>
+<p>大于	a &gt; b<br>&lt;	小于	a &lt; b<br>&#x3D;	大于等于	a &gt;&#x3D; b<br>&lt;&#x3D;	小于等于	a &lt;&#x3D; b<br>&#x3D;&#x3D;	等于	a &#x3D;&#x3D; b<br>!&#x3D;	不等于	a !&#x3D; b<br>关系表达式的结果是布尔值：<code>true</code> 或 <code>false</code></p>
+</blockquote>
+<p>2.3 逻辑运算符</p>
+<p>运算符	含义	规则<br>&amp;&amp;	逻辑与	两边操作数都为 true 时，结果才为 true<br>||	逻辑或	当至少一边为真时结果为真<br>!	逻辑非	取反操作，true 变 false，false 变 true<br>短路特性（重要！）：</p>
+<p>&#x2F;&#x2F; 示例1: &amp;&amp; 运算符的短路行为（左侧为false时，右侧不执行）<br>int a &#x3D; 10;<br>if (a &gt; 100 &amp;&amp; ++a &gt; 0) {  &#x2F;&#x2F; a &gt; 100 是false，因此++a不会执行<br>    &#x2F;&#x2F; 这个代码块不会执行<br>}<br>System.out.println(a); &#x2F;&#x2F; 输出: 10，因为++a未执行</p>
+<p>&#x2F;&#x2F; 示例2: || 运算符的短路行为（左侧为true时，右侧不执行）<br>int b &#x3D; 10;<br>if (b &gt; 5 || ++b &gt; 0) {  &#x2F;&#x2F; b &gt; 5 是true，因此++b不会执行<br>    &#x2F;&#x2F; 这个代码块会执行<br>}<br>System.out.println(b); &#x2F;&#x2F; 输出: 10，因为++b未执行</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>2.4 赋值运算符</p>
+<p>以下是常见赋值运算符的表格，列出了它们的含义、使用示例以及等价形式。这些运算符在编程中常用于简化赋值操作，提高代码可读性。表格基于您提供的内容整理，并确保所有数学表达式使用…<br>.<br>.<br>.<br>…格式进行呈现。</p>
+<p>运算符	含义	示例	等价于<br>&#x3D;	赋值	a &#x3D; 10	-<br>+&#x3D;	加后赋值	a +&#x3D; 5	a &#x3D; a + 5<br>-&#x3D;	减后赋值	a -&#x3D; 5	a &#x3D; a - 5<br>*&#x3D;	乘后赋值	a *&#x3D; 5	a &#x3D; a *5<br>&#x2F;&#x3D;	除后赋值	a &#x2F;&#x3D; 5	a &#x3D; a &#x2F; 5<br>%&#x3D;	取余后赋值	a %&#x3D; 5	<br>a &#x3D; a % 5</p>
+<p>2.5 运算符优先级（从高到低）</p>
+<p>以下是您提供的运算符优先级列表格式化为规范的表格：</p>
+<p>优先级	运算符<br>1（最高）	()； []； .<br>2	++ ；– ；!（单目运算符）<br>3	*； &#x2F; ；%<br>4	+； -<br>5	&lt; &gt; ；&lt;&#x3D; ；&gt;&#x3D;<br>6	&#x3D;&#x3D; ；!&#x3D;<br>7	&amp;&amp;<br>8	||<br>9（最低）	&#x3D; ；+&#x3D; ；-&#x3D; （等赋值运算符）</p>
+<blockquote>
+<p>建议：记不清优先级时，用 <code>()</code> 括号明确顺序，代码也更易读。</p>
+</blockquote>
+<p>2.6 instanceof 运算符</p>
+<p>判断一个对象是否属于某个类（第4章会详细讲，这里先了解）</p>
+<p>String name &#x3D; “张三”;<br>boolean result &#x3D; name instanceof String; &#x2F;&#x2F; true<br>int[] arr &#x3D; new int[5];<br>boolean result2 &#x3D; arr instanceof int[];  &#x2F;&#x2F; true</p>
+<p>AI写代码<br>java<br>运行<br>2.7 语句分类</p>
+<p>类型	说明	示例<br>方法调用语句	调用方法	System.out.println(“hello”);<br>表达式语句	以分号结尾的表达式	a &#x3D; 10; i++;<br>复合语句	用{}括起来的多条语句	{ int x&#x3D;1; x++; }<br>空语句	只有一个分号	;<br>控制语句	分支、循环等	if（） for（） while（）<br> 三、控制语句详解</p>
+<p>3.1 条件分支语句</p>
+<ol>
+<li>if语句<br>if语句用于基于布尔条件进行分支判断。它有多种形式，从简单到复杂。</li>
+</ol>
+<p>单分支if<br>当条件为true时执行代码块。</p>
+<p>if (条件) {<br>  &#x2F;&#x2F; 条件为true时执行<br>}<br>AI写代码<br>java<br>运行<br>示例：检查数字是否为正数。<br>int num &#x3D; 5;<br>if (num &gt; 0) {<br>  System.out.println(“数字是正数”);<br>}<br>AI写代码<br>java<br>运行<br>双分支if-else<br>当条件为true时执行一个分支，否则执行另一个分支。</p>
+<p>if (条件) {<br>  &#x2F;&#x2F; 条件为true时执行<br>} else {<br>  &#x2F;&#x2F; 条件为false时执行<br>}<br>AI写代码<br>java<br>运行<br>示例：判断数字是否偶数。<br>int num &#x3D; 4;<br>if (num % 2 &#x3D;&#x3D; 0) {<br>  System.out.println(“数字是偶数”);<br>} else {<br>  System.out.println(“数字是奇数”);<br>}<br>AI写代码<br>java<br>运行<br>多分支if-else if-else<br>用于多个条件判断，依次检查条件，直到匹配或执行默认分支。</p>
+<p>if (条件1) {<br>  &#x2F;&#x2F; 条件1为true时执行<br>} else if (条件2) {<br>  &#x2F;&#x2F; 条件2为true时执行<br>} else {<br>  &#x2F;&#x2F; 所有条件都不匹配时执行<br>}<br>AI写代码<br>java<br>运行<br>示例：根据分数划分等级。<br>int score &#x3D; 85;<br>char grade;<br>if (score &gt;&#x3D; 90) {<br>  grade &#x3D; ‘A’;<br>} else if (score &gt;&#x3D; 80) {<br>  grade &#x3D; ‘B’;<br>} else if (score &gt;&#x3D; 70) {<br>  grade &#x3D; ‘C’;<br>} else if (score &gt;&#x3D; 60) {<br>  grade &#x3D; ‘D’;<br>} else {<br>  grade &#x3D; ‘F’;<br>}<br>System.out.println(“等级: “ + grade);<br>AI写代码<br>java<br>运行</p>
+<ol start="2">
+<li>switch语句<br>switch语句用于基于表达式的值匹配多个固定选项。它比if-else if更简洁，适用于离散值比较。语法包括case分支和可选的default分支，每个分支后需加break以防止“穿透”。</li>
+</ol>
+<p>基本语法<br>switch (表达式) {<br>  case 值1:<br>    &#x2F;&#x2F; 当表达式等于值1时执行<br>    break;<br>  case 值2:<br>    &#x2F;&#x2F; 当表达式等于值2时执行<br>    break;<br>  default:<br>    &#x2F;&#x2F; 都不匹配时执行<br>    break;<br>}<br>AI写代码<br>java<br>运行</p>
+<p>完整示例<br>以下代码演示了根据数字输出星期几：</p>
+<p>public class SwitchDemo {<br>  public static void main(String[] args) {<br>    int day &#x3D; 3;<br>    switch (day) {<br>      case 1:<br>        System.out.println(“星期一”);<br>        break;<br>      case 2:<br>        System.out.println(“星期二”);<br>        break;<br>      case 3:<br>        System.out.println(“星期三”);<br>        break;<br>      case 4:<br>        System.out.println(“星期四”);<br>        break;<br>      case 5:<br>        System.out.println(“星期五”);<br>        break;<br>      case 6:<br>        System.out.println(“星期六”);<br>        break;<br>      case 7:<br>        System.out.println(“星期日”);<br>        break;<br>      default:<br>        System.out.println(“输入错误，请输入1-7”);<br>        break;<br>    }<br>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果：当day &#x3D; 3时，输出星期三。<br>注意：break语句是必须的，否则会继续执行后续case分支。<br>3. if vs switch：使用建议<br>使用if的情况：当条件涉及范围比较（如分数区间）、复杂布尔逻辑或非离散值时。例如，if (score &gt;&#x3D; 90)适合用if。<br>使用switch的情况：当基于单个表达式的离散值匹配时（如枚举、整数或字符串）。例如，switch (day)适合用switch。<br>性能：在Java中，switch通常编译为更高效的跳转表，适合大量case分支；if更灵活但可能稍慢。<br>最佳实践：确保代码可读性，避免嵌套过深。如果需要处理多个相关条件，优先考虑switch。</p>
+<blockquote>
+<p>注意： 在Java中，switch语句如果没有使用break关键字，会导致“fall-through”（穿透）行为，即匹配到一个case后，会继续执行后续所有case中的代码，直到遇到break或switch结束。的代码示例。</p>
+</blockquote>
+<p>代码演示（没有break的情况）<br>int num &#x3D; 2;<br>switch (num) {<br>  case 1:<br>    System.out.print(“A”);<br>  case 2:<br>    System.out.print(“B”);  &#x2F;&#x2F; 执行这个<br>  case 3:<br>    System.out.print(“C”);  &#x2F;&#x2F; 还会继续执行这个！<br>  case 4:<br>    System.out.print(“D”);  &#x2F;&#x2F; 还会继续执行这个！<br>}<br>AI写代码<br>java<br>运行</p>
+<p>行为解释<br>变量初始化：num被赋值为2。<br>switch匹配：由于num的值是2，程序会匹配到case 2。<br>执行并fall-through：<br>首先执行case 2中的语句，打印”B”。<br>由于没有break语句，程序不会退出switch，而是继续执行后续case（case 3和case 4），打印”C”和”D”。<br>输出结果：最终输出是”BCD”，因为打印操作依次是”B”、”C”、”D”。<br>输出验证<br>运行此代码，控制台输出结果为：<br>BCD</p>
+<p>建议<br>在实际编程中，为了避免意外行为，通常在每个case后添加break语句来终止执行。例如：</p>
+<p>switch (num) {<br>  case 1:<br>    System.out.print(“A”);<br>    break; &#x2F;&#x2F; 添加break以退出switch<br>  &#x2F;&#x2F; …其他case类似<br>}<br>AI写代码<br>java<br>运行<br>这样可以确保只执行匹配的case代码块。</p>
+<p>3.2 循环语句</p>
+<p>for循环<br>for循环适用于已知迭代次数的场景，包含初始化、循环条件和更新三部分。</p>
+<p>&#x2F;&#x2F; 语法格式<br>for (初始化; 循环条件; 更新) {<br>  &#x2F;&#x2F; 循环体<br>}</p>
+<p>&#x2F;&#x2F; 示例：打印1到10<br>for (int i &#x3D; 1; i &lt;&#x3D; 10; i++) {<br>  System.out.print(i + “ “);<br>}<br>&#x2F;&#x2F; 输出：1 2 3 4 5 6 7 8 9 10<br>AI写代码<br>java<br>运行</p>
+<p>while循环<br>while循环在条件为真时重复执行代码块，适合不确定迭代次数的情况。</p>
+<p>&#x2F;&#x2F; 语法格式<br>while (循环条件) {<br>  &#x2F;&#x2F; 循环体<br>}</p>
+<p>&#x2F;&#x2F; 示例：打印1到10<br>int i &#x3D; 1;<br>while (i &lt;&#x3D; 10) {<br>  System.out.print(i + “ “);<br>  i++;<br>}<br>AI写代码<br>java<br>运行</p>
+<p>do-while循环（至少执行一次）<br>do-while循环先执行一次循环体，再检查条件，确保代码块至少运行一次。</p>
+<p>&#x2F;&#x2F; 语法格式<br>do {<br>  &#x2F;&#x2F; 循环体（至少执行一次）<br>} while (循环条件);</p>
+<p>&#x2F;&#x2F; 示例：打印1到10<br>int i &#x3D; 1;<br>do {<br>  System.out.print(i + “ “);<br>  i++;<br>} while (i &lt;&#x3D; 10);<br>AI写代码<br>java<br>运行</p>
+<p>三种循环的区别</p>
+<p>循环类型	执行特点	适用场景<br>for	先判断，后执行	知道循环次数<br>while	先判断，后执行	不知道循环次数<br>do-while	先执行，后判断	至少执行一次<br>3.3 跳转语句</p>
+<p>语句	作用<br>break	用于循环或switch结构中，立即退出当前结构。<br>continue	跳过本次循环剩余代码，进入下一次循环<br>return	在方法或函数中，终止执行并可选返回一个值；如果无返回值，则单纯结束方法。</p>
+<ol>
+<li>break关键字的作用<br>break用于立即终止整个循环，跳出循环体。当满足特定条件时，循环会提前结束，不再执行后续迭代。</li>
+</ol>
+<p>代码示例<br>&#x2F;&#x2F; break示例：遇到7就停止<br>for (int i &#x3D; 1; i &lt;&#x3D; 10; i++) {<br>  if (i &#x3D;&#x3D; 7) {<br>    break;  &#x2F;&#x2F; 循环到7就结束<br>  }<br>  System.out.print(i + “ “);<br>}<br>&#x2F;&#x2F; 输出：1 2 3 4 5 6<br>AI写代码<br>java<br>运行<br>解释<br>循环从1迭代到10。<br>当i等于7时，break语句被执行，整个循环立即终止。<br>因此，输出只显示1到6，而7及之后的数字未被打印。<br>2. continue关键字的作用<br>continue用于跳过当前迭代的剩余代码，直接进入下一次迭代。循环不会终止，而是继续执行后续的迭代。</p>
+<p>代码示例<br>&#x2F;&#x2F; continue示例：跳过7<br>for (int i &#x3D; 1; i &lt;&#x3D; 10; i++) {<br>  if (i &#x3D;&#x3D; 7) {<br>    continue;  &#x2F;&#x2F; 跳过7，继续后面的<br>  }<br>  System.out.print(i + “ “);<br>}<br>&#x2F;&#x2F; 输出：1 2 3 4 5 6 8 9 10<br>AI写代码<br>java<br>运行<br>解释<br>循环从1迭代到10。<br>当i等于7时，continue语句被执行，跳过本次迭代的打印操作。<br>循环继续执行，输出1到6和8到10，唯独跳过7。<br>3. break与continue的对比<br>关键字	行为	适用场景<br>break	立即终止整个循环	当检测到满足退出条件（如找到目标值）时<br>continue	跳过当前迭代，继续下一次迭代	当需要忽略某些特定值（如无效输入）时<br>核心区别<br>break：完全退出循环，适用于提前结束任务。<br>continue：仅跳过当前步骤，适用于过滤部分数据。<br>四、代码示例</p>
+<p>示例1：判断闰年<br>此代码通过条件判断年份是否为闰年。规则为：年份能被4整除但不能被100整除，或者能被400整除。</p>
+<p>public class LeapYear {<br>  public static void main(String[] args) {<br>    int year &#x3D; 2024;<br>    if ((year % 4 &#x3D;&#x3D; 0 &amp;&amp; year % 100 !&#x3D; 0) || (year % 400 &#x3D;&#x3D; 0)) {<br>      System.out.println(year + “年是闰年”);<br>    } else {<br>      System.out.println(year + “年是平年”);<br>    }<br>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>示例2：简单的计算器<br>此代码实现一个基本计算器，支持加、减、乘、除操作。除法时检查除数是否为0，避免错误。</p>
+<p>public class Calculator {<br>  public static void main(String[] args) {<br>    double a &#x3D; 10;<br>    double b &#x3D; 3;<br>    char operator &#x3D; ‘&#x2F;‘;<br>    double result;</p>
+<pre><code>switch (operator) &#123;
+  case &#39;+&#39;:
+    result = a + b;
+    break;
+  case &#39;-&#39;:
+    result = a - b;
+    break;
+  case &#39;*&#39;:
+    result = a * b;
+    break;
+  case &#39;/&#39;:
+    if (b != 0) &#123;
+      result = a / b;
+    &#125; else &#123;
+      System.out.println(&quot;除数不能为0！&quot;);
+      return;
+    &#125;
+    break;
+  default:
+    System.out.println(&quot;不支持的运算符&quot;);
+    return;
+&#125;
+System.out.println(a + &quot; &quot; + operator + &quot; &quot; + b + &quot; = &quot; + result);
+</code></pre>
+<p>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>示例3：打印九九乘法表<br>此代码使用嵌套循环打印九九乘法表，输出格式整齐。</p>
+<p>public class MultiplicationTable {<br>  public static void main(String[] args) {<br>    for (int i &#x3D; 1; i &lt;&#x3D; 9; i++) {<br>      for (int j &#x3D; 1; j &lt;&#x3D; i; j++) {<br>        System.out.print(j + “×” + i + “&#x3D;” + (i * j) + “\t”);<br>      }<br>      System.out.println(); &#x2F;&#x2F; 换行<br>    }<br>  }<br>}<br>&#x2F;&#x2F; 输出：标准的九九乘法表<br>AI写代码<br>java<br>运行</p>
+<p>示例4：计算1到100的和<br>此代码演示三种方式计算1到100的和：for循环、while循环和数学公式验证。公式：和 𝑆&#x3D;(首项+末项)×÷2，首项 𝑎1&#x3D;1，末项 𝑎𝑛&#x3D;100，项数 𝑛&#x3D;100。</p>
+<p>public class SumExample {<br>  public static void main(String[] args) {<br>    &#x2F;&#x2F; for循环实现<br>    int sum1 &#x3D; 0;<br>    for (int i &#x3D; 1; i &lt;&#x3D; 100; i++) {<br>      sum1 +&#x3D; i;<br>    }<br>    System.out.println(“for循环结果：” + sum1);</p>
+<pre><code>// while循环实现
+int sum2 = 0;
+int j = 1;
+while (j &lt;= 100) &#123;
+  sum2 += j;
+  j++;
+&#125;
+System.out.println(&quot;while循环结果：&quot; + sum2);
+
+// 数学公式验证：和 = (首项+末项)×项数÷2 = (1+100)×100÷2 = 5050
+System.out.println(&quot;验证结果：5050&quot;);
+</code></pre>
+<p>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>五、常见错误与注意点</p>
+<p>错误写法	正确写法	说明<br>if (a &#x3D; 5)	if (a &#x3D;&#x3D; 5)	判断相等用&#x3D;&#x3D;，单等号是赋值<br>switch (x) { case 1.5: }	case后面必须是整数、字符或枚举常量	switch不支持小数<br>for (int i&#x3D;0; i&lt;10; i++);	去掉分号	分号会让循环体变成空语句<br>while (true);	确保有break或条件是假的	会变成死循环<br>5 &#x2F; 2 期望得2.5	5.0 &#x2F; 2 或 5 &#x2F; 2.0	整数除法会丢失小数<br>忘记写break	写上break	会导致switch穿透<br>六、小结</p>
+<p>今天学会了：</p>
+<ul>
+<li>各种运算符的使用（算术、关系、逻辑、赋值、位运算）</li>
+<li>运算符优先级和instanceof运算符</li>
+<li>if-else分支结构</li>
+<li>switch语句及穿透现象</li>
+<li>三种循环（for、while、do-while）</li>
+<li>break、continue、return跳转语句</li>
+</ul>
+<p>核心要点：</p>
+<ol>
+<li><code>=</code>是赋值，<code>==</code>是判断相等</li>
+<li><code>&amp;&amp;</code>和<code>||</code>有短路特性</li>
+<li>switch中忘记<code>break</code>会导致穿透</li>
+<li>整数除法会丢失小数部分</li>
+<li>循环变量要确保能退出循环，避免死循环</li>
+</ol>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F04%2F25%2FJava%25E5%25AD%25A6%25E4%25B9%25A0%25E7%25AC%2594%25E8%25AE%25B0%25EF%25BC%2588%25E4%25B8%2589%25EF%25BC%2589%25EF%25BC%259A%25E8%25BF%2590%25E7%25AE%2597%25E7%25AC%25A6%25E3%2580%2581%25E8%25A1%25A8%25E8%25BE%25BE%25E5%25BC%258F%25E4%25B8%258E%25E6%258E%25A7%25E5%2588%25B6%25E8%25AF%25AD%25E5%258F%25A5%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2026/04/26/Java%E7%BC%96%E7%A8%8B%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E7%9A%84%E4%B8%89%E4%B8%AA%E7%BB%8F%E5%85%B8%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%88%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%89/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Java编程作业：枚举类型的三个经典应用场景（第三章）
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2026/04/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E6%95%B0%E7%BB%84%E4%B8%8E%E6%9E%9A%E4%B8%BE/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java学习笔记（二）：基本数据类型、数组与枚举</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=9231355229&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

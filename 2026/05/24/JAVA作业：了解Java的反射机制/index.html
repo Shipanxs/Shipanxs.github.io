@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>JAVA作业：了解Java的反射机制 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-JAVA作业：了解Java的反射机制"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JAVA作业：了解Java的反射机制
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/05/24/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%BA%86%E8%A7%A3Java%E7%9A%84%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2026-05-24T05:39:24.000Z" itemprop="datePublished">2026-05-24</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、什么是反射？<br>1.1 定义<br>反射（Reflection） 是Java语言提供的一种强大机制，允许程序在运行时动态地获取类的完整信息（如成员变量、方法、构造方法等），并且可以动态地创建对象、调用方法、访问属性。</p>
+<p>通俗地说：反射就是在程序运行时，让Java程序能够“ introspection”（自省），看清自己的结构，甚至修改自己的行为。</p>
+<p>1.2 正常方式 vs 反射方式<br>对比项	正常方式	反射方式<br>时机	编译时确定	运行时动态确定<br>类的信息	写代码时已知	运行时才获取<br>对象创建	new 类名()	Class.forName(“类名”).newInstance()<br>方法调用	对象.方法名()	method.invoke(对象, 参数)<br>特点	高效、类型安全	灵活、但有一定性能开销<br>简单示例：</p>
+<p>&#x2F;&#x2F; 正常方式：编译时就知道要使用Student类<br>Student s &#x3D; new Student();<br>s.study();</p>
+<p>&#x2F;&#x2F; 反射方式：运行时才知道要使用哪个类<br>Class&lt;?&gt; clazz &#x3D; Class.forName(“com.example.Student”);<br>Object obj &#x3D; clazz.newInstance();<br>Method method &#x3D; clazz.getMethod(“study”);<br>method.invoke(obj);</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>二、为什么需要反射？</p>
+<p>2.1 核心价值<br>反射机制使得Java程序从“静态”变为“动态”：</p>
+<p>能力	说明<br>动态加载类	运行时才决定加载哪个类<br>动态创建对象	类名作为字符串传入，无需硬编码<br>动态调用方法	方法名作为字符串传入<br>访问私有成员	可以绕过访问权限检查<br>2.2 典型应用场景<br>场景	说明<br>IDE自动提示	编辑器通过反射获取类的方法和属性<br>Spring框架	IoC容器通过反射创建和管理Bean<br>JUnit框架	通过反射识别@Test注解的方法并执行<br>Tomcat等Web容器	动态加载Servlet类<br>JSON解析库	通过反射将JSON数据映射到Java对象<br>注解处理器	运行时读取注解信息<br>三、反射的核心API<br>3.1 Class类<br>Class类是反射的入口，每个Java类在运行时都会对应一个Class对象。</p>
+<p>获取Class对象的三种方式：</p>
+<p>&#x2F;&#x2F; 方式1：通过类名.class<br>Class&lt;?&gt; clazz1 &#x3D; String.class;</p>
+<p>&#x2F;&#x2F; 方式2：通过对象.getClass()<br>String str &#x3D; “hello”;<br>Class&lt;?&gt; clazz2 &#x3D; str.getClass();</p>
+<p>&#x2F;&#x2F; 方式3：通过Class.forName()（最常用，动态加载）<br>Class&lt;?&gt; clazz3 &#x3D; Class.forName(“java.lang.String”);<br>AI写代码<br>java<br>运行<br>3.2 反射核心类</p>
+<p>类名	作用<br>Class	代表一个类或接口<br>Field	代表类的成员变量<br>Method	代表类的方法<br>Constructor	代表类的构造方法<br>Modifier	访问修饰符的工具类<br>3.3 常用方法一览<br>Class类常用方法：</p>
+<p>方法	说明<br>getName()	获取类全名（包名+类名）<br>getSimpleName()	获取类简单名称<br>getFields()	获取所有public成员变量<br>getDeclaredFields()	获取所有声明的成员变量（包括private）<br>getMethods()	获取所有public方法（包括继承的）<br>getDeclaredMethods()	获取所有声明的方法（不包括继承的）<br>getConstructors()	获取所有public构造方法<br>getDeclaredConstructors()	获取所有声明的构造方法<br>newInstance()	创建实例（调用无参构造）<br>四、反射的基本使用<br>4.1 准备工作：定义一个示例类<br>&#x2F;** </p>
+<ul>
+<li><p>示例类：用于演示反射机制<br> *&#x2F;<br>public class Person {<br> &#x2F;&#x2F; 成员变量<br> private String name;<br> public int age;</p>
+<p> &#x2F;&#x2F; 构造方法<br> public Person() {<br> System.out.println(“无参构造方法被调用”);<br> }</p>
+<p> private Person(String name) {<br> this.name &#x3D; name;<br> System.out.println(“私有构造方法被调用，name&#x3D;” + name);<br> }</p>
+<p> public Person(String name, int age) {<br> this.name &#x3D; name;<br> this.age &#x3D; age;<br> System.out.println(“有参构造方法被调用：” + name + “,” + age);<br> }</p>
+<p> &#x2F;&#x2F; 成员方法<br> public void sayHello() {<br> System.out.println(“Hello, I’m “ + name);<br> }</p>
+<p> private void secret() {<br> System.out.println(“这是一个私有方法”);<br> }</p>
+<p> public String getName() {<br> return name;<br> }</p>
+<p> public void setName(String name) {<br> this.name &#x3D; name;<br> }</p>
+<p> @Override<br> public String toString() {<br> return “Person{name&#x3D;’” + name + “‘, age&#x3D;” + age + “}”;<br> }</p>
+</li>
+</ul>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>4.2 获取类的信息</p>
+<p>import java.lang.reflect.*;</p>
+<p>public class ReflectionInfoDemo {<br>    public static void main(String[] args) throws ClassNotFoundException {<br>        &#x2F;&#x2F; 1. 获取Class对象<br>        Class&lt;?&gt; clazz &#x3D; Class.forName(“Person”);</p>
+<pre><code>    // 2. 获取类名
+    System.out.println(&quot;类全名：&quot; + clazz.getName());
+    System.out.println(&quot;简单类名：&quot; + clazz.getSimpleName());
+    
+    // 3. 获取所有public方法（包括继承的）
+    System.out.println(&quot;\n=== 所有public方法 ===&quot;);
+    Method[] methods = clazz.getMethods();
+    for (Method m : methods) &#123;
+        System.out.println(&quot;  &quot; + m.getName());
+    &#125;
+    
+    // 4. 获取所有声明的成员变量
+    System.out.println(&quot;\n=== 所有声明的成员变量 ===&quot;);
+    Field[] fields = clazz.getDeclaredFields();
+    for (Field f : fields) &#123;
+        System.out.println(&quot;  &quot; + Modifier.toString(f.getModifiers()) + &quot; &quot; + f.getName());
+    &#125;
+    
+    // 5. 获取所有构造方法
+    System.out.println(&quot;\n=== 所有构造方法 ===&quot;);
+    Constructor&lt;?&gt;[] constructors = clazz.getDeclaredConstructors();
+    for (Constructor&lt;?&gt; c : constructors) &#123;
+        System.out.println(&quot;  &quot; + c);
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>4.3 通过反射创建对象</p>
+<p>import java.lang.reflect.*;</p>
+<p>public class ReflectionCreateDemo {<br>    public static void main(String[] args) throws Exception {<br>        Class&lt;?&gt; clazz &#x3D; Class.forName(“Person”);</p>
+<pre><code>    // 方式1：调用无参构造方法
+    System.out.println(&quot;=== 方式1：无参构造 ===&quot;);
+    Person p1 = (Person) clazz.newInstance();  // JDK9后可能过时
+    p1.setName(&quot;张三&quot;);
+    p1.sayHello();
+    
+    // 方式2：调用有参构造方法（推荐）
+    System.out.println(&quot;\n=== 方式2：有参构造 ===&quot;);
+    Constructor&lt;?&gt; constructor = clazz.getConstructor(String.class, int.class);
+    Person p2 = (Person) constructor.newInstance(&quot;李四&quot;, 20);
+    p2.sayHello();
+    
+    // 方式3：调用私有构造方法
+    System.out.println(&quot;\n=== 方式3：私有构造 ===&quot;);
+    Constructor&lt;?&gt; privateCon = clazz.getDeclaredConstructor(String.class);
+    privateCon.setAccessible(true);  // 突破私有访问限制
+    Person p3 = (Person) privateCon.newInstance(&quot;王五&quot;);
+    p3.sayHello();
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>4.4 通过反射调用方法</p>
+<p>import java.lang.reflect.*;</p>
+<p>public class ReflectionMethodDemo {<br>    public static void main(String[] args) throws Exception {<br>        &#x2F;&#x2F; 创建对象<br>        Class<?> clazz = Class.forName("Person");
+        Constructor<?> con &#x3D; clazz.getConstructor(String.class, int.class);<br>        Person person &#x3D; (Person) con.newInstance(“小明”, 18);</p>
+<pre><code>    // 调用public方法
+    System.out.println(&quot;=== 调用public方法 ===&quot;);
+    Method sayHello = clazz.getMethod(&quot;sayHello&quot;);
+    sayHello.invoke(person);
+    
+    // 调用带参数的方法
+    Method setName = clazz.getMethod(&quot;setName&quot;, String.class);
+    setName.invoke(person, &quot;小红&quot;);
+    sayHello.invoke(person);
+    
+    // 调用私有方法（需要setAccessible）
+    System.out.println(&quot;\n=== 调用私有方法 ===&quot;);
+    Method secret = clazz.getDeclaredMethod(&quot;secret&quot;);
+    secret.setAccessible(true);  // 突破私有权限
+    secret.invoke(person);
+    
+    // 调用有返回值的方法
+    Method getName = clazz.getMethod(&quot;getName&quot;);
+    String name = (String) getName.invoke(person);
+    System.out.println(&quot;getName返回值：&quot; + name);
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>4.5 通过反射访问成员变量<br>以下是整理后的代码块格式：</p>
+<p>import java.lang.reflect.*;</p>
+<p>public class ReflectionFieldDemo {<br>    public static void main(String[] args) throws Exception {<br>        &#x2F;&#x2F; 创建对象<br>        Class<?> clazz = Class.forName("Person");
+        Constructor<?> con &#x3D; clazz.getConstructor(String.class, int.class);<br>        Person person &#x3D; (Person) con.newInstance(“张三”, 25);</p>
+<pre><code>    System.out.println(&quot;原始对象：&quot; + person);
+    
+    // 访问public成员变量
+    System.out.println(&quot;\n=== 访问public成员变量 ===&quot;);
+    Field ageField = clazz.getField(&quot;age&quot;);
+    System.out.println(&quot;当前age：&quot; + ageField.get(person));
+    ageField.set(person, 30);
+    System.out.println(&quot;修改后age：&quot; + ageField.get(person));
+    
+    // 访问私有成员变量（需要setAccessible）
+    System.out.println(&quot;\n=== 访问私有成员变量 ===&quot;);
+    Field nameField = clazz.getDeclaredField(&quot;name&quot;);
+    nameField.setAccessible(true);
+    System.out.println(&quot;当前name：&quot; + nameField.get(person));
+    nameField.set(person, &quot;李四&quot;);
+    System.out.println(&quot;修改后name：&quot; + nameField.get(person));
+    System.out.println(&quot;最终对象：&quot; + person);
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>五、反射的实际应用示例</p>
+<p>示例1：通用的toString方法<br>import java.lang.reflect.*;</p>
+<p>class ObjectUtil {<br>    public static String toString(Object obj) {<br>        if (obj &#x3D;&#x3D; null) return “null”;</p>
+<pre><code>    Class&lt;?&gt; clazz = obj.getClass();
+    StringBuilder sb = new StringBuilder();
+    sb.append(clazz.getSimpleName()).append(&quot; &#123; &quot;);
+    
+    Field[] fields = clazz.getDeclaredFields();
+    for (int i = 0; i &lt; fields.length; i++) &#123;
+        fields[i].setAccessible(true);
+        try &#123;
+            sb.append(fields[i].getName()).append(&quot;=&quot;);
+            sb.append(fields[i].get(obj));
+            if (i &lt; fields.length - 1) &#123;
+                sb.append(&quot;, &quot;);
+            &#125;
+        &#125; catch (IllegalAccessException e) &#123;
+            sb.append(&quot;?&quot;);
+        &#125;
+    &#125;
+    sb.append(&quot; &#125;&quot;);
+    return sb.toString();
+&#125;
+</code></pre>
+<p>}</p>
+<p>class Student {<br>    private String name;<br>    private int score;</p>
+<pre><code>Student(String name, int score) &#123;
+    this.name = name;
+    this.score = score;
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class GenericToStringDemo {<br>    public static void main(String[] args) {<br>        Student s &#x3D; new Student(“张三”, 95);<br>        System.out.println(ObjectUtil.toString(s));<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>示例2：动态调用任意方法<br>import java.lang.reflect.*;</p>
+<p>class DynamicInvoker {<br>    public static Object invoke(Object obj, String methodName, Object… args) {<br>        try {<br>            Class<?> clazz = obj.getClass();
+            Class<?>[] paramTypes &#x3D; new Class&lt;?&gt;[args.length];<br>            for (int i &#x3D; 0; i &lt; args.length; i++) {<br>                paramTypes[i] &#x3D; args[i].getClass();<br>            }<br>            Method method &#x3D; clazz.getMethod(methodName, paramTypes);<br>            return method.invoke(obj, args);<br>        } catch (Exception e) {<br>            e.printStackTrace();<br>            return null;<br>        }<br>    }<br>}</p>
+<p>class Calculator {<br>    public int add(int a, int b) {<br>        return a + b;<br>    }</p>
+<pre><code>public String greet(String name) &#123;
+    return &quot;Hello, &quot; + name;
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class DynamicInvokeDemo {<br>    public static void main(String[] args) {<br>        Calculator calc &#x3D; new Calculator();<br>        Object result1 &#x3D; DynamicInvoker.invoke(calc, “add”, 10, 20);<br>        System.out.println(“add结果：” + result1);<br>        Object result2 &#x3D; DynamicInvoker.invoke(calc, “greet”, “张三”);<br>        System.out.println(“greet结果：” + result2);<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>示例3：模拟JUnit的@Test注解<br>import java.lang.annotation.<em>;<br>import java.lang.reflect.</em>;</p>
+<p>@Retention(RetentionPolicy.RUNTIME)<br>@Target(ElementType.METHOD)<br>@interface Test {}</p>
+<p>class MyTestClass {<br>    @Test<br>    public void testMethod1() {<br>        System.out.println(“执行测试方法1”);<br>    }</p>
+<pre><code>@Test
+public void testMethod2() &#123;
+    System.out.println(&quot;执行测试方法2&quot;);
+&#125;
+
+public void normalMethod() &#123;
+    System.out.println(&quot;普通方法不会被自动执行&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>class TestRunner {<br>    public static void run(Class&lt;?&gt; testClass) throws Exception {<br>        Object instance &#x3D; testClass.newInstance();<br>        Method[] methods &#x3D; testClass.getDeclaredMethods();</p>
+<pre><code>    for (Method method : methods) &#123;
+        if (method.isAnnotationPresent(Test.class)) &#123;
+            System.out.print(&quot;正在执行：&quot;);
+            method.invoke(instance);
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class AnnotationDemo {<br>    public static void main(String[] args) throws Exception {<br>        TestRunner.run(MyTestClass.class);<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果<br>正在执行：执行测试方法1<br>正在执行：执行测试方法2<br>AI写代码<br>六、反射的优缺点<br>6.1 优点<br>优点	说明<br>动态性	运行时动态加载类，提高程序灵活性<br>通用性	可以编写通用的代码处理各种类型的对象<br>框架基础	几乎所有Java框架（Spring、Hibernate等）都依赖反射<br>绕过限制	可以访问私有成员，用于特殊场景（如调试工具）<br>6.2 缺点<br>缺点	说明<br>性能开销	反射调用比直接调用慢，因为需要动态解析<br>安全问题	可以绕过访问权限，破坏封装性<br>代码可读性	反射代码不如直接调用直观<br>编译时检查缺失	错误只能在运行时暴露<br>七、性能对比示例<br>以下是整理后的代码块格式：</p>
+<p>&#x2F;**</p>
+<ul>
+<li>对比直接调用与反射调用的性能<br> *&#x2F;<br>public class PerformanceCompare {<br> public static void main(String[] args) throws Exception {<br> Person person &#x3D; new Person(“张三”, 20);<br><br> &#x2F;&#x2F; 1. 直接调用<br> long start1 &#x3D; System.nanoTime();<br> for (int i &#x3D; 0; i &lt; 1000000; i++) {<br>     person.sayHello();<br> }<br> long end1 &#x3D; System.nanoTime();<br> System.out.println(“直接调用耗时：” + (end1 - start1) &#x2F; 1000000 + “ ms”);<br><br> &#x2F;&#x2F; 2. 反射调用<br> Method method &#x3D; Person.class.getMethod(“sayHello”);<br> long start2 &#x3D; System.nanoTime();<br> for (int i &#x3D; 0; i &lt; 1000000; i++) {<br>     method.invoke(person);<br> }<br> long end2 &#x3D; System.nanoTime();<br> System.out.println(“反射调用耗时：” + (end2 - start2) &#x2F; 1000000 + “ ms”);<br><br> &#x2F;&#x2F; 3. 反射调用（启用访问检查关闭）<br> method.setAccessible(true);<br> long start3 &#x3D; System.nanoTime();<br> for (int i &#x3D; 0; i &lt; 1000000; i++) {<br>     method.invoke(person);<br> }<br> long end3 &#x3D; System.nanoTime();<br> System.out.println(“反射(setAccessible)耗时：” + (end3 - start3) &#x2F; 1000000 + “ ms”);<br> }</li>
+</ul>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>代码结构说明：</p>
+<p>完整保留了原始注释和逻辑结构<br>使用标准的Java代码块格式<br>保持了原有的三个测试部分（直接调用、反射调用、反射调用优化）<br>时间统计单位统一转换为毫秒(ms)<br>结论：反射调用通常比直接调用慢2-3倍，setAccessible(true)可以略微提升性能。</p>
+<p>八、总结<br>8.1 核心知识点回顾<br>知识点	要点<br>反射的定义	运行时动态获取类信息并操作对象<br>获取Class对象	.class、getClass()、Class.forName()<br>核心API	Class、Field、Method、Constructor<br>访问私有成员	setAccessible(true)<br>主要应用	Spring框架、JUnit、JSON解析等<br>8.2 使用建议<br>优先使用直接调用：除非确实需要动态性，否则不要滥用反射</p>
+<p>缓存反射对象：如果需要频繁调用，缓存Method、Field等对象</p>
+<p>注意安全性：反射可以破坏封装，谨慎使用</p>
+<p>考虑性能影响：对性能敏感的代码避免使用反射</p>
+<p>8.3 作业完成情况<br>理解反射机制的定义和作用</p>
+<p>掌握获取Class对象的三种方式</p>
+<p>能够通过反射创建对象、调用方法、访问属性</p>
+<p>了解反射的实际应用场景</p>
+<p>了解反射的优缺点</p>
+<p>九、课后练习<br>编写代码，通过反射获取ArrayList类的所有方法名称</p>
+<p>使用反射调用String类的toUpperCase()方法</p>
+<p>通过反射创建一个HashMap对象，并调用put和get方法</p>
+<p>尝试修改一个String对象的内容（利用反射突破不可变性）</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F05%2F24%2FJAVA%25E4%25BD%259C%25E4%25B8%259A%25EF%25BC%259A%25E4%25BA%2586%25E8%25A7%25A3Java%25E7%259A%2584%25E5%258F%258D%25E5%25B0%2584%25E6%259C%25BA%25E5%2588%25B6%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2026/05/24/hello-world/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Hello World
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2026/05/21/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%8C%BF%E5%90%8D%E5%86%85%E9%83%A8%E7%B1%BB%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java作业：使用匿名内部类计算方法执行时间</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=9231355229&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

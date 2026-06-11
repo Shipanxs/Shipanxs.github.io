@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java作业：使用匿名内部类计算方法执行时间 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java作业：使用匿名内部类计算方法执行时间"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java作业：使用匿名内部类计算方法执行时间
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/05/21/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%8C%BF%E5%90%8D%E5%86%85%E9%83%A8%E7%B1%BB%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4/" class="article-date">
+  <time datetime="2026-05-21T05:14:20.000Z" itemprop="datePublished">2026-05-21</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、作业需求</p>
+<p>计算一个方法执行了多少秒（或毫秒），要求使用匿名内部类实现。</p>
+<p>这是一个典型的应用场景：在不修改原有方法代码的情况下，为方法添加执行时间统计功能。</p>
+<p>二、什么是匿名内部类？</p>
+<p>2.1 定义</p>
+<p>匿名内部类（Anonymous Inner Class）是没有名字的内部类，通常用于<strong>一次性使用</strong>的场景。</p>
+<p>2.2 基本语法<br>匿名内部类 语法示例<br>匿名内部类的标准语法格式如下，适用于直接实现接口或继承父类并重写方法：</p>
+<p>父类&#x2F;接口 变量名 &#x3D; new 父类&#x2F;接口() {<br>    @Override<br>    返回类型 方法名(参数列表) {<br>        &#x2F;&#x2F; 方法实现<br>    }<br>};<br>AI写代码<br>java<br>运行<br>具体实现案例<br>实现接口示例（Runnable）：</p>
+<p>Runnable task &#x3D; new Runnable() {<br>    @Override<br>    public void run() {<br>        System.out.println(“匿名内部类执行任务”);<br>    }<br>};<br>AI写代码<br>java<br>运行<br>继承抽象类示例（Thread）：</p>
+<p>Thread thread &#x3D; new Thread() {<br>    @Override<br>    public void run() {<br>        System.out.println(“重写Thread的run方法”);<br>    }<br>};<br>AI写代码<br>java<br>运行<br>使用场景说明<br>适用于需要一次性使用的类实现，避免单独创建子类文件<br>常用于事件监听、线程实现等需要快速重写方法的场景<br>匿名内部类会隐式持有外部类的引用，需注意内存泄漏问题<br>语法要点<br>必须实现父类或接口的所有抽象方法<br>可以访问外部类的final变量或等效final变量<br>编译后会生成独立的.class文件，命名格式为外部类$数字.class<br>Lambda简化场景<br>当接口仅含单个抽象方法时（函数式接口），可用Lambda表达式替代：</p>
+<p>Runnable task &#x3D; () -&gt; System.out.println(“Lambda替代匿名类”);<br>AI写代码<br>java<br>运行<br>2.3 特点<br>特点	说明<br>没有类名	创建时直接定义类体<br>一次性使用	通常只使用一次<br>简化代码	避免单独定义一个类<br>必须实现所有抽象方法	与普通类相同<br>三、设计思路<br>3.1 核心问题<br>如何在不修改原有方法代码的情况下，统计方法的执行时间？</p>
+<p>3.2 解决方案<br>使用模板方法设计模式 + 匿名内部类：</p>
+<p>定义一个接口或抽象类，包含需要执行的方法</p>
+<p>在工具类中编写计时方法，接收接口&#x2F;抽象类的实现</p>
+<p>调用时使用匿名内部类传入具体逻辑</p>
+<p>3.3 流程图<br>以下是基于文本描述的计时流程实现方案，采用Java代码示例和流程图说明：</p>
+<p>代码实现方案<br>&#x2F;&#x2F; 定义函数式接口，便于匿名内部类实现<br>@FunctionalInterface<br>interface TargetMethod {<br>    void execute();<br>}</p>
+<p>public class TimeRecorder {<br>    public static void recordExecutionTime(TargetMethod method) {<br>        long startTime &#x3D; System.nanoTime();<br>        method.execute();<br>        long endTime &#x3D; System.nanoTime();<br>        long duration &#x3D; endTime - startTime;<br>        System.out.println(“Execution time: “ + duration + “ ns”);<br>    }</p>
+<pre><code>public static void main(String[] args) &#123;
+    // 通过匿名内部类实现目标方法
+    recordExecutionTime(new TargetMethod() &#123;
+        @Override
+        public void execute() &#123;
+            // 替换为实际需要计时的代码
+            int sum = 0;
+            for (int i = 0; i &lt; 1000000; i++) &#123;
+                sum += i;
+            &#125;
+        &#125;
+    &#125;);
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>流程图表示<br>text</p>
+<p>开始计时<br>    ↓<br>记录开始时间 (startTime)<br>    ↓<br>执行目标方法 ←──── 匿名内部类提供具体实现<br>    ↓<br>记录结束时间 (endTime)<br>    ↓<br>计算耗时 &#x3D; endTime - startTime<br>    ↓<br>输出结果<br>关键说明<br>时间精度：使用System.nanoTime()获取纳秒级时间戳，比currentTimeMillis()精度更高<br>函数式接口：通过接口设计使计时逻辑与业务逻辑解耦<br>Lambda优化：Java 8+可使用Lambda简化匿名内部类写法：<br>recordExecutionTime(() -&gt; {<br>    int sum &#x3D; IntStream.range(0, 1000000).sum();<br>});<br>AI写代码<br>java<br>运行<br>注意事项<br>避免在测试方法中包含IO操作或随机因素<br>考虑JVM预热问题，正式测试前应先执行几次预热运行<br>对于微基准测试建议使用JMH等专业框架<br>四、代码实现<br>4.1 方式一：使用接口<br>以下是整理后的代码块格式：</p>
+<p>&#x2F;**</p>
+<ul>
+<li>定义一个接口，包含需要计时的方法<br> *&#x2F;<br>interface Task {<br> void execute();  &#x2F;&#x2F; 需要执行的任务<br>}</li>
+</ul>
+<p>&#x2F;**</p>
+<ul>
+<li>计时器工具类<br> <em>&#x2F;<br>class TimerUtil {<br> &#x2F;</em>*<ul>
+<li>计算任务执行时间（毫秒）</li>
+<li>@param task 要执行的任务<br>  *&#x2F;<br> public static void measureTime(Task task) {<br> long startTime &#x3D; System.currentTimeMillis();<br> task.execute();<br> long endTime &#x3D; System.currentTimeMillis();<br> long duration &#x3D; endTime - startTime;<br> System.out.println(“方法执行耗时：” + duration + “ 毫秒”);<br> System.out.println(“转换为秒：” + duration &#x2F; 1000.0 + “ 秒”);<br> }<br>}</li>
+</ul>
+</li>
+</ul>
+<p>&#x2F;**</p>
+<ul>
+<li>测试类<br> *&#x2F;<br>public class TimeTest {<br> public static void main(String[] args) {<br> TimerUtil.measureTime(new Task() {<br>     @Override<br>     public void execute() {<br>         System.out.println(“开始执行任务…”);<br>         for (int i &#x3D; 0; i &lt; 100000000; i++) {<br>             Math.sqrt(i);<br>         }<br>         System.out.println(“任务执行完毕”);<br>     }<br> });<br> }<br>}<br>AI写代码<br>java<br>运行</li>
+</ul>
+<p>运行结果：</p>
+<p>开始执行任务…<br>任务执行完毕<br>方法执行耗时：12 毫秒<br>转换为秒：0.012 秒<br>AI写代码<br>text<br>4.2 方式二：使用抽象类<br>&#x2F;**</p>
+<ul>
+<li>抽象类：需要计时的任务<br> *&#x2F;<br>abstract class AbstractTask {<br> public abstract void run();<br>}</li>
+</ul>
+<p>&#x2F;**</p>
+<ul>
+<li>计时器工具类（支持抽象类）<br> *&#x2F;<br>class TimerUtil2 {<br> public static void measureTime(AbstractTask task) {<br> long startTime &#x3D; System.nanoTime();  &#x2F;&#x2F; 纳秒，更精确<br><br> task.run();<br><br> long endTime &#x3D; System.nanoTime();<br> long duration &#x3D; endTime - startTime;<br><br> System.out.println(“执行耗时：” + duration + “ 纳秒”);<br> System.out.println(“转换为毫秒：” + duration &#x2F; 1000000.0 + “ 毫秒”);<br> }</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li>测试类<br> *&#x2F;<br>public class TimeTest2 {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 使用匿名内部类继承AbstractTask<br> TimerUtil2.measureTime(new AbstractTask() {<br>     @Override<br>     public void run() {<br>         &#x2F;&#x2F; 需要计时的业务逻辑<br>         System.out.println(“正在计算100以内素数…”);<br>         for (int i &#x3D; 2; i &lt;&#x3D; 100; i++) {<br>             boolean isPrime &#x3D; true;<br>             for (int j &#x3D; 2; j &lt;&#x3D; Math.sqrt(i); j++) {<br>                 if (i % j &#x3D;&#x3D; 0) {<br>                     isPrime &#x3D; false;<br>                     break;<br>                 }<br>             }<br>             if (isPrime) {<br>                 System.out.print(i + “ “);<br>             }<br>         }<br>         System.out.println();<br>     }<br> });<br> }<br>}</li>
+</ul>
+<p>AI写代码<br>java<br>运行</p>
+<p>4.3 方式三：带返回值的方法计时</p>
+<p>如果需要统计的方法有返回值，可以使用泛型：</p>
+<p>&#x2F;**</p>
+<ul>
+<li>带返回值的任务接口</li>
+<li>@param <T> 返回值类型<br> *&#x2F;<br>interface CallableTask<T> {<br> T execute();<br>}</li>
+</ul>
+<p>&#x2F;**</p>
+<ul>
+<li>计时器工具类（支持返回值）<br> *&#x2F;<br>class TimerUtil3 {<br> public static <T> T measureTime(CallableTask<T> task, String taskName) {<br> System.out.println(“&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; “ + taskName + “ &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;”);<br><br> long startTime &#x3D; System.currentTimeMillis();<br> T result &#x3D; task.execute();<br> long endTime &#x3D; System.currentTimeMillis();<br> long duration &#x3D; endTime - startTime;<br><br> System.out.println(“执行耗时：” + duration + “ 毫秒（” + duration &#x2F; 1000.0 + “ 秒）”);<br> System.out.println(“&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;”);<br><br> return result;<br> }</li>
+</ul>
+<p>}</p>
+<p>&#x2F;**</p>
+<ul>
+<li>测试类<br> *&#x2F;<br>public class TimeTest3 {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 计算1到100的和，并返回结果<br> Integer sum &#x3D; TimerUtil3.measureTime(new CallableTask<Integer>() {<br>     @Override<br>     public Integer execute() {<br>         int total &#x3D; 0;<br>         for (int i &#x3D; 1; i &lt;&#x3D; 100; i++) {<br>             total +&#x3D; i;<br>         }<br>         System.out.println(“计算结果：” + total);<br>         return total;<br>     }<br> }, “计算1-100的和”);<br><br> System.out.println(“返回结果：” + sum);<br><br> &#x2F;&#x2F; 计算斐波那契数列<br> TimerUtil3.measureTime(new CallableTask<Void>() {<br>     @Override<br>     public Void execute() {<br>         System.out.println(“斐波那契数列前20项：”);<br>         long a &#x3D; 0, b &#x3D; 1;<br>         for (int i &#x3D; 0; i &lt; 20; i++) {<br>             System.out.print(a + “ “);<br>             long temp &#x3D; a + b;<br>             a &#x3D; b;<br>             b &#x3D; temp;<br>         }<br>         System.out.println();<br>         return null;<br>     }<br> }, “斐波那契数列”);<br> }</li>
+</ul>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>五、多种时间单位说明</p>
+<p>方法	返回单位	说明<br>System.currentTimeMillis()	毫秒	从1970-01-01到现在的毫秒数<br>System.nanoTime()	纳秒	高精度计时，适合短时间测量<br>以下是将时间单位转换的Java代码示例：</p>
+<p>毫秒转秒<br>long ms &#x3D; 1234;<br>double seconds &#x3D; ms &#x2F; 1000.0;  &#x2F;&#x2F; 结果为1.234秒<br>AI写代码<br>java<br>运行<br>纳秒转毫秒<br>long ns &#x3D; 12345678;<br>double ms &#x3D; ns &#x2F; 1000000.0;    &#x2F;&#x2F; 结果为12.345678毫秒<br>AI写代码<br>java<br>运行<br>秒转毫秒<br>double seconds &#x3D; 1.5;<br>long ms &#x3D; (long)(seconds * 1000);  &#x2F;&#x2F; 结果为1500毫秒<br>AI写代码<br>java<br>运行<br>毫秒转纳秒<br>long ms &#x3D; 15;<br>long ns &#x3D; ms * 1000000L;  &#x2F;&#x2F; 结果为15000000纳秒<br>AI写代码<br>java<br>运行<br>注意事项：</p>
+<p>使用浮点数除法(1000.0)确保精度不丢失<br>大数值计算时使用L后缀防止整数溢出<br>从浮点转整型时需要进行显式类型转换<br>六、不使用匿名内部类的对比<br>6.1 传统方式（单独定义一个类）<br>&#x2F;&#x2F; 需要单独定义一个类<br>class MyTask implements Task {<br>    @Override<br>    public void execute() {<br>        &#x2F;&#x2F; 业务逻辑<br>    }<br>}</p>
+<p>&#x2F;&#x2F; 使用时<br>TimerUtil.measureTime(new MyTask());<br>AI写代码<br>java<br>运行</p>
+<p>6.2 使用匿名内部类的方式</p>
+<p>TimerUtil.measureTime(new Task() {<br>    @Override<br>    public void execute() {<br>        &#x2F;&#x2F; 业务逻辑<br>    }<br>});<br>AI写代码<br>java<br>运行<br>代码说明<br>使用匿名内部类实现Task接口<br>measureTime方法接收Task实例并测量其execute方法的执行时间<br>业务逻辑需在execute方法中实现<br>格式要点<br>代码块使用三个反引号加语言类型标记<br>保持原代码缩进结构<br>注释保留在原有位置<br>6.3 Lambda表达式方式（Java 8+）<br>&#x2F;&#x2F; 更简洁的Lambda写法（接口只有一个抽象方法时）<br>TimerUtil.measureTime(() -&gt; {<br>    &#x2F;&#x2F; 业务逻辑<br>});<br>AI写代码<br>java<br>运行<br>代码说明<br>使用Lambda表达式简化了匿名内部类的写法<br>适用于函数式接口（只有一个抽象方法的接口）<br>大括号内可编写需要计时的业务逻辑代码<br>代码块格式便于在Markdown文档中突出显示<br>注意事项<br>确保TimerUtil类已正确导入<br>measureTime方法需接收Runnable或Callable等函数式接口参数<br>Lambda表达式中的业务逻辑不应过于复杂<br>方式	代码量	可读性	适用场景<br>单独定义类	多	一般	需要多处复用<br>匿名内部类	中	较好	一次性使用<br>Lambda	少	好	接口只有一个抽象方法<br>七、完整示例：多个方法计时<br>以下是转换后的代码块格式：</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>综合示例：统计多个排序算法的执行时间<br> *&#x2F;<br>public class SortTimeTest {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 准备测试数据<br> int[] arr1 &#x3D; generateRandomArray(10000);<br> int[] arr2 &#x3D; arr1.clone();<br><br> &#x2F;&#x2F; 测试冒泡排序时间<br> TimerUtil.measureTime(new Task() {<br>     @Override<br>     public void execute() {<br>         bubbleSort(arr1.clone());<br>         System.out.println(“冒泡排序完成”);<br>     }<br> });<br><br> &#x2F;&#x2F; 测试快速排序时间<br> TimerUtil.measureTime(new Task() {<br>     @Override<br>     public void execute() {<br>         quickSort(arr2.clone(), 0, arr2.length - 1);<br>         System.out.println(“快速排序完成”);<br>     }<br> });<br> }</p>
+<p> &#x2F;**</p>
+<ul>
+<li>生成随机数组<br>  *&#x2F;<br> private static int[] generateRandomArray(int size) {<br> int[] arr &#x3D; new int[size];<br> for (int i &#x3D; 0; i &lt; size; i++) {<br> arr[i] &#x3D; (int) (Math.random() * size);<br> }<br> return arr;<br> }</li>
+</ul>
+<p> &#x2F;**</p>
+<ul>
+<li>冒泡排序<br>  *&#x2F;<br> private static void bubbleSort(int[] arr) {<br> for (int i &#x3D; 0; i &lt; arr.length - 1; i++) {<br> for (int j &#x3D; 0; j &lt; arr.length - 1 - i; j++) {<br>     if (arr[j] &gt; arr[j + 1]) {<br>         int temp &#x3D; arr[j];<br>         arr[j] &#x3D; arr[j + 1];<br>         arr[j + 1] &#x3D; temp;<br>     }<br> }<br> }<br> }</li>
+</ul>
+<p> &#x2F;**</p>
+<ul>
+<li>快速排序<br>  *&#x2F;<br> private static void quickSort(int[] arr, int left, int right) {<br> if (left &gt;&#x3D; right) return;<br> int pivot &#x3D; partition(arr, left, right);<br> quickSort(arr, left, pivot - 1);<br> quickSort(arr, pivot + 1, right);<br> }</li>
+</ul>
+<p> private static int partition(int[] arr, int left, int right) {<br>     int pivot &#x3D; arr[left];<br>     int i &#x3D; left, j &#x3D; right;<br>     while (i &lt; j) {<br>         while (i &lt; j &amp;&amp; arr[j] &gt;&#x3D; pivot) j–;<br>         arr[i] &#x3D; arr[j];<br>         while (i &lt; j &amp;&amp; arr[i] &lt;&#x3D; pivot) i++;<br>         arr[j] &#x3D; arr[i];<br>     }<br>     arr[i] &#x3D; pivot;<br>     return i;<br> }</p>
+</li>
+</ul>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>八、总结</p>
+<p>8.1 核心知识点<br>知识点	应用<br>匿名内部类	简化代码，一次性传入任务逻辑<br>接口&#x2F;抽象类	定义任务规范<br>System.currentTimeMillis()	获取系统时间，计算耗时<br>模板方法模式	固定计时流程，任务逻辑可变<br>8.2 匿名内部类的使用场景<br>回调函数：如本作业的方法计时</p>
+<p>事件监听：GUI编程中的按钮点击事件</p>
+<p>线程创建：new Thread(new Runnable() {…})</p>
+<p>集合排序：Collections.sort(list, new Comparator() {…})</p>
+<p>8.3 作业完成情况<br>实现了方法执行时间计算功能</p>
+<p>使用了匿名内部类</p>
+<p>支持毫秒&#x2F;纳秒两种精度</p>
+<p>支持带返回值的场景</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F05%2F21%2FJava%25E4%25BD%259C%25E4%25B8%259A%25EF%25BC%259A%25E4%25BD%25BF%25E7%2594%25A8%25E5%258C%25BF%25E5%2590%258D%25E5%2586%2585%25E9%2583%25A8%25E7%25B1%25BB%25E8%25AE%25A1%25E7%25AE%2597%25E6%2596%25B9%25E6%25B3%2595%25E6%2589%25A7%25E8%25A1%258C%25E6%2597%25B6%25E9%2597%25B4%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2026/05/24/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%BA%86%E8%A7%A3Java%E7%9A%84%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JAVA作业：了解Java的反射机制
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2026/05/20/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E5%BD%A2%E5%BC%8F%E5%8C%96%E6%96%B9%E6%B3%95%E5%AD%A6%E4%B9%A0%E4%B8%8E%E3%80%8A%E5%A4%A7%E8%B1%A1%E2%80%94%E2%80%94Thinking-in-UML%E3%80%8B%E9%98%85%E8%AF%BB%E6%8E%A8%E8%8D%90/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">JAVA作业：形式化方法学习与《大象——Thinking in UML》阅读推荐</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=9231355229&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>
