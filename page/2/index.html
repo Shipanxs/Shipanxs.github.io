@@ -116,6 +116,180 @@
     
     
     <article
+  id="post-Java作业：枚举类型的三个经典应用场景（第三章）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/04/26/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E7%9A%84%E4%B8%89%E4%B8%AA%E7%BB%8F%E5%85%B8%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%88%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%89/"
+    >Java编程作业：枚举类型的三个经典应用场景（第三章）</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/04/26/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E7%9A%84%E4%B8%89%E4%B8%AA%E7%BB%8F%E5%85%B8%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%88%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%89/" class="article-date">
+  <time datetime="2026-04-26T05:36:34.000Z" itemprop="datePublished">2026-04-26</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、什么是枚举</p>
+<p>枚举（Enum）是Java中一种特殊的类，用于定义一组固定的常量。比如星期、季节、订单状态等，用枚举表示比用<code>int</code>或<code>String</code>更安全、更清晰。</p>
+<p>基本语法：</p>
+<p>enum Weekday {<br>    MON, TUE, WED, THU, FRI, SAT, SUN<br>}<br>AI写代码<br>java<br>运行<br>枚举自带<code>values()</code>、<code>ordinal()</code>等方法，还可以添加属性和自定义方法。</p>
+<p>二、场景1：状态&#x2F;类型定义（最常用！）</p>
+<blockquote>
+<p>用枚举表示有限个状态或类型</p>
+</blockquote>
+<p>适用场景</p>
+<ul>
+<li>订单状态（待支付、已支付、已发货、已完成）</li>
+<li>用户角色（管理员、普通用户、访客）</li>
+<li>任务优先级（高、中、低）</li>
+</ul>
+<p>订单状态管理代码示例<br>enum OrderState {<br>  PENDING,  &#x2F;&#x2F; 待支付<br>  PAID,    &#x2F;&#x2F; 已支付<br>  SHIPPED,  &#x2F;&#x2F; 已发货<br>  COMPLETED, &#x2F;&#x2F; 已完成<br>  CANCELLED; &#x2F;&#x2F; 已取消</p>
+<p>  &#x2F;&#x2F; 判断是否可以取消<br>  public boolean isCancelable() {<br>    return this &#x3D;&#x3D; PENDING || this &#x3D;&#x3D; PAID;<br>  }<br>}</p>
+<p>class Order {<br>  private int id;<br>  private OrderState state;</p>
+<p>  public Order(int id) {<br>    this.id &#x3D; id;<br>    this.state &#x3D; OrderState.PENDING;<br>  }</p>
+<p>  public void pay() {<br>    if (state &#x3D;&#x3D; OrderState.PENDING) {<br>      state &#x3D; OrderState.PAID;<br>      System.out.println(“订单” + id + “支付成功”);<br>    } else {<br>      System.out.println(“订单” + id + “状态异常，无法支付”);<br>    }<br>  }</p>
+<p>  public void cancel() {<br>    if (state.isCancelable()) {<br>      state &#x3D; OrderState.CANCELLED;<br>      System.out.println(“订单” + id + “已取消”);<br>    } else {<br>      System.out.println(“订单” + id + “当前状态不可取消”);<br>    }<br>  }</p>
+<p>  public void showState() {<br>    System.out.println(“订单” + id + “状态：” + state);<br>  }<br>}</p>
+<p>public class Demo1_State {<br>  public static void main(String[] args) {<br>    Order order &#x3D; new Order(1001);<br>    order.showState();  &#x2F;&#x2F; 待支付<br>    order.pay();     &#x2F;&#x2F; 支付成功<br>    order.cancel();   &#x2F;&#x2F; 已支付状态下可取消<br>    order.showState();  &#x2F;&#x2F; 已取消<br>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果<br>订单1001状态：PENDING<br>订单1001支付成功<br>订单1001已取消<br>订单1001状态：CANCELLED<br>AI写代码<br>三、场景2：策略模式（替换大量 if&#x2F;else）</p>
+<blockquote>
+<p>每个枚举常量实现自己的业务逻辑，消除长长的分支判断</p>
+</blockquote>
+<p>适用场景</p>
+<ul>
+<li>计算器（加、减、乘、除）</li>
+<li>折扣计算（打折、满减、赠品）</li>
+<li>排序算法 （升序、降序）</li>
+</ul>
+<p>代码实现<br>enum Calculator {<br>  ADD {<br>    public double apply(double a, double b) {<br>      return a + b;<br>    }<br>  },<br>  SUB {<br>    public double apply(double a, double b) {<br>      return a - b;<br>    }<br>  },<br>  MUL {<br>    public double apply(double a, double b) {<br>      return a * b;<br>    }<br>  },<br>  DIV {<br>    public double apply(double a, double b) {<br>      if (b &#x3D;&#x3D; 0) throw new ArithmeticException(“除数不能为0”);<br>      return a &#x2F; b;<br>    }<br>  };</p>
+<p>  public abstract double apply(double a, double b);<br>}</p>
+<p>public class Demo2_Strategy {<br>  public static void main(String[] args) {<br>    double x &#x3D; 10, y &#x3D; 3;<br>    System.out.println(x + “ + “ + y + “ &#x3D; “ + Calculator.ADD.apply(x, y));<br>    System.out.println(x + “ - “ + y + “ &#x3D; “ + Calculator.SUB.apply(x, y));<br>    System.out.println(x + “ * “ + y + “ &#x3D; “ + Calculator.MUL.apply(x, y));<br>    System.out.println(x + “ &#x2F; “ + y + “ &#x3D; “ + Calculator.DIV.apply(x, y));<br>  }<br>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果<br>10.0 + 3.0 &#x3D; 13.0<br>10.0 - 3.0 &#x3D; 7.0<br>10.0 * 3.0 &#x3D; 30.0<br>10.0 &#x2F; 3.0 &#x3D; 3.3333333333333335<br>AI写代码<br>代码优势<br>传统 if-else 实现方式：</p>
+<p>if (op.equals(“ADD”)) {<br>  return a + b;<br>} else if (op.equals(“SUB”)) {<br>  return a - b;<br>}<br>&#x2F;&#x2F; 其他操作…<br>AI写代码<br>java<br>运行<br>枚举策略模式优势：</p>
+<p>代码结构更清晰<br>扩展性更强<br>减少重复代码<br>类型安全<br>四、场景3：统一返回码（后端接口必备）</p>
+<blockquote>
+<p>用枚举管理API返回的状态码 和提示信息</p>
+</blockquote>
+<p>适用场景</p>
+<ul>
+<li>RESTful API 响应（成功码200，错误码400&#x2F;401&#x2F;500等）</li>
+<li>业务错误码（用户不存在、密码错误等）</li>
+</ul>
+<p>统一响应封装代码示例<br>enum ResultCode {<br>    SUCCESS(200, “成功”),<br>    BAD_REQUEST(400, “请求参数错误”),<br>    UNAUTHORIZED(401, “未授权”),<br>    NOT_FOUND(404, “资源不存在”),<br>    SERVER_ERROR(500, “服务器内部错误”),<br>    USER_NOT_EXIST(1001, “用户不存在”),<br>    PASSWORD_WRONG(1002, “密码错误”);</p>
+<pre><code>private final int code;
+private final String msg;
+
+ResultCode(int code, String msg) &#123;
+    this.code = code;
+    this.msg = msg;
+&#125;
+
+public int getCode() &#123; return code; &#125;
+public String getMsg() &#123; return msg; &#125;
+</code></pre>
+<p>}</p>
+<p>class ApiResult {<br>    private int code;<br>    private String message;<br>    private Object data;</p>
+<pre><code>private ApiResult(int code, String message, Object data) &#123;
+    this.code = code;
+    this.message = message;
+    this.data = data;
+&#125;
+
+public static ApiResult success(Object data) &#123;
+    return new ApiResult(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMsg(), data);
+&#125;
+
+public static ApiResult error(ResultCode resultCode) &#123;
+    return new ApiResult(resultCode.getCode(), resultCode.getMsg(), null);
+&#125;
+
+@Override
+public String toString() &#123;
+    return &quot;&#123;code:&quot; + code + &quot;, message:&quot; + message + &quot;, data:&quot; + data + &quot;&#125;&quot;;
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Demo3_ResultCode {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 模拟登录接口返回<br>        String username &#x3D; “test”;<br>        String password &#x3D; “123”;</p>
+<pre><code>    if (!&quot;admin&quot;.equals(username)) &#123;
+        System.out.println(ApiResult.error(ResultCode.USER_NOT_EXIST));
+    &#125; else if (!&quot;123456&quot;.equals(password)) &#123;
+        System.out.println(ApiResult.error(ResultCode.PASSWORD_WRONG));
+    &#125; else &#123;
+        System.out.println(ApiResult.success(&quot;登录成功，token=xxx&quot;));
+    &#125;
+
+    // 打印所有返回码
+    System.out.println(&quot;\n所有返回码：&quot;);
+    for (ResultCode code : ResultCode.values()) &#123;
+        System.out.println(code.getCode() + &quot; -&gt; &quot; + code.getMsg());
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>运行结果示例<br>{code:1001, message:用户不存在, data:null}</p>
+<p>所有返回码：<br>200 -&gt; 成功<br>400 -&gt; 请求参数错误<br>401 -&gt; 未授权<br>404 -&gt; 资源不存在<br>500 -&gt; 服务器内部错误<br>1001 -&gt; 用户不存在<br>1002 -&gt; 密码错误<br>AI写代码</p>
+<p> 五、总结</p>
+<p>枚举的高级应用场景<br>场景	解决的问题	技术要点<br>状态&#x2F;类型定义	避免魔法数字&#x2F;字符串	枚举常量 + 属性 + 方法<br>策略模式	消除大量 if-else	抽象方法 + 常量各自实现<br>统一返回码	集中管理错误码	枚举 + 自定义构造器<br>枚举不仅仅是“常量列表”，更是一种强大的面向对象 工具。掌握这三种用法可以让代码更优雅、更安全。</p>
+<p> 六、作业心得</p>
+<blockquote>
+<p>本次作业让我深刻理解了枚举在实际开发中的价值，尤其是策略模式替换if-else的思路，非常实用。</p>
+</blockquote>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-Java学习笔记（三）：运算符、表达式与控制语句"
   class="article article-type-post"
   itemscope
