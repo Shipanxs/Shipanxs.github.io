@@ -116,6 +116,311 @@
     
     
     <article
+  id="post-第四章-类与对象——面向对象编程入门"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/05/10/%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1%E2%80%94%E2%80%94%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/"
+    >第四章 类与对象——面向对象编程入门</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/05/10/%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1%E2%80%94%E2%80%94%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" class="article-date">
+  <time datetime="2026-05-10T05:37:53.000Z" itemprop="datePublished">2026-05-10</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、本章知识回顾</p>
+<p>面向对象基础概念表格<br>知识点	说明<br>类	对象的模板，描述一类事物的共同特征<br>对象	类的具体实例<br>成员变量	对象的属性（状态）<br>成员方法	对象的行为（功能）<br>构造方法	创建对象时初始化成员变量<br>this关键字	指向当前对象的引用<br>对象的组合	一个类把其他类的对象作为成员</p>
+<p>二、为什么需要类与对象？</p>
+<p>2.1 问题引入</p>
+<p>假设要处理小明养的两只狗的信息：</p>
+<table>
+<thead>
+<tr>
+<th>狗名</th>
+<th>年龄</th>
+<th>颜色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>小白</td>
+<td>3岁</td>
+<td>白色</td>
+</tr>
+<tr>
+<td>小花</td>
+<td>10岁</td>
+<td>花色</td>
+</tr>
+</tbody></table>
+<p>表格转换结果<br>狗名	年龄	颜色<br>小白	3岁	白色<br>小花	10岁	花色<br>如果用之前学过的数组来处理：</p>
+<p>String[] dog1 &#x3D; {“小白”, “3”, “白色”};<br>String[] dog2 &#x3D; {“小花”, “10”, “花色”};</p>
+<p>AI写代码<br>java<br>运行<br>数组方式的问题：</p>
+<p>数据类型不明确（年龄”3”是字符串，不方便计算）</p>
+<p>通过下标获取信息（dog1[0]是名字，dog1[1]是年龄，容易混淆）</p>
+<p>不能体现狗的行为（如”叫”、”跑”等）</p>
+<p>解决方式：用类来定义狗的特征和行为，用对象来表示具体的某只狗。</p>
+<p>三、类的定义<br>3.1 类的基本结构<br>类是Java中最基本的”模板”，用来描述一类事物的属性（成员变量）和行为（成员方法）。</p>
+<p>java</p>
+<p>class Dog {<br>    &#x2F;&#x2F; 1. 成员变量（属性）<br>    String name;   &#x2F;&#x2F; 名字<br>    int age;       &#x2F;&#x2F; 年龄<br>    String color;  &#x2F;&#x2F; 颜色</p>
+<pre><code>// 2. 成员方法（行为）
+void bark() &#123;
+    System.out.println(name + &quot;：汪汪汪！&quot;);
+&#125;
+
+void run() &#123;
+    System.out.println(name + &quot;正在奔跑&quot;);
+&#125;
+
+void showInfo() &#123;
+    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age + &quot;岁，颜色：&quot; + color);
+&#125;
+</code></pre>
+<p>}<br>3.2 成员变量<br>位置：在类中、方法外部定义</p>
+<p>作用：描述对象的属性（状态）</p>
+<p>默认值：即使不赋值，也有默认初始值</p>
+<p>类型	默认值<br>int	0<br>double	0.0<br>boolean	false<br>char	‘\u0000’<br>引用类型（String等）	null<br>3.3 成员方法<br>位置：在类中定义</p>
+<p>作用：描述对象的行为（功能）</p>
+<p>结构：修饰符 + 返回值类型 + 方法名 + 参数列表 + 方法体</p>
+<p>java</p>
+<p>&#x2F;&#x2F; 方法结构示例<br>public void bark() {           &#x2F;&#x2F; 无返回值，无参数<br>    System.out.println(“叫”);<br>}</p>
+<p>public int add(int a, int b) { &#x2F;&#x2F; 有返回值，有参数<br>    return a + b;<br>}<br>四、对象的创建与使用<br>4.1 创建对象（实例化）<br>使用 new 关键字 + 构造方法创建对象：</p>
+<p>java</p>
+<p>public class DogTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建Dog类的对象<br>        Dog dog1 &#x3D; new Dog();  &#x2F;&#x2F; 声明 + 创建 + 赋值</p>
+<pre><code>    // 或者分两步写
+    Dog dog2;              // 1.声明对象变量
+    dog2 = new Dog();      // 2.创建对象（分配内存）
+&#125;
+</code></pre>
+<p>}<br>4.2 使用对象<br>通过 对象名.成员变量 和 对象名.成员方法() 来访问：</p>
+<p>java</p>
+<p>public class DogTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建对象<br>        Dog dog1 &#x3D; new Dog();<br>        Dog dog2 &#x3D; new Dog();</p>
+<pre><code>    // 给成员变量赋值
+    dog1.name = &quot;小白&quot;;
+    dog1.age = 3;
+    dog1.color = &quot;白色&quot;;
+    
+    dog2.name = &quot;小花&quot;;
+    dog2.age = 10;
+    dog2.color = &quot;花色&quot;;
+    
+    // 调用成员方法
+    dog1.showInfo();   // 输出：名字：小白，年龄：3岁，颜色：白色
+    dog1.bark();       // 输出：小白：汪汪汪！
+    
+    dog2.showInfo();   // 输出：名字：小花，年龄：10岁，颜色：花色
+    dog2.run();        // 输出：小花正在奔跑
+&#125;
+</code></pre>
+<p>}<br>运行结果：</p>
+<p>text</p>
+<p>名字：小白，年龄：3岁，颜色：白色<br>小白：汪汪汪！<br>名字：小花，年龄：10岁，颜色：花色<br>小花正在奔跑<br>4.3 类与对象的关系图<br>text</p>
+<p>┌─────────────────────────────────────┐<br>│           类（模板）                  │<br>│  ┌─────────────────────────────────┐ │<br>│  │ class Dog {                     │ │<br>│  │     String name;   &#x2F;&#x2F; 成员变量   │ │<br>│  │     int age;                    │ │<br>│  │     void bark() {…} &#x2F;&#x2F; 方法    │ │<br>│  │ }                               │ │<br>│  └─────────────────────────────────┘ │<br>└─────────────────────────────────────┘<br>                  │<br>                  │ 实例化（new）<br>                  ↓<br>┌───────────────────────┐  ┌───────────────────────┐<br>│   对象1（实例1）        │  │   对象2（实例2）        │<br>│  ┌─────────────────┐  │  │  ┌─────────────────┐  │<br>│  │ name &#x3D; “小白”   │  │  │  │ name &#x3D; “小花”   │  │<br>│  │ age &#x3D; 3         │  │  │  │ age &#x3D; 10        │  │<br>│  │ color &#x3D; “白色”  │  │  │  │ color &#x3D; “花色”  │  │<br>│  └─────────────────┘  │  │  └─────────────────┘  │<br>└───────────────────────┘  └───────────────────────┘<br>核心理解：</p>
+<p>类：图纸（抽象）</p>
+<p>对象：根据图纸造出的房子（具体）</p>
+<p>同一个类可以创建多个对象，每个对象有自己的属性值</p>
+<p>五、构造方法<br>5.1 什么是构造方法？<br>构造方法是专门用来创建对象时初始化成员变量的特殊方法。</p>
+<p>特点：</p>
+<p>方法名与类名相同</p>
+<p>没有返回值类型（连void都不写）</p>
+<p>创建对象时自动调用</p>
+<p>5.2 无参构造方法<br>java</p>
+<p>class Dog {<br>    String name;<br>    int age;</p>
+<pre><code>// 无参构造方法
+Dog() &#123;
+    System.out.println(&quot;一只新的狗被创建了&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Test {<br>    public static void main(String[] args) {<br>        Dog dog &#x3D; new Dog();  &#x2F;&#x2F; 自动调用构造方法，输出：一只新的狗被创建了<br>    }<br>}<br>5.3 有参构造方法<br>java</p>
+<p>class Dog {<br>    String name;<br>    int age;<br>    String color;</p>
+<pre><code>// 有参构造方法
+Dog(String n, int a, String c) &#123;
+    name = n;
+    age = a;
+    color = c;
+    System.out.println(&quot;创建了：&quot; + name);
+&#125;
+
+void showInfo() &#123;
+    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age + &quot;，颜色：&quot; + color);
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Test {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建对象时直接传入参数<br>        Dog dog1 &#x3D; new Dog(“小白”, 3, “白色”);<br>        Dog dog2 &#x3D; new Dog(“小花”, 10, “花色”);</p>
+<pre><code>    dog1.showInfo();  // 名字：小白，年龄：3，颜色：白色
+    dog2.showInfo();  // 名字：小花，年龄：10，颜色：花色
+&#125;
+</code></pre>
+<p>}<br>5.4 注意事项<br>情况	说明<br>没有定义任何构造方法	系统自动提供无参构造方法<br>定义了有参构造方法	系统不再提供无参构造方法<br>想同时使用两种	需要重载构造方法（手动写两个）<br>六、this关键字<br>6.1 解决命名冲突<br>当成员变量和局部变量（包括参数）同名时，this.成员变量 表示成员变量。</p>
+<p>java</p>
+<p>class Dog {<br>    String name;<br>    int age;</p>
+<pre><code>// 参数名和成员变量名相同
+Dog(String name, int age) &#123;
+    this.name = name;  // this.name 是成员变量，name 是参数
+    this.age = age;
+&#125;
+
+void showInfo() &#123;
+    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age);
+&#125;
+</code></pre>
+<p>}<br>为什么需要this？</p>
+<p>如果不写this，会发生”局部变量覆盖成员变量”：</p>
+<p>java</p>
+<p>&#x2F;&#x2F; 错误写法<br>Dog(String name, int age) {<br>    name &#x3D; name;   &#x2F;&#x2F; 左边和右边都是参数name，成员变量name没有被赋值<br>    age &#x3D; age;     &#x2F;&#x2F; 同样的问题<br>}<br>6.2 this的其他用法<br>java</p>
+<p>class Dog {<br>    String name;</p>
+<pre><code>Dog() &#123;
+    this(&quot;无名&quot;);  // 调用本类的有参构造方法
+&#125;
+
+Dog(String name) &#123;
+    this.name = name;
+&#125;
+</code></pre>
+<p>}<br>七、对象的组合<br>一个类可以把其他类的对象作为自己的成员变量，这叫对象的组合。</p>
+<p>示例：人养狗<br>java</p>
+<p>&#x2F;&#x2F; 狗类<br>class Dog {<br>    String name;<br>    int age;</p>
+<pre><code>Dog(String name, int age) &#123;
+    this.name = name;
+    this.age = age;
+&#125;
+
+void bark() &#123;
+    System.out.println(name + &quot;：汪汪！&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F; 人类（组合了Dog类）<br>class Person {<br>    String name;<br>    Dog pet;      &#x2F;&#x2F; 把Dog对象作为成员变量</p>
+<pre><code>Person(String name, Dog pet) &#123;
+    this.name = name;
+    this.pet = pet;
+&#125;
+
+void walkPet() &#123;
+    System.out.println(name + &quot;正在遛 &quot; + pet.name);
+    pet.bark();
+&#125;
+
+void showInfo() &#123;
+    System.out.print(name + &quot;的宠物：&quot;);
+    System.out.println(&quot;名字：&quot; + pet.name + &quot;，年龄：&quot; + pet.age + &quot;岁&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p>public class Test {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 先创建狗<br>        Dog dog &#x3D; new Dog(“小白”, 3);</p>
+<pre><code>    // 再创建人（把狗作为参数传入）
+    Person person = new Person(&quot;小明&quot;, dog);
+    
+    person.showInfo();   // 小明的宠物：名字：小白，年龄：3岁
+    person.walkPet();    // 小明正在遛小白 \n 小白：汪汪！
+&#125;
+</code></pre>
+<p>}<br>运行结果：</p>
+<p>text</p>
+<p>小明的宠物：名字：小白，年龄：3岁<br>小明正在遛小白<br>小白：汪汪！<br>八、完整示例：有理数类（教材例题）<br>根据教材第4章的有理数类例题，以下是一个完整的封装示例：</p>
+<p>java</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>有理数类（封装分数）</p>
+</li>
+<li><p>成员变量：分子、分母</p>
+</li>
+<li><p>成员方法：加法、减法、乘法、除法、化简<br> *&#x2F;<br>class Rational {<br> int numerator;      &#x2F;&#x2F; 分子<br> int denominator;    &#x2F;&#x2F; 分母</p>
+<p> &#x2F;&#x2F; 构造方法<br> Rational(int numerator, int denominator) {<br> this.numerator &#x3D; numerator;<br> this.denominator &#x3D; denominator;<br> reduce();        &#x2F;&#x2F; 创建时自动化简<br> }</p>
+<p> &#x2F;&#x2F; 求最大公约数（用于化简）<br> int gcd(int a, int b) {<br> return b &#x3D;&#x3D; 0 ? a : gcd(b, a % b);<br> }</p>
+<p> &#x2F;&#x2F; 化简分数<br> void reduce() {<br> int g &#x3D; gcd(numerator, denominator);<br> numerator &#x2F;&#x3D; g;<br> denominator &#x2F;&#x3D; g;<br> }</p>
+<p> &#x2F;&#x2F; 加法<br> Rational add(Rational r) {<br> int newNum &#x3D; this.numerator * r.denominator + r.numerator * this.denominator;<br> int newDen &#x3D; this.denominator * r.denominator;<br> return new Rational(newNum, newDen);<br> }</p>
+<p> &#x2F;&#x2F; 减法<br> Rational subtract(Rational r) {<br> int newNum &#x3D; this.numerator * r.denominator - r.numerator * this.denominator;<br> int newDen &#x3D; this.denominator * r.denominator;<br> return new Rational(newNum, newDen);<br> }</p>
+<p> &#x2F;&#x2F; 输出分数<br> void display() {<br> if (denominator &#x3D;&#x3D; 1) {<br>     System.out.println(numerator);<br> } else {<br>     System.out.println(numerator + “&#x2F;“ + denominator);<br> }<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>public class RationalTest {<br>    public static void main(String[] args) {<br>        Rational r1 &#x3D; new Rational(1, 3);   &#x2F;&#x2F; 1&#x2F;3<br>        Rational r2 &#x3D; new Rational(2, 5);   &#x2F;&#x2F; 2&#x2F;5</p>
+<pre><code>    System.out.print(&quot;1/3 + 2/5 = &quot;);
+    r1.add(r2).display();                // 11/15
+    
+    System.out.print(&quot;1/3 - 2/5 = &quot;);
+    r1.subtract(r2).display();           // -1/15
+&#125;
+</code></pre>
+<p>}<br>九、常见错误与注意点<br>错误写法	正确写法	说明<br>Dog dog; dog.name &#x3D; “小白”;	Dog dog &#x3D; new Dog();	必须先创建对象才能使用<br>class dog { … }	class Dog { … }	类名首字母大写（规范）<br>构造方法写了返回值类型	Dog() { }（无void）	构造方法不能有返回值<br>this 在静态方法中使用	只能在非静态方法中使用	static方法中不能用this<br>忘记写构造方法导致无法初始化	提供合适的构造方法	或使用setter方法赋值<br>十、小结<br>本章学习了：</p>
+<p> 类的定义：成员变量 + 成员方法</p>
+<p> 对象的创建：使用 new 关键字</p>
+<p> 构造方法：与类同名，无返回值，用于初始化</p>
+<p> this关键字：区分成员变量和局部变量</p>
+<p> 对象的组合：一个类包含其他类的对象</p>
+<p>核心代码模板：</p>
+<p>java</p>
+<p>class 类名 {<br>    &#x2F;&#x2F; 1. 成员变量<br>    数据类型 变量名;</p>
+<pre><code>// 2. 构造方法
+类名(参数列表) &#123;
+    this.成员变量 = 参数;
+&#125;
+
+// 3. 成员方法
+返回值类型 方法名(参数列表) &#123;
+    // 方法体
+&#125;
+</code></pre>
+<p>}</p>
+<p>&#x2F;&#x2F; 使用<br>类名 对象名 &#x3D; new 类名(参数);<br>对象名.方法名();</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-JAVA作业：素数查找——用循环和分支解决问题"
   class="article article-type-post"
   itemscope

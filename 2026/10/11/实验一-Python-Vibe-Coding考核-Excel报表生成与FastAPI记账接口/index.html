@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-实验一-Python-Vibe-Coding考核-Excel报表生成与FastAPI记账接口"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/10/11/%E5%AE%9E%E9%AA%8C%E4%B8%80-Python-Vibe-Coding%E8%80%83%E6%A0%B8-Excel%E6%8A%A5%E8%A1%A8%E7%94%9F%E6%88%90%E4%B8%8EFastAPI%E8%AE%B0%E8%B4%A6%E6%8E%A5%E5%8F%A3/" class="article-date">
+  <time datetime="2026-10-11T14:30:00.000Z" itemprop="datePublished">2026-10-11</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <h1 id="实验一——Python-Vibe-Coding-考核：Excel-报表生成与-FastAPI-记账接口"><a href="#实验一——Python-Vibe-Coding-考核：Excel-报表生成与-FastAPI-记账接口" class="headerlink" title="实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口"></a>实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口</h1><blockquote>
+<p>两道考题 + 一个网页演示版：从需求澄清、TDD 小步开发到独立核验的完整记录</p>
+</blockquote>
+<h2 id="一、项目背景"><a href="#一、项目背景" class="headerlink" title="一、项目背景"></a>一、项目背景</h2><p>本次考核采用 <strong>Vibe Coding</strong> 方式完成：人与 AI 协作，通过「需求澄清 → 设计文档 → 实施计划 → TDD 小步实现 → 独立验证 → Git 全程留痕」的流程交付两个独立项目。两道考题均从零搭建，并额外产出一个 Streamlit 网页演示版，把两个项目合并到同一界面，方便展示。</p>
+<p>考核按”结果 + 过程 + 验证 + 风险 + 复盘”五维评分，交付物包括：① 需求澄清清单；② 可运行源代码工程（目录结构清晰、含 README 运行说明）；③ 测试用例（正常用例 + 至少 2 个边界&#x2F;异常用例）及运行结果截图；④ AI 协作过程记录（关键对话摘要 + 代码修改 diff）；⑤ 一段文字复盘。本文即围绕这五项展开。</p>
+<h2 id="二、环境与技术栈"><a href="#二、环境与技术栈" class="headerlink" title="二、环境与技术栈"></a>二、环境与技术栈</h2><ul>
+<li><p>操作系统：Windows；语言：Python 3.13</p>
+</li>
+<li><p>考题一：Pandas、openpyxl（Excel 读写）、pytest（测试）</p>
+</li>
+<li><p>考题二：FastAPI、Uvicorn、SQLite、Pydantic、pytest + httpx（接口测试）</p>
+</li>
+<li><p>网页演示版：Streamlit 1.65（双页面 + 文件上传）、Playwright（浏览器实测截图）</p>
+</li>
+</ul>
+<h2 id="三、考题一：Excel-报表生成脚本"><a href="#三、考题一：Excel-报表生成脚本" class="headerlink" title="三、考题一：Excel 报表生成脚本"></a>三、考题一：Excel 报表生成脚本</h2><h3 id="（一）需求与样例数据"><a href="#（一）需求与样例数据" class="headerlink" title="（一）需求与样例数据"></a>（一）需求与样例数据</h3><p>读取含脏数据的销售明细 <code>sales_raw.xlsx</code>（六列：日期、销售员、产品、数量、单价、地区），完成清洗与统计，输出 <code>report.xlsx</code>。</p>
+<p>样例数据由脚本生成（固定随机种子可复现），共 <strong>91 行</strong>，注入 <strong>5 类脏数据</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>脏数据类型</th>
+<th>数量</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>关键字段缺失</td>
+<td>4 行</td>
+<td>缺日期 &#x2F; 缺销售员等</td>
+</tr>
+<tr>
+<td>重复行</td>
+<td>3 行</td>
+<td>整行完全相同</td>
+</tr>
+<tr>
+<td>数量 ≤ 0</td>
+<td>2 行</td>
+<td>数量 0、-5</td>
+</tr>
+<tr>
+<td>非法日期</td>
+<td>1 行</td>
+<td>2026-02-30（历法不存在）</td>
+</tr>
+<tr>
+<td>单价 ≤ 0</td>
+<td>1 行</td>
+<td>单价 -50</td>
+</tr>
+</tbody></table>
+<h3 id="（二）清洗规则（5-类，逐类剔除）"><a href="#（二）清洗规则（5-类，逐类剔除）" class="headerlink" title="（二）清洗规则（5 类，逐类剔除）"></a>（二）清洗规则（5 类，逐类剔除）</h3><ol>
+<li><p>删除关键字段缺失的行（<code>dropna</code>）</p>
+</li>
+<li><p>剔除数量 ≤ 0 的异常行</p>
+</li>
+<li><p>剔除日期非法（格式错误或历法不存在）的行（<code>pd.to_datetime</code> 校验）</p>
+</li>
+<li><p>剔除单价 ≤ 0 的异常行</p>
+</li>
+<li><p>按全字段去重</p>
+</li>
+</ol>
+<p>清洗结果：<strong>91 → 80 行</strong>。开发过程中曾自查发现最初清洗只覆盖 3 类（缺失 &#x2F; 数量≤0 &#x2F; 重复），非法日期与负单价两行会流入统计并污染月度总额（负单价行销售额为 -250），已补全规则并同步更新口径。</p>
+<h3 id="（三）统计口径与输出"><a href="#（三）统计口径与输出" class="headerlink" title="（三）统计口径与输出"></a>（三）统计口径与输出</h3><ul>
+<li><p>销售额 &#x3D; 数量 × 单价；按销售员、按地区分别汇总</p>
+</li>
+<li><p><strong>月度总额 &#x3D; 841853.21 元</strong>（全部有效数据合计，四舍五入保留 2 位小数）</p>
+</li>
+<li><p>输出 4 个工作表：明细清洗后 &#x2F; 按销售员 &#x2F; 按地区 &#x2F; 总览</p>
+</li>
+<li><p>约束：<strong>不得修改原始文件</strong>；异常输入（文件缺失、缺列、空文件、清洗后无有效数据）给出明确可读的报错提示</p>
+</li>
+</ul>
+<h3 id="（四）测试与独立核验"><a href="#（四）测试与独立核验" class="headerlink" title="（四）测试与独立核验"></a>（四）测试与独立核验</h3><ul>
+<li><p>pytest <strong>9&#x2F;9 全绿</strong>（清洗规则、异常输入、四表输出、新口径行数与总额）</p>
+</li>
+<li><p><code>verify_report.py</code> 独立重算：按销售员合计、按地区合计、独立重算总额三处与总览一致 → <strong>PASS</strong></p>
+</li>
+</ul>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E8%80%83%E9%A2%98%E4%B8%80-run.png" alt="图1 考题一 一键运行结果"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E8%80%83%E9%A2%98%E4%B8%80-verify.png" alt="图2 考题一 独立核验结果"></p>
+<h2 id="四、考题二：FastAPI-记账接口"><a href="#四、考题二：FastAPI-记账接口" class="headerlink" title="四、考题二：FastAPI 记账接口"></a>四、考题二：FastAPI 记账接口</h2><h3 id="（一）功能"><a href="#（一）功能" class="headerlink" title="（一）功能"></a>（一）功能</h3><p>提供记账接口（收入 &#x2F; 支出流水）：</p>
+<ul>
+<li><p><code>POST /records</code>：录入流水，合法返回 <strong>201</strong>；参数非法（金额≤0、非法类型、非法日期如 2026-02-30）返回 <strong>422</strong> 与校验详情</p>
+</li>
+<li><p><code>GET /records</code>：流水列表，支持按<strong>类型、分类、日期区间</strong>筛选并分页</p>
+</li>
+<li><p><code>GET /summary</code>：收入合计、支出合计、结余</p>
+</li>
+</ul>
+<h3 id="（二）实现要点"><a href="#（二）实现要点" class="headerlink" title="（二）实现要点"></a>（二）实现要点</h3><ul>
+<li><p><strong>SQLite 存储层</strong>：<code>_write_lock</code> 模块级锁串行化写事务，保证多线程并发写入不丢数据</p>
+</li>
+<li><p><strong>Pydantic 校验</strong>：金额 <code>gt=0</code>、类型枚举（收入 &#x2F; 支出）、<code>field_validator</code> 校验日期合法性，非法参数统一转 422（而非 500）</p>
+</li>
+</ul>
+<h3 id="（三）测试与实测"><a href="#（三）测试与实测" class="headerlink" title="（三）测试与实测"></a>（三）测试与实测</h3><ul>
+<li><p>pytest <strong>19&#x2F;19 全绿</strong>，含 <strong>20 线程 × 5 &#x3D; 100 条并发写入无丢失</strong> 用例</p>
+</li>
+<li><p>Uvicorn 启动实测：合法录入 3×201、非法参数 3×422、筛选分页、summary 结余均符合预期</p>
+</li>
+</ul>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E8%80%83%E9%A2%98%E4%BA%8C-api.png" alt="图3 考题二 API 实测"></p>
+<h2 id="五、网页演示版（Streamlit-双页面）"><a href="#五、网页演示版（Streamlit-双页面）" class="headerlink" title="五、网页演示版（Streamlit 双页面）"></a>五、网页演示版（Streamlit 双页面）</h2><p>把两个考题合并为一个 Streamlit 应用（端口 8505），<strong>复用两个考题的同一份代码与口径</strong>，不复制实现：</p>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>演示内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>📊 报表演示</td>
+<td>数据来源可切换（内置样例 &#x2F; 上传文件）：91 行 → 5 类脏数据卡片 → 清洗 91→80 行 → 按销售员 &#x2F; 按地区统计 → 月度总额 841853.21 → 下载 report.xlsx（附样例下载按钮）</td>
+</tr>
+<tr>
+<td>💰 记账演示</td>
+<td>表单录单 → 201&#x2F;422 校验语义 → 流水列表（类型 &#x2F; 分类 &#x2F; 日期区间筛选 + 分页）→ 收支汇总 → 并发写入 100 条无丢失</td>
+</tr>
+</tbody></table>
+<p>上传文件模式支持任意符合六列结构的 Excel（含我额外生成的 127 行多脏数据样例 <code>原数据.xlsx</code>：缺失 12 &#x2F; 重复 6 &#x2F; 数量≤0 5 &#x2F; 非法日期 4 &#x2F; 单价≤0 4，清洗后 100 行）。</p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-01.png" alt="图4 网页演示 报表演示页（5 类脏数据卡片）"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-04.png" alt="图5 网页演示 记账 201 入账"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-05.png" alt="图6 网页演示 记账 422 校验"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-06.png" alt="图7 网页演示 并发写入 100 条无丢失"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-07.png" alt="图8 网页演示 上传文件模式"></p>
+<h2 id="六、工作流：Vibe-Coding-Superpowers"><a href="#六、工作流：Vibe-Coding-Superpowers" class="headerlink" title="六、工作流：Vibe Coding + Superpowers"></a>六、工作流：Vibe Coding + Superpowers</h2><p>两个项目全程按 Superpowers 流程执行：</p>
+<ol>
+<li><p><strong>头脑风暴（HARD-GATE）</strong>：先书面写清需求澄清清单——<strong>目标</strong>（两个可独立运行的 Python 工程）、<strong>输入输出</strong>（考题一读 <code>sales_raw.xlsx</code> 出 <code>report.xlsx</code>；考题二为 HTTP 记账服务）、<strong>边界</strong>（不修改原始文件、异常可读报错、非法参数返回 4xx）、<strong>验收标准</strong>（一键运行 + 数值人工核对一致 + pytest 覆盖核心用例）；关键决策拍板：样例数据由 AI 生成（固定种子可复现）、单工程双子目录组织、过程记录由 AI 草拟用户审改</p>
+</li>
+<li><p><strong>设计文档与实施计划</strong>：两份 spec + 两份 plan（考核 9 任务 + 网页版 5 任务），均获用户批准后动工</p>
+</li>
+<li><p><strong>TDD 小步实现</strong>：每个功能先写失败测试（RED）→ 最小实现（GREEN）→ 提交；过程中 RED 暴露并修复了 3 类真实缺陷（测试数据缺陷、422 语义、并发事务冲突）</p>
+</li>
+<li><p><strong>独立核验</strong>：<code>verify_report.py</code> 三处比对、接口实测、浏览器实测截图</p>
+</li>
+<li><p><strong>Git 全程留痕</strong>：15+ 次提交，每步可追溯</p>
+</li>
+</ol>
+<h2 id="七、运行与复现"><a href="#七、运行与复现" class="headerlink" title="七、运行与复现"></a>七、运行与复现</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 考题一：生成样例 → 一键运行 → 独立核验</span><br><span class="line">cd 考题一_excel_report</span><br><span class="line">python generate_sample.py &amp;&amp; python run.py &amp;&amp; python verify_report.py</span><br><span class="line"></span><br><span class="line"># 考题二：启动接口服务（:8001）</span><br><span class="line">cd 考题二_fastapi_ledger</span><br><span class="line">python run.py</span><br><span class="line"></span><br><span class="line"># 网页演示版：一条命令启动（:8505）</span><br><span class="line">streamlit run web_demo/app.py --server.port 8505</span><br></pre></td></tr></table></figure>
+
+<h2 id="八、测试统计汇总"><a href="#八、测试统计汇总" class="headerlink" title="八、测试统计汇总"></a>八、测试统计汇总</h2><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>测试数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>考题一</td>
+<td>9</td>
+<td>清洗规则 &#x2F; 异常输入 &#x2F; 四表输出 &#x2F; 新口径</td>
+</tr>
+<tr>
+<td>考题二</td>
+<td>19</td>
+<td>校验边界 &#x2F; 筛选分页 &#x2F; 并发 100 条无丢失</td>
+</tr>
+<tr>
+<td>网页演示</td>
+<td>19</td>
+<td>报表 &#x2F; 记账逻辑（含分类筛选）&#x2F; 上传模式</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>47 全绿</strong></td>
+<td>独立核验 PASS（841853.21）</td>
+</tr>
+</tbody></table>
+<p>各模块均含正常用例与 ≥2 个边界&#x2F;异常用例：非法日期 422、全为脏数据报错、缺列&#x2F;损坏文件上传、并发 100 条无丢失等。</p>
+<h2 id="九、复盘：哪些环节交给-AI、哪些自己拍板、哪些人工审查"><a href="#九、复盘：哪些环节交给-AI、哪些自己拍板、哪些人工审查" class="headerlink" title="九、复盘：哪些环节交给 AI、哪些自己拍板、哪些人工审查"></a>九、复盘：哪些环节交给 AI、哪些自己拍板、哪些人工审查</h2><table>
+<thead>
+<tr>
+<th>环节</th>
+<th>主导方</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>需求澄清与验收口径</td>
+<td><strong>用户拍板</strong></td>
+<td>样例数据 AI 生成（固定种子）、单工程双子目录、过程记录 AI 草拟用户审改、上传文件固定六列结构</td>
+</tr>
+<tr>
+<td>技术选型与实现</td>
+<td>AI 主导</td>
+<td>清洗&#x2F;统计规则、SQLite + 模块锁、Pydantic 校验、Streamlit 双页面方案</td>
+</tr>
+<tr>
+<td>测试与独立核验</td>
+<td>双方协作</td>
+<td>AI 按 TDD 写用例并跑绿；关键数值由 <code>verify_report.py</code> 独立重算，人工复核一致</td>
+</tr>
+<tr>
+<td>风险人工审查</td>
+<td><strong>人工接管</strong></td>
+<td>拦截 3 类真实缺陷：测试数据日期笔误（去重测不到点）、GET 非法日期 500 应转 422、多线程并发写共享连接事务冲突</td>
+</tr>
+</tbody></table>
+<h2 id="十、结语"><a href="#十、结语" class="headerlink" title="十、结语"></a>十、结语</h2><p>这次考核最大的收获是完整走了一遍「人与 AI 协作开发」的正规流程：先想清楚再动手、每个功能有测试兜底、每个结论有独立核验、每一步都留在 Git 里。两道考题本身并不复杂，但流程带来的确定性让「看起来能跑」变成了「可验证地正确」—— 这也是 Vibe Coding 和随手写脚本的区别。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F10%2F11%2F%25E5%25AE%259E%25E9%25AA%258C%25E4%25B8%2580-Python-Vibe-Coding%25E8%2580%2583%25E6%25A0%25B8-Excel%25E6%258A%25A5%25E8%25A1%25A8%25E7%2594%259F%25E6%2588%2590%25E4%25B8%258EFastAPI%25E8%25AE%25B0%25E8%25B4%25A6%25E6%258E%25A5%25E5%258F%25A3%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FastAPI/" rel="tag">FastAPI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Streamlit/" rel="tag">Streamlit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vibe-Coding/" rel="tag">Vibe Coding</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" rel="tag">项目实战</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2026/10/11/%E5%AE%9E%E9%AA%8C2-%E6%95%B0%E6%8D%AE%E7%9C%8B%E6%9D%BF%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%94%B5%E5%95%86%E9%94%80%E5%94%AE%E6%95%B0%E6%8D%AE%E7%9C%8B%E6%9D%BF%C2%B7%E8%BF%9B%E9%98%B6%E7%89%88%EF%BC%89/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">实验2-数据看板的设计与实现（电商销售数据看板·进阶版）</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=2738145650&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

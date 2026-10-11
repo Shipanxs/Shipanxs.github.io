@@ -116,6 +116,279 @@
     
     
     <article
+  id="post-实验一-Python-Vibe-Coding考核-Excel报表生成与FastAPI记账接口"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/10/11/%E5%AE%9E%E9%AA%8C%E4%B8%80-Python-Vibe-Coding%E8%80%83%E6%A0%B8-Excel%E6%8A%A5%E8%A1%A8%E7%94%9F%E6%88%90%E4%B8%8EFastAPI%E8%AE%B0%E8%B4%A6%E6%8E%A5%E5%8F%A3/"
+    >实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/10/11/%E5%AE%9E%E9%AA%8C%E4%B8%80-Python-Vibe-Coding%E8%80%83%E6%A0%B8-Excel%E6%8A%A5%E8%A1%A8%E7%94%9F%E6%88%90%E4%B8%8EFastAPI%E8%AE%B0%E8%B4%A6%E6%8E%A5%E5%8F%A3/" class="article-date">
+  <time datetime="2026-10-11T14:30:00.000Z" itemprop="datePublished">2026-10-11</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <h1 id="实验一——Python-Vibe-Coding-考核：Excel-报表生成与-FastAPI-记账接口"><a href="#实验一——Python-Vibe-Coding-考核：Excel-报表生成与-FastAPI-记账接口" class="headerlink" title="实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口"></a>实验一——Python Vibe Coding 考核：Excel 报表生成与 FastAPI 记账接口</h1><blockquote>
+<p>两道考题 + 一个网页演示版：从需求澄清、TDD 小步开发到独立核验的完整记录</p>
+</blockquote>
+<h2 id="一、项目背景"><a href="#一、项目背景" class="headerlink" title="一、项目背景"></a>一、项目背景</h2><p>本次考核采用 <strong>Vibe Coding</strong> 方式完成：人与 AI 协作，通过「需求澄清 → 设计文档 → 实施计划 → TDD 小步实现 → 独立验证 → Git 全程留痕」的流程交付两个独立项目。两道考题均从零搭建，并额外产出一个 Streamlit 网页演示版，把两个项目合并到同一界面，方便展示。</p>
+<p>考核按”结果 + 过程 + 验证 + 风险 + 复盘”五维评分，交付物包括：① 需求澄清清单；② 可运行源代码工程（目录结构清晰、含 README 运行说明）；③ 测试用例（正常用例 + 至少 2 个边界&#x2F;异常用例）及运行结果截图；④ AI 协作过程记录（关键对话摘要 + 代码修改 diff）；⑤ 一段文字复盘。本文即围绕这五项展开。</p>
+<h2 id="二、环境与技术栈"><a href="#二、环境与技术栈" class="headerlink" title="二、环境与技术栈"></a>二、环境与技术栈</h2><ul>
+<li><p>操作系统：Windows；语言：Python 3.13</p>
+</li>
+<li><p>考题一：Pandas、openpyxl（Excel 读写）、pytest（测试）</p>
+</li>
+<li><p>考题二：FastAPI、Uvicorn、SQLite、Pydantic、pytest + httpx（接口测试）</p>
+</li>
+<li><p>网页演示版：Streamlit 1.65（双页面 + 文件上传）、Playwright（浏览器实测截图）</p>
+</li>
+</ul>
+<h2 id="三、考题一：Excel-报表生成脚本"><a href="#三、考题一：Excel-报表生成脚本" class="headerlink" title="三、考题一：Excel 报表生成脚本"></a>三、考题一：Excel 报表生成脚本</h2><h3 id="（一）需求与样例数据"><a href="#（一）需求与样例数据" class="headerlink" title="（一）需求与样例数据"></a>（一）需求与样例数据</h3><p>读取含脏数据的销售明细 <code>sales_raw.xlsx</code>（六列：日期、销售员、产品、数量、单价、地区），完成清洗与统计，输出 <code>report.xlsx</code>。</p>
+<p>样例数据由脚本生成（固定随机种子可复现），共 <strong>91 行</strong>，注入 <strong>5 类脏数据</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>脏数据类型</th>
+<th>数量</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>关键字段缺失</td>
+<td>4 行</td>
+<td>缺日期 &#x2F; 缺销售员等</td>
+</tr>
+<tr>
+<td>重复行</td>
+<td>3 行</td>
+<td>整行完全相同</td>
+</tr>
+<tr>
+<td>数量 ≤ 0</td>
+<td>2 行</td>
+<td>数量 0、-5</td>
+</tr>
+<tr>
+<td>非法日期</td>
+<td>1 行</td>
+<td>2026-02-30（历法不存在）</td>
+</tr>
+<tr>
+<td>单价 ≤ 0</td>
+<td>1 行</td>
+<td>单价 -50</td>
+</tr>
+</tbody></table>
+<h3 id="（二）清洗规则（5-类，逐类剔除）"><a href="#（二）清洗规则（5-类，逐类剔除）" class="headerlink" title="（二）清洗规则（5 类，逐类剔除）"></a>（二）清洗规则（5 类，逐类剔除）</h3><ol>
+<li><p>删除关键字段缺失的行（<code>dropna</code>）</p>
+</li>
+<li><p>剔除数量 ≤ 0 的异常行</p>
+</li>
+<li><p>剔除日期非法（格式错误或历法不存在）的行（<code>pd.to_datetime</code> 校验）</p>
+</li>
+<li><p>剔除单价 ≤ 0 的异常行</p>
+</li>
+<li><p>按全字段去重</p>
+</li>
+</ol>
+<p>清洗结果：<strong>91 → 80 行</strong>。开发过程中曾自查发现最初清洗只覆盖 3 类（缺失 &#x2F; 数量≤0 &#x2F; 重复），非法日期与负单价两行会流入统计并污染月度总额（负单价行销售额为 -250），已补全规则并同步更新口径。</p>
+<h3 id="（三）统计口径与输出"><a href="#（三）统计口径与输出" class="headerlink" title="（三）统计口径与输出"></a>（三）统计口径与输出</h3><ul>
+<li><p>销售额 &#x3D; 数量 × 单价；按销售员、按地区分别汇总</p>
+</li>
+<li><p><strong>月度总额 &#x3D; 841853.21 元</strong>（全部有效数据合计，四舍五入保留 2 位小数）</p>
+</li>
+<li><p>输出 4 个工作表：明细清洗后 &#x2F; 按销售员 &#x2F; 按地区 &#x2F; 总览</p>
+</li>
+<li><p>约束：<strong>不得修改原始文件</strong>；异常输入（文件缺失、缺列、空文件、清洗后无有效数据）给出明确可读的报错提示</p>
+</li>
+</ul>
+<h3 id="（四）测试与独立核验"><a href="#（四）测试与独立核验" class="headerlink" title="（四）测试与独立核验"></a>（四）测试与独立核验</h3><ul>
+<li><p>pytest <strong>9&#x2F;9 全绿</strong>（清洗规则、异常输入、四表输出、新口径行数与总额）</p>
+</li>
+<li><p><code>verify_report.py</code> 独立重算：按销售员合计、按地区合计、独立重算总额三处与总览一致 → <strong>PASS</strong></p>
+</li>
+</ul>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E8%80%83%E9%A2%98%E4%B8%80-run.png" alt="图1 考题一 一键运行结果"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E8%80%83%E9%A2%98%E4%B8%80-verify.png" alt="图2 考题一 独立核验结果"></p>
+<h2 id="四、考题二：FastAPI-记账接口"><a href="#四、考题二：FastAPI-记账接口" class="headerlink" title="四、考题二：FastAPI 记账接口"></a>四、考题二：FastAPI 记账接口</h2><h3 id="（一）功能"><a href="#（一）功能" class="headerlink" title="（一）功能"></a>（一）功能</h3><p>提供记账接口（收入 &#x2F; 支出流水）：</p>
+<ul>
+<li><p><code>POST /records</code>：录入流水，合法返回 <strong>201</strong>；参数非法（金额≤0、非法类型、非法日期如 2026-02-30）返回 <strong>422</strong> 与校验详情</p>
+</li>
+<li><p><code>GET /records</code>：流水列表，支持按<strong>类型、分类、日期区间</strong>筛选并分页</p>
+</li>
+<li><p><code>GET /summary</code>：收入合计、支出合计、结余</p>
+</li>
+</ul>
+<h3 id="（二）实现要点"><a href="#（二）实现要点" class="headerlink" title="（二）实现要点"></a>（二）实现要点</h3><ul>
+<li><p><strong>SQLite 存储层</strong>：<code>_write_lock</code> 模块级锁串行化写事务，保证多线程并发写入不丢数据</p>
+</li>
+<li><p><strong>Pydantic 校验</strong>：金额 <code>gt=0</code>、类型枚举（收入 &#x2F; 支出）、<code>field_validator</code> 校验日期合法性，非法参数统一转 422（而非 500）</p>
+</li>
+</ul>
+<h3 id="（三）测试与实测"><a href="#（三）测试与实测" class="headerlink" title="（三）测试与实测"></a>（三）测试与实测</h3><ul>
+<li><p>pytest <strong>19&#x2F;19 全绿</strong>，含 <strong>20 线程 × 5 &#x3D; 100 条并发写入无丢失</strong> 用例</p>
+</li>
+<li><p>Uvicorn 启动实测：合法录入 3×201、非法参数 3×422、筛选分页、summary 结余均符合预期</p>
+</li>
+</ul>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E8%80%83%E9%A2%98%E4%BA%8C-api.png" alt="图3 考题二 API 实测"></p>
+<h2 id="五、网页演示版（Streamlit-双页面）"><a href="#五、网页演示版（Streamlit-双页面）" class="headerlink" title="五、网页演示版（Streamlit 双页面）"></a>五、网页演示版（Streamlit 双页面）</h2><p>把两个考题合并为一个 Streamlit 应用（端口 8505），<strong>复用两个考题的同一份代码与口径</strong>，不复制实现：</p>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>演示内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>📊 报表演示</td>
+<td>数据来源可切换（内置样例 &#x2F; 上传文件）：91 行 → 5 类脏数据卡片 → 清洗 91→80 行 → 按销售员 &#x2F; 按地区统计 → 月度总额 841853.21 → 下载 report.xlsx（附样例下载按钮）</td>
+</tr>
+<tr>
+<td>💰 记账演示</td>
+<td>表单录单 → 201&#x2F;422 校验语义 → 流水列表（类型 &#x2F; 分类 &#x2F; 日期区间筛选 + 分页）→ 收支汇总 → 并发写入 100 条无丢失</td>
+</tr>
+</tbody></table>
+<p>上传文件模式支持任意符合六列结构的 Excel（含我额外生成的 127 行多脏数据样例 <code>原数据.xlsx</code>：缺失 12 &#x2F; 重复 6 &#x2F; 数量≤0 5 &#x2F; 非法日期 4 &#x2F; 单价≤0 4，清洗后 100 行）。</p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-01.png" alt="图4 网页演示 报表演示页（5 类脏数据卡片）"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-04.png" alt="图5 网页演示 记账 201 入账"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-05.png" alt="图6 网页演示 记账 422 校验"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-06.png" alt="图7 网页演示 并发写入 100 条无丢失"></p>
+<p><img src="/images/%E8%80%83%E6%A0%B8-%E7%BD%91%E9%A1%B5%E6%BC%94%E7%A4%BA-07.png" alt="图8 网页演示 上传文件模式"></p>
+<h2 id="六、工作流：Vibe-Coding-Superpowers"><a href="#六、工作流：Vibe-Coding-Superpowers" class="headerlink" title="六、工作流：Vibe Coding + Superpowers"></a>六、工作流：Vibe Coding + Superpowers</h2><p>两个项目全程按 Superpowers 流程执行：</p>
+<ol>
+<li><p><strong>头脑风暴（HARD-GATE）</strong>：先书面写清需求澄清清单——<strong>目标</strong>（两个可独立运行的 Python 工程）、<strong>输入输出</strong>（考题一读 <code>sales_raw.xlsx</code> 出 <code>report.xlsx</code>；考题二为 HTTP 记账服务）、<strong>边界</strong>（不修改原始文件、异常可读报错、非法参数返回 4xx）、<strong>验收标准</strong>（一键运行 + 数值人工核对一致 + pytest 覆盖核心用例）；关键决策拍板：样例数据由 AI 生成（固定种子可复现）、单工程双子目录组织、过程记录由 AI 草拟用户审改</p>
+</li>
+<li><p><strong>设计文档与实施计划</strong>：两份 spec + 两份 plan（考核 9 任务 + 网页版 5 任务），均获用户批准后动工</p>
+</li>
+<li><p><strong>TDD 小步实现</strong>：每个功能先写失败测试（RED）→ 最小实现（GREEN）→ 提交；过程中 RED 暴露并修复了 3 类真实缺陷（测试数据缺陷、422 语义、并发事务冲突）</p>
+</li>
+<li><p><strong>独立核验</strong>：<code>verify_report.py</code> 三处比对、接口实测、浏览器实测截图</p>
+</li>
+<li><p><strong>Git 全程留痕</strong>：15+ 次提交，每步可追溯</p>
+</li>
+</ol>
+<h2 id="七、运行与复现"><a href="#七、运行与复现" class="headerlink" title="七、运行与复现"></a>七、运行与复现</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 考题一：生成样例 → 一键运行 → 独立核验</span><br><span class="line">cd 考题一_excel_report</span><br><span class="line">python generate_sample.py &amp;&amp; python run.py &amp;&amp; python verify_report.py</span><br><span class="line"></span><br><span class="line"># 考题二：启动接口服务（:8001）</span><br><span class="line">cd 考题二_fastapi_ledger</span><br><span class="line">python run.py</span><br><span class="line"></span><br><span class="line"># 网页演示版：一条命令启动（:8505）</span><br><span class="line">streamlit run web_demo/app.py --server.port 8505</span><br></pre></td></tr></table></figure>
+
+<h2 id="八、测试统计汇总"><a href="#八、测试统计汇总" class="headerlink" title="八、测试统计汇总"></a>八、测试统计汇总</h2><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>测试数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>考题一</td>
+<td>9</td>
+<td>清洗规则 &#x2F; 异常输入 &#x2F; 四表输出 &#x2F; 新口径</td>
+</tr>
+<tr>
+<td>考题二</td>
+<td>19</td>
+<td>校验边界 &#x2F; 筛选分页 &#x2F; 并发 100 条无丢失</td>
+</tr>
+<tr>
+<td>网页演示</td>
+<td>19</td>
+<td>报表 &#x2F; 记账逻辑（含分类筛选）&#x2F; 上传模式</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>47 全绿</strong></td>
+<td>独立核验 PASS（841853.21）</td>
+</tr>
+</tbody></table>
+<p>各模块均含正常用例与 ≥2 个边界&#x2F;异常用例：非法日期 422、全为脏数据报错、缺列&#x2F;损坏文件上传、并发 100 条无丢失等。</p>
+<h2 id="九、复盘：哪些环节交给-AI、哪些自己拍板、哪些人工审查"><a href="#九、复盘：哪些环节交给-AI、哪些自己拍板、哪些人工审查" class="headerlink" title="九、复盘：哪些环节交给 AI、哪些自己拍板、哪些人工审查"></a>九、复盘：哪些环节交给 AI、哪些自己拍板、哪些人工审查</h2><table>
+<thead>
+<tr>
+<th>环节</th>
+<th>主导方</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>需求澄清与验收口径</td>
+<td><strong>用户拍板</strong></td>
+<td>样例数据 AI 生成（固定种子）、单工程双子目录、过程记录 AI 草拟用户审改、上传文件固定六列结构</td>
+</tr>
+<tr>
+<td>技术选型与实现</td>
+<td>AI 主导</td>
+<td>清洗&#x2F;统计规则、SQLite + 模块锁、Pydantic 校验、Streamlit 双页面方案</td>
+</tr>
+<tr>
+<td>测试与独立核验</td>
+<td>双方协作</td>
+<td>AI 按 TDD 写用例并跑绿；关键数值由 <code>verify_report.py</code> 独立重算，人工复核一致</td>
+</tr>
+<tr>
+<td>风险人工审查</td>
+<td><strong>人工接管</strong></td>
+<td>拦截 3 类真实缺陷：测试数据日期笔误（去重测不到点）、GET 非法日期 500 应转 422、多线程并发写共享连接事务冲突</td>
+</tr>
+</tbody></table>
+<h2 id="十、结语"><a href="#十、结语" class="headerlink" title="十、结语"></a>十、结语</h2><p>这次考核最大的收获是完整走了一遍「人与 AI 协作开发」的正规流程：先想清楚再动手、每个功能有测试兜底、每个结论有独立核验、每一步都留在 Git 里。两道考题本身并不复杂，但流程带来的确定性让「看起来能跑」变成了「可验证地正确」—— 这也是 Vibe Coding 和随手写脚本的区别。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FastAPI/" rel="tag">FastAPI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Streamlit/" rel="tag">Streamlit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vibe-Coding/" rel="tag">Vibe Coding</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" rel="tag">项目实战</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-实验2-数据看板的设计与实现（电商销售数据看板·进阶版）"
   class="article article-type-post"
   itemscope
@@ -2097,311 +2370,6 @@ double calculateInterest() &#123;
 <li>抽象类：包含抽象方法的类，不能实例化</li>
 <li>接口：完全抽象的规范，支持多实现</li>
 </ul>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-第四章-类与对象——面向对象编程入门"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/05/10/%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1%E2%80%94%E2%80%94%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/"
-    >第四章 类与对象——面向对象编程入门</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/05/10/%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1%E2%80%94%E2%80%94%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" class="article-date">
-  <time datetime="2026-05-10T05:37:53.000Z" itemprop="datePublished">2026-05-10</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、本章知识回顾</p>
-<p>面向对象基础概念表格<br>知识点	说明<br>类	对象的模板，描述一类事物的共同特征<br>对象	类的具体实例<br>成员变量	对象的属性（状态）<br>成员方法	对象的行为（功能）<br>构造方法	创建对象时初始化成员变量<br>this关键字	指向当前对象的引用<br>对象的组合	一个类把其他类的对象作为成员</p>
-<p>二、为什么需要类与对象？</p>
-<p>2.1 问题引入</p>
-<p>假设要处理小明养的两只狗的信息：</p>
-<table>
-<thead>
-<tr>
-<th>狗名</th>
-<th>年龄</th>
-<th>颜色</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>小白</td>
-<td>3岁</td>
-<td>白色</td>
-</tr>
-<tr>
-<td>小花</td>
-<td>10岁</td>
-<td>花色</td>
-</tr>
-</tbody></table>
-<p>表格转换结果<br>狗名	年龄	颜色<br>小白	3岁	白色<br>小花	10岁	花色<br>如果用之前学过的数组来处理：</p>
-<p>String[] dog1 &#x3D; {“小白”, “3”, “白色”};<br>String[] dog2 &#x3D; {“小花”, “10”, “花色”};</p>
-<p>AI写代码<br>java<br>运行<br>数组方式的问题：</p>
-<p>数据类型不明确（年龄”3”是字符串，不方便计算）</p>
-<p>通过下标获取信息（dog1[0]是名字，dog1[1]是年龄，容易混淆）</p>
-<p>不能体现狗的行为（如”叫”、”跑”等）</p>
-<p>解决方式：用类来定义狗的特征和行为，用对象来表示具体的某只狗。</p>
-<p>三、类的定义<br>3.1 类的基本结构<br>类是Java中最基本的”模板”，用来描述一类事物的属性（成员变量）和行为（成员方法）。</p>
-<p>java</p>
-<p>class Dog {<br>    &#x2F;&#x2F; 1. 成员变量（属性）<br>    String name;   &#x2F;&#x2F; 名字<br>    int age;       &#x2F;&#x2F; 年龄<br>    String color;  &#x2F;&#x2F; 颜色</p>
-<pre><code>// 2. 成员方法（行为）
-void bark() &#123;
-    System.out.println(name + &quot;：汪汪汪！&quot;);
-&#125;
-
-void run() &#123;
-    System.out.println(name + &quot;正在奔跑&quot;);
-&#125;
-
-void showInfo() &#123;
-    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age + &quot;岁，颜色：&quot; + color);
-&#125;
-</code></pre>
-<p>}<br>3.2 成员变量<br>位置：在类中、方法外部定义</p>
-<p>作用：描述对象的属性（状态）</p>
-<p>默认值：即使不赋值，也有默认初始值</p>
-<p>类型	默认值<br>int	0<br>double	0.0<br>boolean	false<br>char	‘\u0000’<br>引用类型（String等）	null<br>3.3 成员方法<br>位置：在类中定义</p>
-<p>作用：描述对象的行为（功能）</p>
-<p>结构：修饰符 + 返回值类型 + 方法名 + 参数列表 + 方法体</p>
-<p>java</p>
-<p>&#x2F;&#x2F; 方法结构示例<br>public void bark() {           &#x2F;&#x2F; 无返回值，无参数<br>    System.out.println(“叫”);<br>}</p>
-<p>public int add(int a, int b) { &#x2F;&#x2F; 有返回值，有参数<br>    return a + b;<br>}<br>四、对象的创建与使用<br>4.1 创建对象（实例化）<br>使用 new 关键字 + 构造方法创建对象：</p>
-<p>java</p>
-<p>public class DogTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建Dog类的对象<br>        Dog dog1 &#x3D; new Dog();  &#x2F;&#x2F; 声明 + 创建 + 赋值</p>
-<pre><code>    // 或者分两步写
-    Dog dog2;              // 1.声明对象变量
-    dog2 = new Dog();      // 2.创建对象（分配内存）
-&#125;
-</code></pre>
-<p>}<br>4.2 使用对象<br>通过 对象名.成员变量 和 对象名.成员方法() 来访问：</p>
-<p>java</p>
-<p>public class DogTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建对象<br>        Dog dog1 &#x3D; new Dog();<br>        Dog dog2 &#x3D; new Dog();</p>
-<pre><code>    // 给成员变量赋值
-    dog1.name = &quot;小白&quot;;
-    dog1.age = 3;
-    dog1.color = &quot;白色&quot;;
-    
-    dog2.name = &quot;小花&quot;;
-    dog2.age = 10;
-    dog2.color = &quot;花色&quot;;
-    
-    // 调用成员方法
-    dog1.showInfo();   // 输出：名字：小白，年龄：3岁，颜色：白色
-    dog1.bark();       // 输出：小白：汪汪汪！
-    
-    dog2.showInfo();   // 输出：名字：小花，年龄：10岁，颜色：花色
-    dog2.run();        // 输出：小花正在奔跑
-&#125;
-</code></pre>
-<p>}<br>运行结果：</p>
-<p>text</p>
-<p>名字：小白，年龄：3岁，颜色：白色<br>小白：汪汪汪！<br>名字：小花，年龄：10岁，颜色：花色<br>小花正在奔跑<br>4.3 类与对象的关系图<br>text</p>
-<p>┌─────────────────────────────────────┐<br>│           类（模板）                  │<br>│  ┌─────────────────────────────────┐ │<br>│  │ class Dog {                     │ │<br>│  │     String name;   &#x2F;&#x2F; 成员变量   │ │<br>│  │     int age;                    │ │<br>│  │     void bark() {…} &#x2F;&#x2F; 方法    │ │<br>│  │ }                               │ │<br>│  └─────────────────────────────────┘ │<br>└─────────────────────────────────────┘<br>                  │<br>                  │ 实例化（new）<br>                  ↓<br>┌───────────────────────┐  ┌───────────────────────┐<br>│   对象1（实例1）        │  │   对象2（实例2）        │<br>│  ┌─────────────────┐  │  │  ┌─────────────────┐  │<br>│  │ name &#x3D; “小白”   │  │  │  │ name &#x3D; “小花”   │  │<br>│  │ age &#x3D; 3         │  │  │  │ age &#x3D; 10        │  │<br>│  │ color &#x3D; “白色”  │  │  │  │ color &#x3D; “花色”  │  │<br>│  └─────────────────┘  │  │  └─────────────────┘  │<br>└───────────────────────┘  └───────────────────────┘<br>核心理解：</p>
-<p>类：图纸（抽象）</p>
-<p>对象：根据图纸造出的房子（具体）</p>
-<p>同一个类可以创建多个对象，每个对象有自己的属性值</p>
-<p>五、构造方法<br>5.1 什么是构造方法？<br>构造方法是专门用来创建对象时初始化成员变量的特殊方法。</p>
-<p>特点：</p>
-<p>方法名与类名相同</p>
-<p>没有返回值类型（连void都不写）</p>
-<p>创建对象时自动调用</p>
-<p>5.2 无参构造方法<br>java</p>
-<p>class Dog {<br>    String name;<br>    int age;</p>
-<pre><code>// 无参构造方法
-Dog() &#123;
-    System.out.println(&quot;一只新的狗被创建了&quot;);
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class Test {<br>    public static void main(String[] args) {<br>        Dog dog &#x3D; new Dog();  &#x2F;&#x2F; 自动调用构造方法，输出：一只新的狗被创建了<br>    }<br>}<br>5.3 有参构造方法<br>java</p>
-<p>class Dog {<br>    String name;<br>    int age;<br>    String color;</p>
-<pre><code>// 有参构造方法
-Dog(String n, int a, String c) &#123;
-    name = n;
-    age = a;
-    color = c;
-    System.out.println(&quot;创建了：&quot; + name);
-&#125;
-
-void showInfo() &#123;
-    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age + &quot;，颜色：&quot; + color);
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class Test {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建对象时直接传入参数<br>        Dog dog1 &#x3D; new Dog(“小白”, 3, “白色”);<br>        Dog dog2 &#x3D; new Dog(“小花”, 10, “花色”);</p>
-<pre><code>    dog1.showInfo();  // 名字：小白，年龄：3，颜色：白色
-    dog2.showInfo();  // 名字：小花，年龄：10，颜色：花色
-&#125;
-</code></pre>
-<p>}<br>5.4 注意事项<br>情况	说明<br>没有定义任何构造方法	系统自动提供无参构造方法<br>定义了有参构造方法	系统不再提供无参构造方法<br>想同时使用两种	需要重载构造方法（手动写两个）<br>六、this关键字<br>6.1 解决命名冲突<br>当成员变量和局部变量（包括参数）同名时，this.成员变量 表示成员变量。</p>
-<p>java</p>
-<p>class Dog {<br>    String name;<br>    int age;</p>
-<pre><code>// 参数名和成员变量名相同
-Dog(String name, int age) &#123;
-    this.name = name;  // this.name 是成员变量，name 是参数
-    this.age = age;
-&#125;
-
-void showInfo() &#123;
-    System.out.println(&quot;名字：&quot; + name + &quot;，年龄：&quot; + age);
-&#125;
-</code></pre>
-<p>}<br>为什么需要this？</p>
-<p>如果不写this，会发生”局部变量覆盖成员变量”：</p>
-<p>java</p>
-<p>&#x2F;&#x2F; 错误写法<br>Dog(String name, int age) {<br>    name &#x3D; name;   &#x2F;&#x2F; 左边和右边都是参数name，成员变量name没有被赋值<br>    age &#x3D; age;     &#x2F;&#x2F; 同样的问题<br>}<br>6.2 this的其他用法<br>java</p>
-<p>class Dog {<br>    String name;</p>
-<pre><code>Dog() &#123;
-    this(&quot;无名&quot;);  // 调用本类的有参构造方法
-&#125;
-
-Dog(String name) &#123;
-    this.name = name;
-&#125;
-</code></pre>
-<p>}<br>七、对象的组合<br>一个类可以把其他类的对象作为自己的成员变量，这叫对象的组合。</p>
-<p>示例：人养狗<br>java</p>
-<p>&#x2F;&#x2F; 狗类<br>class Dog {<br>    String name;<br>    int age;</p>
-<pre><code>Dog(String name, int age) &#123;
-    this.name = name;
-    this.age = age;
-&#125;
-
-void bark() &#123;
-    System.out.println(name + &quot;：汪汪！&quot;);
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;&#x2F; 人类（组合了Dog类）<br>class Person {<br>    String name;<br>    Dog pet;      &#x2F;&#x2F; 把Dog对象作为成员变量</p>
-<pre><code>Person(String name, Dog pet) &#123;
-    this.name = name;
-    this.pet = pet;
-&#125;
-
-void walkPet() &#123;
-    System.out.println(name + &quot;正在遛 &quot; + pet.name);
-    pet.bark();
-&#125;
-
-void showInfo() &#123;
-    System.out.print(name + &quot;的宠物：&quot;);
-    System.out.println(&quot;名字：&quot; + pet.name + &quot;，年龄：&quot; + pet.age + &quot;岁&quot;);
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class Test {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 先创建狗<br>        Dog dog &#x3D; new Dog(“小白”, 3);</p>
-<pre><code>    // 再创建人（把狗作为参数传入）
-    Person person = new Person(&quot;小明&quot;, dog);
-    
-    person.showInfo();   // 小明的宠物：名字：小白，年龄：3岁
-    person.walkPet();    // 小明正在遛小白 \n 小白：汪汪！
-&#125;
-</code></pre>
-<p>}<br>运行结果：</p>
-<p>text</p>
-<p>小明的宠物：名字：小白，年龄：3岁<br>小明正在遛小白<br>小白：汪汪！<br>八、完整示例：有理数类（教材例题）<br>根据教材第4章的有理数类例题，以下是一个完整的封装示例：</p>
-<p>java</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>有理数类（封装分数）</p>
-</li>
-<li><p>成员变量：分子、分母</p>
-</li>
-<li><p>成员方法：加法、减法、乘法、除法、化简<br> *&#x2F;<br>class Rational {<br> int numerator;      &#x2F;&#x2F; 分子<br> int denominator;    &#x2F;&#x2F; 分母</p>
-<p> &#x2F;&#x2F; 构造方法<br> Rational(int numerator, int denominator) {<br> this.numerator &#x3D; numerator;<br> this.denominator &#x3D; denominator;<br> reduce();        &#x2F;&#x2F; 创建时自动化简<br> }</p>
-<p> &#x2F;&#x2F; 求最大公约数（用于化简）<br> int gcd(int a, int b) {<br> return b &#x3D;&#x3D; 0 ? a : gcd(b, a % b);<br> }</p>
-<p> &#x2F;&#x2F; 化简分数<br> void reduce() {<br> int g &#x3D; gcd(numerator, denominator);<br> numerator &#x2F;&#x3D; g;<br> denominator &#x2F;&#x3D; g;<br> }</p>
-<p> &#x2F;&#x2F; 加法<br> Rational add(Rational r) {<br> int newNum &#x3D; this.numerator * r.denominator + r.numerator * this.denominator;<br> int newDen &#x3D; this.denominator * r.denominator;<br> return new Rational(newNum, newDen);<br> }</p>
-<p> &#x2F;&#x2F; 减法<br> Rational subtract(Rational r) {<br> int newNum &#x3D; this.numerator * r.denominator - r.numerator * this.denominator;<br> int newDen &#x3D; this.denominator * r.denominator;<br> return new Rational(newNum, newDen);<br> }</p>
-<p> &#x2F;&#x2F; 输出分数<br> void display() {<br> if (denominator &#x3D;&#x3D; 1) {<br>     System.out.println(numerator);<br> } else {<br>     System.out.println(numerator + “&#x2F;“ + denominator);<br> }<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>public class RationalTest {<br>    public static void main(String[] args) {<br>        Rational r1 &#x3D; new Rational(1, 3);   &#x2F;&#x2F; 1&#x2F;3<br>        Rational r2 &#x3D; new Rational(2, 5);   &#x2F;&#x2F; 2&#x2F;5</p>
-<pre><code>    System.out.print(&quot;1/3 + 2/5 = &quot;);
-    r1.add(r2).display();                // 11/15
-    
-    System.out.print(&quot;1/3 - 2/5 = &quot;);
-    r1.subtract(r2).display();           // -1/15
-&#125;
-</code></pre>
-<p>}<br>九、常见错误与注意点<br>错误写法	正确写法	说明<br>Dog dog; dog.name &#x3D; “小白”;	Dog dog &#x3D; new Dog();	必须先创建对象才能使用<br>class dog { … }	class Dog { … }	类名首字母大写（规范）<br>构造方法写了返回值类型	Dog() { }（无void）	构造方法不能有返回值<br>this 在静态方法中使用	只能在非静态方法中使用	static方法中不能用this<br>忘记写构造方法导致无法初始化	提供合适的构造方法	或使用setter方法赋值<br>十、小结<br>本章学习了：</p>
-<p> 类的定义：成员变量 + 成员方法</p>
-<p> 对象的创建：使用 new 关键字</p>
-<p> 构造方法：与类同名，无返回值，用于初始化</p>
-<p> this关键字：区分成员变量和局部变量</p>
-<p> 对象的组合：一个类包含其他类的对象</p>
-<p>核心代码模板：</p>
-<p>java</p>
-<p>class 类名 {<br>    &#x2F;&#x2F; 1. 成员变量<br>    数据类型 变量名;</p>
-<pre><code>// 2. 构造方法
-类名(参数列表) &#123;
-    this.成员变量 = 参数;
-&#125;
-
-// 3. 成员方法
-返回值类型 方法名(参数列表) &#123;
-    // 方法体
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;&#x2F; 使用<br>类名 对象名 &#x3D; new 类名(参数);<br>对象名.方法名();</p>
 
       
 
