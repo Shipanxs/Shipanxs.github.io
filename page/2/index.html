@@ -116,6 +116,288 @@
     
     
     <article
+  id="post-JAVA作业：素数查找——用循环和分支解决问题"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/05/08/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E7%B4%A0%E6%95%B0%E6%9F%A5%E6%89%BE%E2%80%94%E2%80%94%E7%94%A8%E5%BE%AA%E7%8E%AF%E5%92%8C%E5%88%86%E6%94%AF%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98/"
+    >JAVA作业：素数查找——用循环和分支解决问题</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/05/08/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E7%B4%A0%E6%95%B0%E6%9F%A5%E6%89%BE%E2%80%94%E2%80%94%E7%94%A8%E5%BE%AA%E7%8E%AF%E5%92%8C%E5%88%86%E6%94%AF%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2026-05-08T05:37:29.000Z" itemprop="datePublished">2026-05-08</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、问题引入</p>
+<p>什么是素数？</p>
+<p>素数（质数）：大于1的自然数，除了1和它本身以外，不能被其他自然数整除。</p>
+<p>例如：</p>
+<ul>
+<li>7是素数（只能被1和7整除）</li>
+<li>8不是素数（还能被2和4整除）</li>
+</ul>
+<hr>
+<p>二、判断一个数是否为素数</p>
+<p>2.1 核心思路</p>
+<p>要判断一个数num是否为素数，只需要检查：</p>
+<ul>
+<li>从2开始，到num-1结束</li>
+<li>用每个数去除num</li>
+<li>如果发现任何一个能整除，说明num不是素数</li>
+</ul>
+<p>2.2 基础代码</p>
+<pre><code class="java">public class IsPrime &#123;
+    public static void main(String[] args) &#123;
+        int num = 17;
+        boolean isPrime = true;  // 先假设是素数
+        
+        // for循环：从2检查到num-1
+        for (int i = 2; i &lt; num; i++) &#123;
+            if (num % i == 0) &#123;      // 如果能整除
+                isPrime = false;      // 不是素数
+                break;                // 提前结束循环
+            &#125;
+        &#125;
+        
+        if (isPrime) &#123;
+            System.out.println(num + &quot;是素数&quot;);
+        &#125; else &#123;
+            System.out.println(num + &quot;不是素数&quot;);
+        &#125;
+    &#125;
+&#125;
+2.3 代码逐行解释
+代码	知识点	说明
+for (int i = 2; i &lt; num; i++)	for循环	初始化i=2；条件i&lt;num；每次i+1
+num % i	算术运算符%	取余运算，得到num除以i的余数
+num % i == 0	关系运算符==	判断余数是否等于0
+if (num % i == 0)	if条件语句	条件成立时执行
+isPrime = false	赋值运算符=	把false赋值给isPrime
+break	跳转语句	跳出整个循环
+2.4 程序流程图
+text
+
+开始
+  ↓
+输入num = 17
+  ↓
+假设isPrime = true
+  ↓
+i从2开始 ──────→ i=2
+  ↓              ↓
+i &lt; num? ──→ 2&lt;17? 是
+  ↓              ↓
+num % i == 0?  17%2==1? 否
+  ↓              ↓
+i++ → i=3       (继续循环)
+  ↓
+... 一直检查到i=16
+  ↓
+i=17时，17&lt;17? 否，退出循环
+  ↓
+isPrime仍为true
+  ↓
+输出&quot;17是素数&quot;
+  ↓
+结束
+三、找出某个范围内的所有素数
+3.1 需求
+找出101到200之间所有的素数。
+
+3.2 思路
+外层循环：遍历101到200的每个数
+
+内层循环：判断当前数是否为素数
+
+计数器：统计素数个数
+
+3.3 完整代码
+java
+
+public class FindPrimes &#123;
+    public static void main(String[] args) &#123;
+        int start = 101;
+        int end = 200;
+        int count = 0;
+        
+        System.out.println(start + &quot;到&quot; + end + &quot;之间的素数有：&quot;);
+        
+        // 外层循环：遍历每个要判断的数
+        for (int num = start; num &lt;= end; num++) &#123;
+            
+            boolean isPrime = true;  // 假设当前数是素数
+            
+            // 内层循环：检查是否有因数
+            // 只需要检查到 num-1
+            for (int i = 2; i &lt; num; i++) &#123;
+                if (num % i == 0) &#123;
+                    isPrime = false;  // 找到因数，不是素数
+                    break;            // 跳出内层循环
+                &#125;
+            &#125;
+            
+            // 如果是素数，输出并计数
+            if (isPrime) &#123;
+                System.out.print(num + &quot; &quot;);
+                count++;
+            &#125;
+        &#125;
+        
+        System.out.println(&quot;\n共有 &quot; + count + &quot; 个素数&quot;);
+    &#125;
+&#125;
+3.4 运行结果
+text
+
+101到200之间的素数有：
+101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199 
+共有 21 个素数
+四、优化：平方根优化
+4.1 为什么要优化？
+上面的代码中，判断一个数num，需要检查2到num-1。如果num=199，需要检查197次，效率很低。
+
+4.2 优化原理
+如果num不是素数，那么它一定可以写成：num = a × b
+
+其中a和b中，至少有一个 ≤ √num
+
+因此，我们只需要检查到√num就可以了。
+
+4.3 优化后的代码
+java
+
+public class FindPrimesOptimized &#123;
+    public static void main(String[] args) &#123;
+        int start = 101;
+        int end = 200;
+        int count = 0;
+        
+        System.out.println(start + &quot;到&quot; + end + &quot;之间的素数有：&quot;);
+        
+        for (int num = start; num &lt;= end; num++) &#123;
+            if (isPrime(num)) &#123;
+                System.out.print(num + &quot; &quot;);
+                count++;
+            &#125;
+        &#125;
+        
+        System.out.println(&quot;\n共有 &quot; + count + &quot; 个素数&quot;);
+    &#125;
+    
+    /**
+     * 判断素数（平方根优化版）
+     */
+    public static boolean isPrime(int num) &#123;
+        // 小于2的不是素数
+        if (num &lt; 2) &#123;
+            return false;
+        &#125;
+        
+        // 只需要检查到平方根
+        for (int i = 2; i &lt;= Math.sqrt(num); i++) &#123;
+            if (num % i == 0) &#123;
+                return false;  // 有因数，不是素数
+            &#125;
+        &#125;
+        return true;  // 没有因数，是素数
+    &#125;
+&#125;
+4.4 优化效果对比
+方法	判断199需要检查的次数
+原始方法（检查到num-1）	197次
+平方根优化（检查到√199≈14）	13次
+快了约15倍！
+
+五、常见错误提醒
+错误写法	正确写法	说明
+if (num % i = 0)	if (num % i == 0)	判断相等要用==，单个=是赋值
+for (int i=2; i&lt;num; i++) 不加大括号	建议加大括号 &#123;&#125;	循环体多条语句时需要大括号
+忘记写break	找到因数后写break	不写会继续循环，浪费性能
+内层循环从1开始	从2开始	任何数都能被1整除，从1开始会误判
+六、小结
+本章通过“查找素数”这个案例，实践了以下知识点：
+
+for循环：遍历范围、嵌套使用
+
+if语句：条件判断
+
+运算符%：判断整除
+
+关系运算符：&lt;、≤(用&lt;=表示)、==
+
+break语句：提前跳出循环
+
+平方根优化：提升算法效率
+
+核心代码模板（记住这个就够了）：
+
+java
+
+public static boolean isPrime(int num) &#123;
+    if (num &lt; 2) return false;
+    for (int i = 2; i &lt;= Math.sqrt(num); i++) &#123;
+        if (num % i == 0) return false;
+    &#125;
+    return true;
+&#125;
+</code></pre>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-Java作业：枚举类型的三个经典应用场景（第三章）"
   class="article article-type-post"
   itemscope

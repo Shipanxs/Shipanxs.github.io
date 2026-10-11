@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>实验2-数据看板的设计与实现（电商销售数据看板·进阶版） |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-实验2-数据看板的设计与实现（电商销售数据看板·进阶版）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  实验2-数据看板的设计与实现（电商销售数据看板·进阶版）
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/10/11/%E5%AE%9E%E9%AA%8C2-%E6%95%B0%E6%8D%AE%E7%9C%8B%E6%9D%BF%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%88%E7%94%B5%E5%95%86%E9%94%80%E5%94%AE%E6%95%B0%E6%8D%AE%E7%9C%8B%E6%9D%BF%C2%B7%E8%BF%9B%E9%98%B6%E7%89%88%EF%BC%89/" class="article-date">
+  <time datetime="2026-10-11T13:30:00.000Z" itemprop="datePublished">2026-10-11</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <h1 id="实验2-数据看板的设计与实现"><a href="#实验2-数据看板的设计与实现" class="headerlink" title="实验2 数据看板的设计与实现"></a>实验2 数据看板的设计与实现</h1><blockquote>
+<p>电商销售数据看板（进阶版）实验报告</p>
+</blockquote>
+<h2 id="一、实验目的"><a href="#一、实验目的" class="headerlink" title="一、实验目的"></a>一、实验目的</h2><p>本实验以电商销售数据为业务场景，完成数据看板从需求分析、版面设计、数据处理到看板落地的完整流程，具体目的如下：</p>
+<ul>
+<li>掌握数据看板的基本概念、核心功能与应用场景，理解数据可视化、数据大屏、实时看板的区别与联系；</li>
+<li>熟悉数据看板的设计原则与布局规范，包括视觉层级、色彩搭配、图表选型、信息降噪与适配布局等核心设计逻辑；</li>
+<li>学会根据业务数据特征选择适配的可视化图表（柱状图、折线图、饼图、仪表盘、数据卡片等），实现数据的直观展示与维度分析；</li>
+<li>培养数据思维与可视化设计能力，能够独立完成从需求分析、版面设计、数据处理到看板落地的完整流程；</li>
+<li>理解静态看板与动态实时看板的差异，掌握数据刷新、动态轮播、联动交互等基础功能的实现原理。</li>
+</ul>
+<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><p>硬件环境：计算机、网络环境。软件环境：Windows 操作系统、现代浏览器（Edge）、Visual Studio Code 开发工具。</p>
+<p>技术栈：Python 3.13 作为运行环境，Streamlit 1.65.0 搭建看板页面，Pandas 3.0.6 完成数据处理，Plotly 7.1.0 生成可视化图表，openpyxl 支持 Excel 文件读写。</p>
+<h2 id="三、实验内容与过程"><a href="#三、实验内容与过程" class="headerlink" title="三、实验内容与过程"></a>三、实验内容与过程</h2><h3 id="（一）需求分析与版面设计"><a href="#（一）需求分析与版面设计" class="headerlink" title="（一）需求分析与版面设计"></a>（一）需求分析与版面设计</h3><p>自选电商销售数据场景，数据窗口为 2026-10-10 21:00 至 2026-10-11 20:59（近24小时，小时粒度），核心展示需求为销售额、订单量、客单价、转化率、履约与退款等运营指标，以及品类、渠道、商品、时段等多维分析。</p>
+<p>看板版面划分为四大模块：数据概览区（KPI 数据卡片）、维度统计区（分类对比与占比图表）、趋势分析区（时间序列图表）、明细数据区（订单与商品明细表）。</p>
+<p>整体采用深色科技风配色：背景色 <code>#0d1117</code>、卡片底色 <code>#161b22</code>、主色 <code>#00d4ff</code>（数据强调）、辅助色 <code>#ff6b35</code> 与 <code>#a855f7</code>（预警与对比）、文本色 <code>#e6edf3</code> 与 <code>#8b949e</code>，保证视觉层级清晰、信息降噪。</p>
+<h3 id="（二）数据准备与预处理"><a href="#（二）数据准备与预处理" class="headerlink" title="（二）数据准备与预处理"></a>（二）数据准备与预处理</h3><p>使用脚本生成模拟数据集并保存为 CSV 与 Excel 格式，共生成订单明细 4,205 行，覆盖 4 个销售渠道（APP、小程序、直播、线下）、5 个商品类目、7 个销售地区、4 种订单状态。</p>
+<p>为验证数据清洗能力，向原始数据中注入 101 条脏数据，包括：缺失值 50 条、重复记录 12 条、负金额 8 条、单价超 2000 元 6 条、零销量 6 条、越界时间 5 条、空白地区 8 条、乱码状态 6 条（如”巳完戌”）。</p>
+<p>预处理脚本按规则清洗：剔除缺失行、按内容去重（排除订单号列）、剔除负金额与超高价与零销量记录、剔除越界时间、去除空白地区、乱码状态映射为合法状态。清洗后得到干净订单 4,119 行，sales_metrics 指标表由清洗后订单重新聚合，与订单明细口径差异为 0 元、0 单，保证指标自洽。</p>
+<h3 id="（三）基础可视化图表搭建"><a href="#（三）基础可视化图表搭建" class="headerlink" title="（三）基础可视化图表搭建"></a>（三）基础可视化图表搭建</h3><p>基于预处理数据完成 6 种以上图表组件：</p>
+<ul>
+<li>数据卡片 6 张：总销售额、总订单数、客单价、转化率、待发货订单、退款率，并标注较上一时段的环比变化；</li>
+<li>柱状图：品类销售额对比（数码电器、美妆个护、服饰鞋包、食品生鲜、家居日用）；</li>
+<li>环形图：渠道销售额占比（APP 39.8%、小程序 25.1%、直播 20.2%、线下 14.9%）；</li>
+<li>折线&#x2F;面积图：近24小时销售额、订单量、转化率时间趋势；</li>
+<li>横向条形图：商品销售额 Top10 排行榜。</li>
+</ul>
+<p>图表构建函数统一接收过滤后的 DataFrame 作为入参，返回 Plotly 图形对象，供基础版与进阶版看板复用，保证同一数据源的图表口径一致，并通过测试脚本验证图表聚合结果与订单明细一致。</p>
+<h3 id="（四）静态数据看板整合实现"><a href="#（四）静态数据看板整合实现" class="headerlink" title="（四）静态数据看板整合实现"></a>（四）静态数据看板整合实现</h3><p>基础版看板（app.py）将标题栏、KPI 数据卡片、维度统计三栏（柱状图、环形图、Top10）、趋势分析三图（销售额、订单量、转化率）与订单明细表整合到同一页面，通过深色 CSS 统一字体、颜色、间距与卡片样式，实现整洁清晰的静态看板效果。使用 Streamlit AppTest 无头测试验证页面无异常、标题与四大模块齐全。</p>
+<h3 id="（五）进阶功能实现"><a href="#（五）进阶功能实现" class="headerlink" title="（五）进阶功能实现"></a>（五）进阶功能实现</h3><p><strong>进阶1 动态视觉效果优化</strong>：为 KPI 数值添加滚动动画、组件渐入动画、经营播报轮播（约 3.5 秒切换）、图表 hover 悬浮提示，并通过媒体查询实现自适应布局，避免页面错位与溢出。</p>
+<p><strong>进阶2 图表联动与筛选功能实现</strong>：侧边栏提供 3 个多选筛选器（销售渠道、商品类目、订单状态）与时间范围滑块（近 N 小时），筛选后所有图表与指标同步更新；页面提供品类联动按钮，点击后可聚焦展示对应品类的统计视图，交互状态由 session_state 管理。</p>
+<p><strong>进阶3 多维度数据分析可视化</strong>：新增渠道×时段销售额热力图、品类×渠道销售结构雷达图、3 个进度仪表盘（销售额、转化率、客单价达成率），以及热销商品 Top8（绿色标注）与滞销商品 Top8（红色标注）双榜单，实现数据对比、预警与极值展示。</p>
+<h2 id="四、实验结果与验证"><a href="#四、实验结果与验证" class="headerlink" title="四、实验结果与验证"></a>四、实验结果与验证</h2><h3 id="（一）KPI-指标核验"><a href="#（一）KPI-指标核验" class="headerlink" title="（一）KPI 指标核验"></a>（一）KPI 指标核验</h3><p>对清洗后订单数据独立重算核心指标，与预处理阶段生成的 kpi_summary.txt 基线逐项对照，六项指标全部一致，结果如表1所示。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>独立重算</th>
+<th>基线（kpi_summary.txt）</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>总销售额</td>
+<td>¥799,540.61</td>
+<td>799540.61</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>总订单数</td>
+<td>4,119</td>
+<td>4119</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>客单价</td>
+<td>¥194.11</td>
+<td>194.11</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>转化率</td>
+<td>4.43%</td>
+<td>4.43</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>待发货订单</td>
+<td>1,017</td>
+<td>1017</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>退款率</td>
+<td>5.07%</td>
+<td>5.07</td>
+<td>一致</td>
+</tr>
+</tbody></table>
+<p>表1 KPI 指标核验结果（独立重算 vs 基线）</p>
+<h3 id="（二）看板运行截图"><a href="#（二）看板运行截图" class="headerlink" title="（二）看板运行截图"></a>（二）看板运行截图</h3><p>两版看板在本地服务启动后，通过浏览器真实渲染并截图验证。基础版看板完整呈现四大模块，图表与数据均正常显示，如图1、图2所示。</p>
+<p><img src="/images/%E5%AE%9E%E9%AA%8C2-%E5%9F%BA%E7%A1%80%E7%89%88-%E9%A6%96%E5%B1%8F.png" alt="图1 基础版看板首屏（数据概览、维度统计、趋势分析、订单明细）"></p>
+<p>图1 基础版看板首屏</p>
+<p><img src="/images/%E5%AE%9E%E9%AA%8C2-%E5%9F%BA%E7%A1%80%E7%89%88-%E4%B8%AD%E9%83%A8.png" alt="图2 基础版看板中部（趋势分析三图与订单明细）"></p>
+<p>图2 基础版看板中部</p>
+<p>进阶版看板集成动态效果、筛选联动与多维分析组件，首屏与中部如图3、图4所示。</p>
+<p><img src="/images/%E5%AE%9E%E9%AA%8C2-%E8%BF%9B%E9%98%B6%E7%89%88-%E9%A6%96%E5%B1%8F.png" alt="图3 进阶版看板首屏（多维筛选、经营播报、品类联动、KPI 与维度统计）"></p>
+<p>图3 进阶版看板首屏</p>
+<p><img src="/images/%E5%AE%9E%E9%AA%8C2-%E8%BF%9B%E9%98%B6%E7%89%88-%E4%B8%AD%E9%83%A8.png" alt="图4 进阶版看板中部（趋势分析、渠道×时段热力图、品类×渠道雷达图）"></p>
+<p>图4 进阶版看板中部</p>
+<p>两版看板页尾均以明细数据收尾：基础版底部为订单明细表与商品状态表，进阶版底部在左侧多维筛选面板之外展示商品档案表（含热销&#x2F;正常&#x2F;滞销状态标注），如图5、图6所示。</p>
+<p><img src="/images/%E5%AE%9E%E9%AA%8C2-%E5%9F%BA%E7%A1%80%E7%89%88-%E5%BA%95%E9%83%A8.png" alt="图5 基础版看板底部（订单明细与商品状态表）"></p>
+<p>图5 基础版看板底部</p>
+<p><img src="/images/%E5%AE%9E%E9%AA%8C2-%E8%BF%9B%E9%98%B6%E7%89%88-%E5%BA%95%E9%83%A8.png" alt="图6 进阶版看板底部（多维筛选与商品档案状态表）"></p>
+<p>图6 进阶版看板底部</p>
+<h3 id="（三）自动化测试结果"><a href="#（三）自动化测试结果" class="headerlink" title="（三）自动化测试结果"></a>（三）自动化测试结果</h3><ul>
+<li>test_charts.py：验证全部图表组件与订单聚合结果一致，通过；</li>
+<li>test_app.py：基础看板 AppTest 无头测试 0 异常，标题、KPI 卡片、四大模块均存在，通过；</li>
+<li>test_app_advanced.py：进阶看板 AppTest 无头测试 0 异常，经营播报、筛选器、联动按钮、多维模块均存在，且代码不依赖外部网络资源，通过；</li>
+<li>浏览器渲染验证：以 headless Edge 打开看板页面，图表均正常渲染（非空白），截图 OCR 复核数据与 KPI 基线一致。</li>
+</ul>
+<h2 id="五、遇到的问题及解决方法"><a href="#五、遇到的问题及解决方法" class="headerlink" title="五、遇到的问题及解决方法"></a>五、遇到的问题及解决方法</h2><ul>
+<li><strong>图表渲染空白问题</strong>：初版使用 plotly.io.to_html 且 include_plotlyjs 指向外网 CDN，运行环境无法访问外网导致图表空白。解决方法：改用 Streamlit 内置的 st.plotly_chart 离线渲染，彻底去除外网依赖，截图验证通过；</li>
+<li><strong>Plotly 7.x 语法差异</strong>：仪表盘（gauge）的 axis 不再支持 gridcolor 属性，构造时抛出 ValueError。解决方法：改用 tickcolor 属性设置刻度颜色，兼容新版 API；</li>
+<li><strong>截图自动化中页面无法滚动</strong>：新版 Streamlit 的滚动容器为 .stMain 而非 body，直接对窗口滚动无效。解决方法：定位 .stMain 容器并设置其 scrollTop 完成分屏截图；</li>
+<li><strong>客单价超出设计区间</strong>：初版价格分布导致客单价约 282 元，超出 100–200 元目标。解决方法：调整价格分层（88% 常规价 29–199 元 + 12% 大额价 200–400 元），并设置价格-销量系数，最终客单价 194.11 元落入目标区间。</li>
+</ul>
+<h2 id="六、实验总结"><a href="#六、实验总结" class="headerlink" title="六、实验总结"></a>六、实验总结</h2><p>本实验以电商销售数据为场景，完成了数据看板从需求分析、版面设计、数据生成与清洗、图表搭建、静态看板整合到进阶动态交互的完整流程。基础任务部分完成了四大模块版面设计与静态看板整合；进阶任务部分实现了动态视觉效果、图表联动筛选与多维度分析组件。</p>
+<p>通过本实验，掌握了数据看板的设计原则与图表选型方法，熟悉了 Streamlit 与 Plotly 的工程化开发流程，理解了离线渲染、交互状态管理与自适应布局等关键技术点，并积累了数据清洗与口径自洽的实践经验。后续可在此基础上拓展实时数据源接入、指标预警、大屏与移动端适配等扩展任务，进一步提升看板的实用性与工程价值。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F10%2F11%2F%25E5%25AE%259E%25E9%25AA%258C2-%25E6%2595%25B0%25E6%258D%25AE%25E7%259C%258B%25E6%259D%25BF%25E7%259A%2584%25E8%25AE%25BE%25E8%25AE%25A1%25E4%25B8%258E%25E5%25AE%259E%25E7%258E%25B0%25EF%25BC%2588%25E7%2594%25B5%25E5%2595%2586%25E9%2594%2580%25E5%2594%25AE%25E6%2595%25B0%25E6%258D%25AE%25E7%259C%258B%25E6%259D%25BF%25C2%25B7%25E8%25BF%259B%25E9%2598%25B6%25E7%2589%2588%25EF%25BC%2589%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" rel="tag">实验报告</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2026/06/18/Java%E4%BD%9C%E4%B8%9A-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%E2%80%94%E2%80%94%E5%8D%95%E4%B8%80%E8%81%8C%E8%B4%A3%E5%8E%9F%E5%88%99%E4%B8%8E%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java作业-面向对象设计原则——单一职责原则与开闭原则</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=2738145650&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>
