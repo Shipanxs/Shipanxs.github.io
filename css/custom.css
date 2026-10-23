@@ -1,0 +1,58 @@
+figure.highlight {
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  overflow: hidden;
+  margin: 2.2rem 0;
+}
+figure.highlight::before {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.4rem;
+  padding: 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 3.4rem;
+  text-align: center;
+  color: var(--hl-gutter);
+  background-color: rgba(0,0,0,0.045);
+  background-image: radial-gradient(circle at 1.6rem 50%, #ff5f56 6px, transparent 7px), radial-gradient(circle at 3.4rem 50%, #ffbd2e 6px, transparent 7px), radial-gradient(circle at 5.2rem 50%, #27c93f 6px, transparent 7px);
+  background-repeat: no-repeat;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  letter-spacing: 0.04em;
+}
+figure.highlight .highlight pre {
+  padding: 3.7rem 1.6rem 1.5rem;
+}
+figure.highlight .highlight .gutter {
+  background: rgba(0,0,0,0.03);
+  border-right: 1px solid rgba(0,0,0,0.06);
+  vertical-align: top;
+}
+figure.highlight .highlight .gutter pre {
+  padding: 3.7rem 0.9rem 1.5rem 1.3rem;
+}
+figure.highlight .highlight .line {
+  line-height: 1.65;
+}
+figure.highlight .highlight .btn-copy {
+  top: 0.8rem;
+  right: 1rem;
+  opacity: 0;
+}
+body.darkmode figure.highlight {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+body.darkmode figure.highlight::before {
+  background-color: rgba(255,255,255,0.05);
+  border-bottom-color: rgba(255,255,255,0.09);
+}
+body.darkmode figure.highlight .highlight .gutter {
+  background: rgba(255,255,255,0.04);
+  border-right-color: rgba(255,255,255,0.09);
+}
+.article-entry :not(pre) > code {
+  border-radius: 4px;
+}

@@ -116,6 +116,110 @@
     
     
     <article
+  id="post-Python学习笔记：从“田字格绘制”看函数与代码复用的艺术"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/10/23/Python%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BB%8E%E2%80%9C%E7%94%B0%E5%AD%97%E6%A0%BC%E7%BB%98%E5%88%B6%E2%80%9D%E7%9C%8B%E5%87%BD%E6%95%B0%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E7%9A%84%E8%89%BA%E6%9C%AF/"
+    >Python学习笔记：从“田字格绘制”看函数与代码复用的艺术</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/10/23/Python%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BB%8E%E2%80%9C%E7%94%B0%E5%AD%97%E6%A0%BC%E7%BB%98%E5%88%B6%E2%80%9D%E7%9C%8B%E5%87%BD%E6%95%B0%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E7%9A%84%E8%89%BA%E6%9C%AF/" class="article-date">
+  <time datetime="2026-10-23T08:22:52.000Z" itemprop="datePublished">2026-10-23</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>前言：最近在学Python的“函数与代码复用”这一章。老实说，刚开始觉得定义函数有点多此一举，明明几行 print 能搞定的事情，非要包个 def。直到遇到了这道经典练习题——“字符田字格绘制”，我才真正体会到：如果不写函数，这种图形题能把手敲断。</p>
+<h2 id="一、-题目需求分析：为什么需要函数？"><a href="#一、-题目需求分析：为什么需要函数？" class="headerlink" title="一、 题目需求分析：为什么需要函数？"></a>一、 题目需求分析：为什么需要函数？</h2><p>题目要求：用字符打印一个田字格，要求采用函数方式，以宽度为参数，绘制任意大小的图形。</p>
+<p>如果我们不用函数，全凭本能写代码，遇到宽度为4的田字格，代码大概长这样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 反面教材：全凭蛮力，毫无复用可言</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;+ - - - - &#x27;</span> * <span class="number">4</span> + <span class="string">&#x27;+&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">4</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;|         &#x27;</span> * <span class="number">4</span> + <span class="string">&#x27;|&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;+ - - - - &#x27;</span> * <span class="number">4</span> + <span class="string">&#x27;+&#x27;</span>)</span><br><span class="line"><span class="comment"># 如果还要画4排，就得把这堆代码再复制粘贴3次...</span></span><br></pre></td></tr></table></figure>
+
+<p>这样的代码不仅冗长，而且一旦老师让你画一个宽度为10的格子，你所有的代码都要重写。</p>
+<p>所以，函数的核心使命就是：提取重复逻辑，封装成“工具”，随用随调。 这就是本章的主题——代码复用。</p>
+<h2 id="二、-逻辑拆解与函数封装"><a href="#二、-逻辑拆解与函数封装" class="headerlink" title="二、 逻辑拆解与函数封装"></a>二、 逻辑拆解与函数封装</h2><p>仔细观察田字格，它其实只有两种“原材料”：</p>
+<ul>
+<li>横线：由加号和减号组成。</li>
+<li>竖线：由竖线和空格组成。</li>
+</ul>
+<p>我们可以把画这两种线的动作，封装成两个函数 draw_line1 和 draw_line2。将“画多宽”作为参数 n 传进去：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">draw_line1</span>(<span class="params">n</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;画带有加号和减号的横线&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 相当于把 &#x27;+ - - - - &#x27; 这个字符串复制 n 遍，最后再接上一个 &#x27;+&#x27;</span></span><br><span class="line">    <span class="comment"># 比如 n=3 时，输出：+ - - - - + - - - - + - - - - +</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;+ - - - - &#x27;</span> * n + <span class="string">&#x27;+&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">draw_line2</span>(<span class="params">n</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;画带有竖线和空格的中间部分&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 注意：竖线后面的空格千万不能少，要和上面的减号对齐！</span></span><br><span class="line">    <span class="comment"># 相当于把 &#x27;|         &#x27; 复制 n 遍，最后再接上一个 &#x27;|&#x27;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;|         &#x27;</span> * n + <span class="string">&#x27;|&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、-主程序：见证复用的力量"><a href="#三、-主程序：见证复用的力量" class="headerlink" title="三、 主程序：见证复用的力量"></a>三、 主程序：见证复用的力量</h2><p>函数写好之后，主程序（主控逻辑）就变得极其简洁，简直像是在“搭积木”。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 让用户输入大小（这里用 int 把输入的字符串转成整数）</span></span><br><span class="line">size = <span class="built_in">int</span>(<span class="built_in">input</span>(<span class="string">&quot; 请输入田字格的宽度 ： &quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开始画田字格，外层循环决定画多少排</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(size):</span><br><span class="line">    draw_line1(size)  <span class="comment"># 先画一排格子的顶盖</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 这一排的格子里面，需要留出空白行</span></span><br><span class="line">    <span class="comment"># 这里固定循环 4 次，说明每个格子内部有 4 行高</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">4</span>):</span><br><span class="line">        draw_line2(size)</span><br><span class="line">        </span><br><span class="line"><span class="comment"># 循环结束啦，别忘了画最底下的那条底线，不然格子就漏风了</span></span><br><span class="line">draw_line1(size)</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、-深度复盘：代码复用体现在哪里？"><a href="#四、-深度复盘：代码复用体现在哪里？" class="headerlink" title="四、 深度复盘：代码复用体现在哪里？"></a>四、 深度复盘：代码复用体现在哪里？</h2><ol>
+<li><p><strong>逻辑复用的极致</strong>：主程序里那个内层循环 <code>for _ in range(4): draw_line2(size)</code>。如果没有函数，你必须在循环里写4次长长的 print 语句。而现在，你只需要调用4次 draw_line2，代码瞬间从“裹脚布”变成了“短小精悍”的诗。</p>
+</li>
+<li><p><strong>参数化的灵活性</strong>：因为我们把宽度交给了参数 n，所以这个函数一次编写，处处运行。输入3就是迷你版，输入10就是超大号。这就是函数复用带来的高扩展性。</p>
+</li>
+<li><p><strong>Pythonic语法在函数内的复用</strong>：在 draw_line1 和 draw_line2 内部，我没有写笨重的 for 循环去拼接字符，而是直接用 <code>字符串 * 整数</code> 语法。这不仅是对底层字符的复用，更是对 Python 高效特性的复用。</p>
+</li>
+</ol>
+<h2 id="五、-踩坑与反思"><a href="#五、-踩坑与反思" class="headerlink" title="五、 踩坑与反思"></a>五、 踩坑与反思</h2><ol>
+<li><p><strong>对齐问题</strong>：一开始我在 draw_line1 里写的是 <code>&#39;+----+&#39;</code>，在 draw_line2 里写的是 <code>&#39;| |&#39;</code>。虽然逻辑没错，但因为终端字体高度通常大于宽度，画出来的格子全是扁的。后来加上空格（<code>&#39;+ - - - - &#39;</code>），并让竖线后的空格数与之匹配（9个空格），才实现了视觉上的完美正方形。</p>
+</li>
+<li><p><strong>边界处理</strong>：嵌套循环结束后，千万别忘了在代码最后再调用一次 <code>draw_line1(size)</code> 封底。这是一个典型的代码逻辑边界问题，也是很多初学者容易犯的错误（图形漏风）。</p>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这道题表面上是练习画图，本质上是培养我们“提取公共逻辑，减少冗余代码”的工程思维。一旦学会了封装函数，以后不管遇到画什么图形、处理什么复杂数据，我们都能从容应对。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python-%E5%AD%A6%E4%B9%A0-%E7%AC%94%E8%AE%B0/" rel="tag">python 学习 笔记</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-实验一-Python-Vibe-Coding考核-Excel报表生成与FastAPI记账接口"
   class="article article-type-post"
   itemscope
@@ -1909,467 +2013,6 @@ public void normalMethod() &#123;
 <p>UML的定位与价值：作为半形式化方法，UML通过图形化方式表达软件设计，在直观性与规范性之间取得平衡，是当前工业界主流的建模工具。</p>
 <p>理论与实践的关系：形式化方法提供理论严谨性，UML提供实践可操作性，二者相互补充。</p>
 <p>《大象——Thinking in UML》的阅读价值：该书有助于建立面向对象思维方式、掌握UML建模方法、提升软件设计能力，适合作为UML入门的首选读物。</p>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-第五章-继承与接口"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/05/12/%E7%AC%AC%E4%BA%94%E7%AB%A0-%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%8E%A5%E5%8F%A3/"
-    >第五章 继承与接口</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/05/12/%E7%AC%AC%E4%BA%94%E7%AB%A0-%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%8E%A5%E5%8F%A3/" class="article-date">
-  <time datetime="2026-05-12T05:38:20.000Z" itemprop="datePublished">2026-05-12</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、本章知识回顾</p>
-<p>知识点	说明<br>继承	子类继承父类的成员变量和方法<br>方法重写	子类重新定义父类的方法<br>super关键字	访问父类的成员变量、方法和构造方法<br>多态	父类引用指向子类对象<br>final关键字	防止继承、防止重写、定义常量<br>抽象类	包含抽象方法的类，不能实例化<br>接口	完全抽象的规范，支持多实现<br> 二、为什么要继承？</p>
-<p>2.1 问题引入</p>
-<p>假设要设计学生和教师两个类：</p>
-<p>学生类：姓名、年龄、学号、学习()</p>
-<p>教师类：姓名、年龄、工号、教学()</p>
-<p>你会发现，学生和教师都有相同的属性（姓名、年龄）。如果每个类都重复写一遍，代码会非常冗余。</p>
-<p>继承的解决方案：把共同的特征提取到“人类”中，让学生和教师继承这个类。</p>
-<p>2.2 继承的概念</p>
-<ul>
-<li>父类（超类）：被继承的类</li>
-<li>子类（派生类）：继承父类的类</li>
-<li>关键字：<code>extends</code></li>
-</ul>
-<p>&#x2F;&#x2F; 父类<br>class Person {<br>    String name;<br>    int age;</p>
-<pre><code>void eat() &#123;
-    System.out.println(name + &quot;正在吃饭&quot;);
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;&#x2F; 子类继承父类<br>class Student extends Person {<br>    String studentId; &#x2F;&#x2F; 子类特有的属性</p>
-<pre><code>void study() &#123;   // 子类特有的方法
-    System.out.println(name + &quot;正在学习&quot;);
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>2.3 继承的好处</p>
-<table>
-<thead>
-<tr>
-<th>好处</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>代码复用</td>
-<td>子类自动拥有父类的属性和方法</td>
-</tr>
-<tr>
-<td>易于维护</td>
-<td>修改父类即可影响所有子类</td>
-</tr>
-<tr>
-<td>体现is-a关系</td>
-<td>Student is a Person（学生是一个人）</td>
-</tr>
-<tr>
-<td>AI写代码</td>
-<td></td>
-</tr>
-<tr>
-<td>markdown</td>
-<td></td>
-</tr>
-<tr>
-<td>三、子类与父类</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>3.1 继承的基本语法</p>
-<p>class 子类名 extends 父类名 {<br>    &#x2F;&#x2F; 子类特有的成员变量<br>    &#x2F;&#x2F; 子类特有的成员方法<br>}<br>AI写代码<br>java<br>运行<br>3.2 继承示例：银行账户</p>
-<p>代码解析<br>&#x2F;**</p>
-<ul>
-<li><p>父类：银行账户<br> *&#x2F;<br>class BankAccount {<br> String accountNo;  &#x2F;&#x2F; 账号<br> double balance;   &#x2F;&#x2F; 余额</p>
-<p> &#x2F;&#x2F; 构造方法<br> BankAccount(String accountNo, double balance) {<br> this.accountNo &#x3D; accountNo;<br> this.balance &#x3D; balance;<br> }</p>
-<p> &#x2F;&#x2F; 存款<br> void deposit(double amount) {<br> balance +&#x3D; amount;<br> System.out.println(“存入 “ + amount + “ 元，余额：” + balance);<br> }</p>
-<p> &#x2F;&#x2F; 取款<br> void withdraw(double amount) {<br> if (balance &gt;&#x3D; amount) {<br>     balance -&#x3D; amount;<br>     System.out.println(“取出 “ + amount + “ 元，余额：” + balance);<br> } else {<br>     System.out.println(“余额不足！”);<br> }<br> }</p>
-<p> void showInfo() {<br> System.out.println(“账号：” + accountNo + “，余额：” + balance);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>子类：储蓄账户（继承BankAccount）</p>
-</li>
-<li><p>特点：有利息<br> *&#x2F;<br>class SavingsAccount extends BankAccount {<br> double interestRate; &#x2F;&#x2F; 子类特有的属性：利率</p>
-<p> SavingsAccount(String accountNo, double balance, double interestRate) {<br> super(accountNo, balance); &#x2F;&#x2F; 调用父类构造方法<br> this.interestRate &#x3D; interestRate;<br> }</p>
-<p> &#x2F;&#x2F; 子类特有的方法：计算利息<br> void addInterest() {<br> double interest &#x3D; balance * interestRate;<br> balance +&#x3D; interest;<br> System.out.println(“增加利息：” + interest + “ 元，余额：” + balance);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>public class InheritanceDemo {<br>    public static void main(String[] args) {<br>        System.out.println(“&#x3D;&#x3D;&#x3D; 普通账户 &#x3D;&#x3D;&#x3D;”);<br>        BankAccount acc1 &#x3D; new BankAccount(“1001”, 1000);<br>        acc1.deposit(500);<br>        acc1.withdraw(200);</p>
-<pre><code>    System.out.println(&quot;\n=== 储蓄账户 ===&quot;);
-    SavingsAccount acc2 = new SavingsAccount(&quot;2001&quot;, 2000, 0.03);
-    acc2.deposit(300);
-    acc2.addInterest();
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>运行结果<br>&#x3D;&#x3D;&#x3D; 普通账户 &#x3D;&#x3D;&#x3D;<br>存入 500.0 元，余额：1500.0<br>取出 200.0 元，余额：1300.0</p>
-<p>&#x3D;&#x3D;&#x3D; 储蓄账户 &#x3D;&#x3D;&#x3D;<br>存入 300.0 元，余额：2300.0<br>增加利息：69.0 元，余额：2369.0<br>AI写代码<br>关键点说明<br>父类 BankAccount 定义了银行账户的基本属性和方法，包括账号、余额、存款、取款和显示账户信息。</p>
-<p>子类 SavingsAccount 继承了 BankAccount，并增加了特有的属性 interestRate 和方法 addInterest()，用于计算并添加利息。</p>
-<p>在 main 方法中，分别创建了普通账户和储蓄账户的实例，演示了存款、取款和利息计算的功能。<br>四、方法重写（Override）</p>
-<p>4.1 什么是方法重写？</p>
-<p>子类可以重新定义（覆盖）父类中已有的方法，这叫做<strong>方法重写</strong>。</p>
-<p>重写规则：</p>
-<ul>
-<li>方法名相同</li>
-<li>参数列表相同</li>
-<li>返回值类型相同（或是其子类）</li>
-<li>访问权限不能比父类更严格</li>
-</ul>
-<p>4.2 示例：信用卡账户（重写取款方法）</p>
-<p>信用卡账户实现代码<br>&#x2F;**</p>
-<ul>
-<li><p>子类：信用卡账户（继承BankAccount）</p>
-</li>
-<li><p>特点：可以透支<br> *&#x2F;<br>class CreditAccount extends BankAccount {<br> double creditLimit; &#x2F;&#x2F; 透支额度</p>
-<p> CreditAccount(String accountNo, double balance, double creditLimit) {<br> super(accountNo, balance);<br> this.creditLimit &#x3D; creditLimit;<br> }</p>
-<p> &#x2F;&#x2F; 重写取款方法（支持透支）<br> @Override<br> void withdraw(double amount) {<br> if (balance + creditLimit &gt;&#x3D; amount) {<br>     balance -&#x3D; amount;<br>     System.out.println(“取出 “ + amount + “ 元，余额：” + balance);<br> } else {<br>     System.out.println(“超过透支额度！”);<br> }<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>public class OverrideDemo {<br>    public static void main(String[] args) {<br>        CreditAccount acc &#x3D; new CreditAccount(“3001”, 0, 5000);<br>        acc.withdraw(2000);  &#x2F;&#x2F; 可以透支<br>        acc.withdraw(4000);  &#x2F;&#x2F; 超出额度<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>运行结果示例<br>取出 2000.0 元，余额：-2000.0<br>超过透支额度！<br>AI写代码<br>text<br>代码说明<br>信用卡账户类继承自银行账户基类，通过重写取款方法实现透支功能。当取款金额不超过账户余额与透支额度之和时允许交易，否则拒绝交易并提示超额。</p>
-<p>构造方法接收账户号、初始余额和透支额度三个参数，初始化时需调用父类构造方法。透支额度作为信用卡账户特有的属性单独存储。</p>
-<p>4.3 @Override注解</p>
-<p><code>@Override</code>是可选的，但推荐加上：</p>
-<ul>
-<li>让编译器 帮忙检查是否正确的重写了父类方法</li>
-<li>提高代码可读性</li>
-</ul>
-<p>4.4 重写 vs 重载</p>
-<p>方法重写（Override）与方法重载（Overload）对比<br>比较项	方法重写（Override）	方法重载（Overload）<br>发生位置	子类和父类之间	同一个类中<br>方法名	必须相同	必须相同<br>参数列表	必须相同	必须不同<br>返回值	相同或子类（协变返回类型）	无关<br>访问修饰符	不能比父类更严格（如父类为 protected，子类可为 public，但不能为 private）	无限制<br>异常抛出	不能抛出比父类更宽泛的检查异常	无限制<br>作用	实现多态，子类提供特定实现	提供同名方法的不同参数版本<br>关键区别说明<br>方法重写（Override）</p>
-<p>发生在继承关系中，子类重新定义父类的方法。<br>方法签名（名称和参数列表）必须完全一致。<br>返回类型可以是原类型的子类型（协变返回）。<br>访问权限不能比父类方法更严格。<br>方法重载（Overload）</p>
-<p>发生在同一类中，通过不同参数列表区分同名方法。<br>返回值类型、访问修饰符和异常声明可自由变化。<br>仅需参数列表不同（类型、顺序或数量）。<br>示例代码<br>方法重写示例<br>class Parent {<br>    protected void show() {<br>        System.out.println(“Parent’s show”);<br>    }<br>}</p>
-<p>class Child extends Parent {<br>    @Override<br>    public void show() {  &#x2F;&#x2F; 访问修饰符更宽松，参数列表相同<br>        System.out.println(“Child’s show”);<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>方法重载示例<br>class Calculator {<br>    int add(int a, int b) {<br>        return a + b;<br>    }</p>
-<pre><code>double add(double a, double b) &#123;  // 参数类型不同
-    return a + b;
-&#125;
-
-int add(int a, int b, int c) &#123;  // 参数数量不同
-    return a + b + c;
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>五、super关键字</p>
-<p>5.1 super的作用</p>
-<p><code>super</code>用于在子类中访问父类的成员。</p>
-<p>表格转换结果<br>用法	说明<br>super.成员变量	访问父类成员变量<br>super.成员方法()	调用父类成员方法<br>super(参数)	调用父类构造方法（必须在第一行）<br>注意事项<br>表格已按照原始内容格式转换，保持清晰对齐<br>每列内容准确对应原始数据<br>表格边框采用标准Markdown表格语法<br>列宽根据内容自动调整<br>5.2 示例：电脑</p>
-<p>代码解析<br>&#x2F;**</p>
-<ul>
-<li><p>父类：电脑<br> *&#x2F;<br>class Computer {<br> String cpu;<br> int ram;</p>
-<p> Computer(String cpu, int ram) {<br> this.cpu &#x3D; cpu;<br> this.ram &#x3D; ram;<br> }</p>
-<p> void showSpec() {<br> System.out.println(“CPU：” + cpu + “，内存：” + ram + “GB”);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>子类：游戏电脑<br> *&#x2F;<br>class GamingComputer extends Computer {<br> String gpu; &#x2F;&#x2F; 显卡</p>
-<p> GamingComputer(String cpu, int ram, String gpu) {<br> super(cpu, ram);   &#x2F;&#x2F; 调用父类构造方法<br> this.gpu &#x3D; gpu;<br> }</p>
-<p> @Override<br> void showSpec() {<br> super.showSpec();   &#x2F;&#x2F; 调用父类的方法<br> System.out.println(“显卡：” + gpu);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>public class SuperDemo {<br>    public static void main(String[] args) {<br>        GamingComputer gc &#x3D; new GamingComputer(“i7-13700K”, 32, “RTX 4080”);<br>        gc.showSpec();<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>运行结果<br>CPU：i7-13700K，内存：32GB<br>显卡：RTX 4080<br>AI写代码<br>关键点说明<br>super关键字用于在子类中访问父类的成员变量或方法。在构造方法中，super()用于调用父类的构造方法，必须放在子类构造方法的第一行。</p>
-<p>方法重写时，使用super.方法名()可以调用父类被重写的方法，实现功能的扩展而非完全覆盖。</p>
-<p>继承关系中，子类可以继承父类的非私有成员，同时可以添加自己的特有成员，形成更具体的类。</p>
-<p>5.3 注意事项</p>
-<p>子类构造方法必须先调用父类构造方法</p>
-<p>class Parent {<br>  Parent(String name) { &#x2F;&#x2F; 有参构造<br>    System.out.println(“Parent: “ + name);<br>  }<br>}</p>
-<p>&#x2F;&#x2F; 正确写法<br>class Child extends Parent {<br>  Child(String name) {<br>    super(name); &#x2F;&#x2F; 必须手动调用父类有参构造<br>  }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>六、多态</p>
-<p>6.1 什么是多态？</p>
-<p>多态：同一个方法调用，作用于不同的对象，产生不同的行为。</p>
-<p>实现多态的三个条件：</p>
-<ol>
-<li>有继承关系</li>
-<li>子类重写父类的方法</li>
-<li>父类引用指向子类对象6.2 多态示例</li>
-</ol>
-<p>&#x2F;*** 父类：动物*&#x2F;<br>class Animal {<br>    void sound() {<br>        System.out.println(“动物发出声音”);<br>    }<br>}</p>
-<p>&#x2F;*** 子类：狗*&#x2F;<br>class Dog extends Animal {<br>    @Override<br>    void sound() {<br>        System.out.println(“狗：汪汪汪！”);<br>    }<br>}</p>
-<p>&#x2F;*** 子类：猫*&#x2F;<br>class Cat extends Animal {<br>    @Override<br>    void sound() {<br>        System.out.println(“猫：喵喵喵！”);<br>    }<br>}</p>
-<p>public class PolymorphismDemo {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 多态：父类引用指向子类对象<br>        Animal animal1 &#x3D; new Dog();<br>        Animal animal2 &#x3D; new Cat();</p>
-<pre><code>    // 同一个方法调用，产生不同行为
-    animal1.sound(); // 狗：汪汪汪！
-    animal2.sound(); // 猫：喵喵喵！
-    
-    // 多态的方便之处：用一个数组存放多种动物
-    Animal[] animals = &#123;new Dog(), new Cat(), new Dog()&#125;;
-    for (Animal animal : animals) &#123;
-        animal.sound(); // 不需要知道具体是哪种动物
-    &#125;
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>6.3 对象类型转换</p>
-<p>&#x2F;&#x2F; 向上转型（自动，安全）<br>Animal animal &#x3D; new Dog();</p>
-<p>&#x2F;&#x2F; 向下转型（强制，有风险）<br>Dog dog &#x3D; (Dog) animal;</p>
-<p>&#x2F;&#x2F; instanceof 判断类型（避免转型异常）<br>if (animal instanceof Dog) {<br>    Dog dog &#x3D; (Dog) animal;<br>}<br>AI写代码<br>java<br>运行</p>
-<p>七、final关键字</p>
-<p>7.1 final的三种用法</p>
-<p>修饰符作用示例表<br>修饰符	作用	示例<br>final 类	不能被继承	final class String<br>final 方法	不能被重写	public final void print()<br>final 变量	只能赋值一次（常量）	final double PI &#x3D; 3.14<br>7.2 示例</p>
-<p>&#x2F;&#x2F; 1. final变量：常量<br>class Constants {<br>  final double PI &#x3D; 3.14159;    &#x2F;&#x2F; 声明时初始化<br>  void test() {<br>    &#x2F;&#x2F; PI &#x3D; 3.14; &#x2F;&#x2F; 编译错误：不能修改<br>  }<br>}</p>
-<p>&#x2F;&#x2F; 2. final方法：子类不能重写<br>class Parent {<br>  final void finalMethod() {<br>    System.out.println(“这个方法不能被重写”);<br>  }<br>}</p>
-<p>&#x2F;&#x2F; 3. final类：不能有子类<br>final class FinalClass {<br>  &#x2F;&#x2F; 类体<br>}<br>&#x2F;&#x2F; class SubClass extends FinalClass {} &#x2F;&#x2F; 编译错误</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>八、抽象类</p>
-<p>8.1 什么是抽象类？</p>
-<p>当一个父类只知道子类应该有什么方法，但不知道如何实现时，使用抽象类。</p>
-<ul>
-<li>用 <code>abstract</code> 关键字修饰</li>
-<li>抽象方法没有方法体</li>
-<li>抽象类不能实例化（不能 new）</li>
-</ul>
-<p>8.2 示例：图形面积计算</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>抽象类：图形<br> *&#x2F;<br>abstract class Shape {<br> String color;</p>
-<p> Shape(String color) {<br> this.color &#x3D; color;<br> }</p>
-<p> &#x2F;&#x2F; 抽象方法：只有声明，没有实现<br> abstract double getArea();<br> abstract double getPerimeter();</p>
-<p> &#x2F;&#x2F; 普通方法（可以被子类继承）<br> void showColor() {<br> System.out.println(“颜色：” + color);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>子类：圆形<br> *&#x2F;<br>class Circle extends Shape {<br> double radius;</p>
-<p> Circle(String color, double radius) {<br> super(color);<br> this.radius &#x3D; radius;<br> }</p>
-<p> @Override<br> double getArea() {<br> return Math.PI * radius * radius;<br> }</p>
-<p> @Override<br> double getPerimeter() {<br> return 2 * Math.PI * radius;<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>子类：矩形<br> *&#x2F;<br>class Rectangle extends Shape {<br> double width;<br> double height;</p>
-<p> Rectangle(String color, double width, double height) {<br> super(color);<br> this.width &#x3D; width;<br> this.height &#x3D; height;<br> }</p>
-<p> @Override<br> double getArea() {<br> return width * height;<br> }</p>
-<p> @Override<br> double getPerimeter() {<br> return 2 * (width + height);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>public class AbstractDemo {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; Shape shape &#x3D; new Shape(“红色”); &#x2F;&#x2F; 错误：抽象类不能实例化</p>
-<pre><code>    Shape circle = new Circle(&quot;红色&quot;, 5);
-    Shape rectangle = new Rectangle(&quot;蓝色&quot;, 4, 6);
-    
-    System.out.println(&quot;=== 圆形 ===&quot;);
-    circle.showColor();
-    System.out.println(&quot;面积：&quot; + circle.getArea());
-    System.out.println(&quot;周长：&quot; + circle.getPerimeter());
-    
-    System.out.println(&quot;\n=== 矩形 ===&quot;);
-    rectangle.showColor();
-    System.out.println(&quot;面积：&quot; + rectangle.getArea());
-    System.out.println(&quot;周长：&quot; + rectangle.getPerimeter());
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>抽象类要点：</p>
-<ul>
-<li>含有抽象方法的类必须是抽象类</li>
-<li>抽象类可以没有抽象方法</li>
-<li>子类必须实现所有抽象方法，否则子类也是抽象类</li>
-</ul>
-<p> 九、接口</p>
-<p>9.1 什么是接口？</p>
-<p>接口是完全抽象的规范，定义了“能做什么”，但不关心“怎么做”。</p>
-<ul>
-<li>用 <code>interface</code> 关键字定义</li>
-<li>用 <code>implements</code> 关键字实现</li>
-</ul>
-<p> 9.2 接口的特性</p>
-<p>成员类型与默认修饰符对照表<br>成员类型	默认修饰符	说明<br>常量	public static final	接口中定义的变量自动是常量<br>抽象方法	public abstract	接口中的方法自动是抽象的<br>9.3 示例：USB接口</p>
-<p>代码解析<br>&#x2F;**</p>
-<ul>
-<li><p>USB接口规范<br> *&#x2F;<br>interface USB {<br> &#x2F;&#x2F; 常量（自动是 public static final）<br> String STANDARD &#x3D; “USB 3.0”;</p>
-<p> &#x2F;&#x2F; 抽象方法（自动是 public abstract）<br> void plugIn();  &#x2F;&#x2F; 插入<br> void work();    &#x2F;&#x2F; 工作<br> void plugOut(); &#x2F;&#x2F; 拔出</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>鼠标实现USB接口<br> *&#x2F;<br>class Mouse implements USB {<br> @Override<br> public void plugIn() {<br> System.out.println(“鼠标已插入”);<br> }</p>
-<p> @Override<br> public void work() {<br> System.out.println(“鼠标：移动光标、点击”);<br> }</p>
-<p> @Override<br> public void plugOut() {<br> System.out.println(“鼠标已拔出”);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>键盘实现USB接口<br> *&#x2F;<br>class Keyboard implements USB {<br> @Override<br> public void plugIn() {<br> System.out.println(“键盘已插入”);<br> }</p>
-<p> @Override<br> public void work() {<br> System.out.println(“键盘：输入文字”);<br> }</p>
-<p> @Override<br> public void plugOut() {<br> System.out.println(“键盘已拔出”);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>public class InterfaceDemo {<br>    public static void main(String[] args) {<br>        USB mouse &#x3D; new Mouse();<br>        USB keyboard &#x3D; new Keyboard();</p>
-<pre><code>    System.out.println(&quot;=== 鼠标 ===&quot;);
-    mouse.plugIn();
-    mouse.work();
-    mouse.plugOut();
-    
-    System.out.println(&quot;\n=== 键盘 ===&quot;);
-    keyboard.plugIn();
-    keyboard.work();
-    keyboard.plugOut();
-    
-    System.out.println(&quot;\nUSB标准：&quot; + USB.STANDARD);
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>运行结果<br>代码执行后的输出结果如下：</p>
-<p>&#x3D;&#x3D;&#x3D; 鼠标 &#x3D;&#x3D;&#x3D;<br>鼠标已插入<br>鼠标：移动光标、点击<br>鼠标已拔出</p>
-<p>&#x3D;&#x3D;&#x3D; 键盘 &#x3D;&#x3D;&#x3D;<br>键盘已插入<br>键盘：输入文字<br>键盘已拔出</p>
-<p>USB标准：USB 3.0<br>AI写代码</p>
-<p>关键点说明<br>接口USB定义了三个抽象方法和一个常量。Mouse和Keyboard类实现了USB接口，并提供了具体的方法实现。</p>
-<p>在InterfaceDemo类的main方法中，创建了Mouse和Keyboard的实例，并通过接口类型引用调用各自的方法。最后打印了接口中定义的常量STANDARD。</p>
-<p>该示例展示了Java接口的基本特性，包括抽象方法的定义、实现类的编写以及接口常量的使用。</p>
-<p>9.4 接口的多实现</p>
-<p>一个类可以实现多个接口，这是Java实现多继承的方式。</p>
-<p>interface A {<br>  void methodA();<br>}</p>
-<p>interface B {<br>  void methodB();<br>}</p>
-<p>class MultipleImpl implements A, B {<br>  @Override<br>  public void methodA() {<br>    System.out.println(“实现A的方法”);<br>  }  </p>
-<p>  @Override<br>  public void methodB() {<br>    System.out.println(“实现B的方法”);<br>  }<br>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p> 9.5 接口与抽象类的对比</p>
-<p>抽象类与接口对比<br>比较项	抽象类	接口<br>关键字	abstract class	interface<br>继承&#x2F;实现	extends	implements<br>多继承	不支持	支持<br>成员变量	可以有各种类型	只能是常量<br>构造方法	有	没有<br>普通方法	可以有	只有抽象方法（Java 8前）<br>使用场景	有共同代码的基类	定义规范&#x2F;能力<br>注：Java 8及以后版本允许接口包含默认方法（default方法）和静态方法。</p>
-<p>十、综合示例：教材“银行与利息”案例</p>
-<p>&#x2F;*** 抽象类：银行账户*&#x2F;<br>abstract class BankAccount {<br>    String accountNo;<br>    double balance;</p>
-<pre><code>BankAccount(String accountNo, double balance) &#123;
-    this.accountNo = accountNo;
-    this.balance = balance;
-&#125;
-
-// 抽象方法：计算利息
-abstract double calculateInterest();
-
-void showInfo() &#123;
-    System.out.println(&quot;账号：&quot; + accountNo + &quot;，余额：&quot; + balance);
-    System.out.println(&quot;利息：&quot; + calculateInterest());
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;*** 定期账户*&#x2F;<br>class FixedAccount extends BankAccount {<br>    double rate; &#x2F;&#x2F; 利率</p>
-<pre><code>FixedAccount(String accountNo, double balance, double rate) &#123;
-    super(accountNo, balance);
-    this.rate = rate;
-&#125;
-
-@Override
-double calculateInterest() &#123;
-    return balance * rate;
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;*** 活期账户*&#x2F;<br>class CurrentAccount extends BankAccount {<br>    double rate;<br>    int days; &#x2F;&#x2F; 存款天数</p>
-<pre><code>CurrentAccount(String accountNo, double balance, double rate, int days) &#123;
-    super(accountNo, balance);
-    this.rate = rate;
-    this.days = days;
-&#125;
-
-@Override
-double calculateInterest() &#123;
-    return balance * rate * days / 365;
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class BankDemo {<br>    public static void main(String[] args) {<br>        BankAccount account1 &#x3D; new FixedAccount(“1001”, 10000, 0.035);<br>        BankAccount account2 &#x3D; new CurrentAccount(“2001”, 10000, 0.003, 180);</p>
-<pre><code>    System.out.println(&quot;=== 定期账户 ===&quot;);
-    account1.showInfo();
-    
-    System.out.println(&quot;\n=== 活期账户 ===&quot;);
-    account2.showInfo();
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>十一、常见错误与注意点</p>
-<p>常见Java继承与接口错误对照表<br>错误写法	正确写法	关键说明<br>class Child extends Parent1, Parent2	class Child implements Interface1, Interface2	Java单继承限制，类只能继承一个父类，但可实现多个接口<br>子类构造方法未调用super()	显式调用super(参数)	父类不存在默认构造器时，子类必须显式调用父类构造器<br>误用@Override注解	保持方法签名完全一致	包括方法名、参数列表、返回类型，否则触发编译错误<br>抽象类遗漏抽象方法声明	使用abstract修饰无实现的方法	抽象方法必须以分号结尾，不能包含方法体<br>接口实现类未声明public	显式添加public修饰符	接口方法默认public，但实现类必须显式声明为public<br>典型问题深度解析<br>多继承限制 Java通过单继承+多接口实现解决菱形继承问题。当需要复用多个父类功能时，应改用组合模式或接口默认方法。</p>
-<p>构造器链规则 子类构造器必须调用父类构造器，若未显式调用且父类无默认构造器，编译器报错。调用语句必须作为构造器首行代码。</p>
-<p>注解校验机制 @Override严格校验重写规范，包括协变返回类型等细节。现代IDE通常能实时提示签名不匹配问题。</p>
-<p>抽象方法特征 抽象类可以包含具体方法，但抽象方法必须由子类实现。注意与接口方法的区别：抽象方法可受保护，接口方法始终公开。</p>
-<p>访问控制一致性 接口方法默认公开且不可降低可见性。实现类若省略public修饰符会导致访问权限收缩，违反里氏替换原则。</p>
-<p>十二、小结</p>
-<p>本章学习了：</p>
-<ul>
-<li>继承：子类继承父类，实现代码复用<br>-方法重写：子类重新定义父类的方法</li>
-<li>super关键字：访问父类的成员</li>
-<li>多态：父类引用指向子类对象</li>
-<li>final关键字：防止继承、防止重写、定义常量</li>
-<li>抽象类：包含抽象方法的类，不能实例化</li>
-<li>接口：完全抽象的规范，支持多实现</li>
-</ul>
 
       
 
