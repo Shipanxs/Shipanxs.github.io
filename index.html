@@ -116,6 +116,146 @@
     
     
     <article
+  id="post-爬虫开发实验报告-基于Vibe-Coding的Python静态网页爬虫"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/11/21/%E7%88%AC%E8%99%AB%E5%BC%80%E5%8F%91%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A-%E5%9F%BA%E4%BA%8EVibe-Coding%E7%9A%84Python%E9%9D%99%E6%80%81%E7%BD%91%E9%A1%B5%E7%88%AC%E8%99%AB/"
+    >爬虫开发实验报告：基于 Vibe Coding 的 Python 静态网页爬虫</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/21/%E7%88%AC%E8%99%AB%E5%BC%80%E5%8F%91%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A-%E5%9F%BA%E4%BA%8EVibe-Coding%E7%9A%84Python%E9%9D%99%E6%80%81%E7%BD%91%E9%A1%B5%E7%88%AC%E8%99%AB/" class="article-date">
+  <time datetime="2026-11-21T14:50:00.000Z" itemprop="datePublished">2026-11-21</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <h1 id="爬虫开发实验：基于-Vibe-Coding-的-Python-静态网页爬虫"><a href="#爬虫开发实验：基于-Vibe-Coding-的-Python-静态网页爬虫" class="headerlink" title="爬虫开发实验：基于 Vibe Coding 的 Python 静态网页爬虫"></a>爬虫开发实验：基于 Vibe Coding 的 Python 静态网页爬虫</h1><blockquote>
+<p>桂林理工大学「桂工要闻」列表页抓取实验报告</p>
+</blockquote>
+<h2 id="一、实验目的"><a href="#一、实验目的" class="headerlink" title="一、实验目的"></a>一、实验目的</h2><ol>
+<li>掌握 Vibe Coding 的核心工作流（意图定义、任务拆解、验证闭环），改变传统逐行编写代码的习惯。</li>
+<li>学会使用结构化 Prompt 驱动 AI 生成 Python 爬虫代码（基于 requests 与 BeautifulSoup）。</li>
+<li>掌握对 AI 生成代码的审查、调试与重构能力，建立反爬合规意识。</li>
+</ol>
+<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><ol>
+<li>操作系统：Windows（本次实验在本地电脑上完成）。</li>
+<li>Python 3.9 及以上版本（本次实际运行环境为 Python 3.13）。</li>
+<li>AI 编程助手。</li>
+<li>核心依赖库：requests、beautifulsoup4、pandas。本次实验实际仅使用 requests、beautifulsoup4 以及 Python 标准库 csv 完成 CSV 写出，pandas 未涉及。</li>
+</ol>
+<h2 id="三、实验任务与场景"><a href="#三、实验任务与场景" class="headerlink" title="三、实验任务与场景"></a>三、实验任务与场景</h2><h3 id="（一）场景背景"><a href="#（一）场景背景" class="headerlink" title="（一）场景背景"></a>（一）场景背景</h3><p>抓取桂林理工大学「桂工要闻」列表页（<a target="_blank" rel="noopener" href="https://glut.edu.cn/ggyw/424.htm%EF%BC%89%EF%BC%8C%E6%8F%90%E5%8F%96%E6%AF%8F%E7%AF%87%E6%96%87%E7%AB%A0%E7%9A%84%E6%A0%87%E9%A2%98%E3%80%81%E5%8F%91%E5%B8%83%E6%97%B6%E9%97%B4%E3%80%81%E4%BD%9C%E8%80%85%E3%80%81%E9%93%BE%E6%8E%A5%E5%9B%9B%E4%B8%AA%E5%AD%97%E6%AE%B5%EF%BC%8C%E5%B9%B6%E4%BF%9D%E5%AD%98%E4%B8%BA%E7%BB%93%E6%9E%84%E5%8C%96%E7%9A%84">https://glut.edu.cn/ggyw/424.htm），提取每篇文章的标题、发布时间、作者、链接四个字段，并保存为结构化的</a> result.csv 文件。</p>
+<h3 id="（二）Vibe-Coding-核心约束"><a href="#（二）Vibe-Coding-核心约束" class="headerlink" title="（二）Vibe Coding 核心约束"></a>（二）Vibe Coding 核心约束</h3><ol>
+<li>禁止直接让 AI 一次性生成所有代码。</li>
+<li>必须采用“需求澄清 → 分步生成 → 运行验证 → 报错反馈”的迭代流程。</li>
+</ol>
+<h2 id="四、实验步骤"><a href="#四、实验步骤" class="headerlink" title="四、实验步骤"></a>四、实验步骤</h2><h3 id="步骤-1：需求澄清与结构化-Prompt-编写"><a href="#步骤-1：需求澄清与结构化-Prompt-编写" class="headerlink" title="步骤 1：需求澄清与结构化 Prompt 编写"></a>步骤 1：需求澄清与结构化 Prompt 编写</h3><p>按照“角色 + 目标 + 约束 + 验收标准”的格式编写结构化需求，而不是笼统地说“帮我写个爬虫”。本次实验使用的结构化 Prompt 如下：</p>
+<p><strong>结构化 Prompt</strong></p>
+<blockquote>
+<p>你是 Python 后端工程师。我需要编写一个静态网页爬虫。目标：抓取桂林理工大学「桂工要闻」列表页 <a target="_blank" rel="noopener" href="https://glut.edu.cn/ggyw/424.htm">https://glut.edu.cn/ggyw/424.htm</a> ，提取每篇文章的标题、发布时间、作者、链接。约束：使用 requests 和 BeautifulSoup；必须设置真实浏览器 User-Agent 伪装；请求间隔不低于 2 秒；遇到网络超时需重试 3 次。验收：输出 result.csv 文件，并在终端打印成功抓取条数。</p>
+</blockquote>
+<p>在此基础上，进一步通过提问确认了以下需求细节：</p>
+<ol>
+<li>列表结构：ul.list_box_riqi &gt; li &gt; a[href]；时间位于 div.time 内，由 h3（日）和 h6（年-月）组成。</li>
+<li>作者字段：列表页不直接展示作者，统一填空字符串。</li>
+<li>分页：本次仅抓取 424.htm 单页。</li>
+<li>时间格式：将 h6 与 h3 的内容拼接为 YYYY-MM-DD 格式。</li>
+<li>链接：页面内为相对路径，需补全为以 <a target="_blank" rel="noopener" href="https://glut.edu.cn/">https://glut.edu.cn/</a> 开头的完整 URL。</li>
+<li>输出：result.csv 放在项目根目录，编码使用 utf-8-sig，列名固定为 title、publish_time、author、url。</li>
+<li>合规：robots.txt 经访问返回 404，视为允许抓取；仅抓取公开新闻列表数据并控制请求频率。</li>
+</ol>
+<h3 id="步骤-2：分步生成与最小化验证"><a href="#步骤-2：分步生成与最小化验证" class="headerlink" title="步骤 2：分步生成与最小化验证"></a>步骤 2：分步生成与最小化验证</h3><p>先让 AI 仅生成“发送请求并获取 HTML”的代码，跑通后再生成“解析 HTML 提取字段”的代码，并打印前 3 条数据验证。</p>
+<p><strong>代码 2A：发送请求并获取 HTML</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">URL = <span class="string">&quot;https://glut.edu.cn/ggyw/424.htm&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 真实浏览器 User-Agent 伪装</span></span><br><span class="line">HEADERS = &#123;</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: (</span><br><span class="line">        <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) &quot;</span></span><br><span class="line">        <span class="string">&quot;AppleWebKit/537.36 (KHTML, like Gecko) &quot;</span></span><br><span class="line">        <span class="string">&quot;Chrome/120.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">    ),</span><br><span class="line">    <span class="string">&quot;Accept&quot;</span>: <span class="string">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Accept-Language&quot;</span>: <span class="string">&quot;zh-CN,zh;q=0.9&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_html</span>(<span class="params">url, max_retries=<span class="number">3</span>, timeout=<span class="number">10</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;发送 GET 请求获取 HTML，超时/异常重试 3 次，间隔不低于 2 秒。&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> attempt <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, max_retries + <span class="number">1</span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            resp = requests.get(url, headers=HEADERS, timeout=timeout)</span><br><span class="line">            resp.raise_for_status()</span><br><span class="line">            resp.encoding = resp.apparent_encoding</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;请求成功：HTTP <span class="subst">&#123;resp.status_code&#125;</span>，编码 <span class="subst">&#123;resp.encoding&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> resp.text</span><br><span class="line">        <span class="keyword">except</span> requests.exceptions.Timeout:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;第 <span class="subst">&#123;attempt&#125;</span> 次请求超时，重试中...&quot;</span>)</span><br><span class="line">        <span class="keyword">except</span> requests.exceptions.RequestException <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;第 <span class="subst">&#123;attempt&#125;</span> 次请求失败：<span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        time.sleep(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;3 次重试后仍未成功，返回 None&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    html = fetch_html(URL)</span><br><span class="line">    <span class="keyword">if</span> html:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;获取成功，HTML 长度：<span class="subst">&#123;<span class="built_in">len</span>(html)&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取失败，程序结束&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>验证结果：运行后成功返回 HTTP 200，页面编码为 UTF-8-SIG，获取到的 HTML 长度为 71167 字符，说明请求与浏览器伪装均成功。</p>
+<p><strong>代码 2C：解析 HTML 提取字段</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urljoin</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"></span><br><span class="line">BASE_URL = <span class="string">&quot;https://glut.edu.cn/ggyw/424.htm&quot;</span></span><br><span class="line"></span><br><span class="line">soup = BeautifulSoup(html, <span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">items = soup.select(<span class="string">&quot;ul.list_box_riqi &gt; li&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extract_title</span>(<span class="params">li, a</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;多级容错提取标题，剔除阅读量 &lt;font&gt; 与摘要 &lt;p&gt;。&quot;&quot;&quot;</span></span><br><span class="line">    h5 = li.find(<span class="string">&quot;h5&quot;</span>, class_=<span class="string">&quot;overflow-dot&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> h5:</span><br><span class="line">        <span class="keyword">for</span> font <span class="keyword">in</span> h5.find_all(<span class="string">&quot;font&quot;</span>):</span><br><span class="line">            font.decompose()</span><br><span class="line">        t = h5.get_text(strip=<span class="literal">True</span>)</span><br><span class="line">        <span class="keyword">if</span> t:</span><br><span class="line">            <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line">    node = li.find(class_=<span class="string">&quot;overflow-dot&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> node:</span><br><span class="line">        <span class="keyword">for</span> font <span class="keyword">in</span> node.find_all(<span class="string">&quot;font&quot;</span>):</span><br><span class="line">            font.decompose()</span><br><span class="line">        t = node.get_text(strip=<span class="literal">True</span>)</span><br><span class="line">        <span class="keyword">if</span> t:</span><br><span class="line">            <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line">    t = a.get(<span class="string">&quot;title&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> t <span class="keyword">and</span> t.strip():</span><br><span class="line">        <span class="keyword">return</span> t.strip()</span><br><span class="line"></span><br><span class="line">    con = li.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;con&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> con:</span><br><span class="line">        <span class="keyword">for</span> font <span class="keyword">in</span> con.find_all(<span class="string">&quot;font&quot;</span>):</span><br><span class="line">            font.decompose()</span><br><span class="line">        <span class="keyword">for</span> p <span class="keyword">in</span> con.find_all(<span class="string">&quot;p&quot;</span>):</span><br><span class="line">            p.decompose()</span><br><span class="line">        t = <span class="string">&quot; &quot;</span>.join(con.get_text().split())</span><br><span class="line">        <span class="keyword">if</span> t:</span><br><span class="line">            <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">records = []</span><br><span class="line"><span class="keyword">for</span> li <span class="keyword">in</span> items:</span><br><span class="line">    a = li.find(<span class="string">&quot;a&quot;</span>, href=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> a:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    url = urljoin(BASE_URL, a[<span class="string">&quot;href&quot;</span>])</span><br><span class="line"></span><br><span class="line">    time_div = li.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;time&quot;</span>)</span><br><span class="line">    h6 = time_div.find(<span class="string">&quot;h6&quot;</span>).get_text(strip=<span class="literal">True</span>)</span><br><span class="line">    h3 = time_div.find(<span class="string">&quot;h3&quot;</span>).get_text(strip=<span class="literal">True</span>)</span><br><span class="line">    publish_time = <span class="string">f&quot;<span class="subst">&#123;h6&#125;</span>-<span class="subst">&#123;h3&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    title = extract_title(li, a)</span><br><span class="line">    author = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    records.append(&#123;</span><br><span class="line">        <span class="string">&quot;title&quot;</span>: title,</span><br><span class="line">        <span class="string">&quot;publish_time&quot;</span>: publish_time,</span><br><span class="line">        <span class="string">&quot;author&quot;</span>: author,</span><br><span class="line">        <span class="string">&quot;url&quot;</span>: url,</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;共解析到 <span class="subst">&#123;<span class="built_in">len</span>(records)&#125;</span> 条记录\n&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> rec <span class="keyword">in</span> records[:<span class="number">3</span>]:</span><br><span class="line">    <span class="built_in">print</span>(rec)</span><br></pre></td></tr></table></figure>
+
+<p>验证结果：前 3 条解析结果如下。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#x27;title&#x27;: &#x27;我校工会女工委参加市总工会2014年金秋助学活动&#x27;, &#x27;publish_time&#x27;: &#x27;2014-08-27&#x27;, &#x27;author&#x27;: &#x27;&#x27;, &#x27;url&#x27;: &#x27;https://glut.edu.cn/info/1073/36944.htm&#x27;&#125;</span><br><span class="line">&#123;&#x27;title&#x27;: &#x27;【迎评促建】学校召开本科教学评建工作现场交流会&#x27;, &#x27;publish_time&#x27;: &#x27;2014-08-25&#x27;, &#x27;author&#x27;: &#x27;&#x27;, &#x27;url&#x27;: &#x27;https://glut.edu.cn/info/1073/36945.htm&#x27;&#125;</span><br><span class="line">&#123;&#x27;title&#x27;: &#x27;张学洪书记、肖岳峰副校长到空港校区检查校区二期工程建设情况&#x27;, &#x27;publish_time&#x27;: &#x27;2014-08-22&#x27;, &#x27;author&#x27;: &#x27;&#x27;, &#x27;url&#x27;: &#x27;https://glut.edu.cn/info/1073/36946.htm&#x27;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>问题与解决：最初解析时 title 全为空。经排查，原因是页面源码闭合问题导致 h5 标签实际不在 a 标签内部，使用 a.find(“h5”) 返回了 None。修复方法是把查找范围扩大到整个 li 子树（li.find(“h5”, class_&#x3D;”overflow-dot”)），并增加“任意 overflow-dot 标签 → a 标签 title 属性 → div.con 文本”的多级容错；最终标题正常提取，且已剔除 h5 内嵌 font 标签中的阅读量数字。</p>
+<h3 id="步骤-3：数据持久化与异常处理"><a href="#步骤-3：数据持久化与异常处理" class="headerlink" title="步骤 3：数据持久化与异常处理"></a>步骤 3：数据持久化与异常处理</h3><p>要求 AI 将解析后的数据写入 CSV，并补充异常处理（字段缺失时填空字符串，避免程序崩溃）。</p>
+<p><strong>代码 3：数据持久化与异常处理</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"></span><br><span class="line">CSV_PATH = <span class="string">&quot;result.csv&quot;</span></span><br><span class="line">FIELDNAMES = [<span class="string">&quot;title&quot;</span>, <span class="string">&quot;publish_time&quot;</span>, <span class="string">&quot;author&quot;</span>, <span class="string">&quot;url&quot;</span>]</span><br><span class="line"></span><br><span class="line">success_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(CSV_PATH, <span class="string">&quot;w&quot;</span>, newline=<span class="string">&quot;&quot;</span>, encoding=<span class="string">&quot;utf-8-sig&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)</span><br><span class="line">        writer.writeheader()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i, rec <span class="keyword">in</span> <span class="built_in">enumerate</span>(records, start=<span class="number">1</span>):</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">all</span>(key <span class="keyword">in</span> rec <span class="keyword">for</span> key <span class="keyword">in</span> FIELDNAMES):</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">f&quot;警告：第 <span class="subst">&#123;i&#125;</span> 条记录字段缺失，已跳过&quot;</span>)</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                row = &#123;key: rec.get(key, <span class="string">&quot;&quot;</span>) <span class="keyword">for</span> key <span class="keyword">in</span> FIELDNAMES&#125;</span><br><span class="line">                writer.writerow(row)</span><br><span class="line">                success_count += <span class="number">1</span></span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;警告：第 <span class="subst">&#123;i&#125;</span> 条记录写入失败（<span class="subst">&#123;e&#125;</span>），已跳过&quot;</span>)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;写入文件失败：<span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">    success_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;成功写入 <span class="subst">&#123;success_count&#125;</span> 条数据至 <span class="subst">&#123;CSV_PATH&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>验证结果：终端输出“成功写入 10 条数据至 result.csv”，用 Excel 打开无乱码，四列 title、publish_time、author、url 数据对齐无误。</p>
+<h3 id="步骤-4：代码审查与工程化重构"><a href="#步骤-4：代码审查与工程化重构" class="headerlink" title="步骤 4：代码审查与工程化重构"></a>步骤 4：代码审查与工程化重构</h3><p>将上述全部代码喂回 AI，进行代码审查，并重构为面向对象的 NewsCrawler 类，保持功能不变。</p>
+<h4 id="（1）代码审查意见（摘要）"><a href="#（1）代码审查意见（摘要）" class="headerlink" title="（1）代码审查意见（摘要）"></a>（1）代码审查意见（摘要）</h4><ol>
+<li>性能方面：apparent_encoding 每次请求都做字符集探测，结果不稳定，建议显式指定编码；单页数据量小，无明显性能瓶颈。</li>
+<li>异常处理：time_div 下的 h6&#x2F;h3 若不存在会抛 AttributeError；fetch 未区分超时与 4xx&#x2F;5xx，确定性失败也会被重复重试。</li>
+<li>反爬合规：代码内无 robots.txt 检查（本次已人工确认 404 允许）；固定单一 User-Agent，长期高频抓取易被识别。</li>
+<li>安全方面：相对路径覆盖写可能误覆盖已有 result.csv；标题若以 &#x3D;、+、-、@ 开头存在 CSV 公式注入风险（本场景风险较低）。</li>
+</ol>
+<h4 id="（2）重构后的-NewsCrawler-类"><a href="#（2）重构后的-NewsCrawler-类" class="headerlink" title="（2）重构后的 NewsCrawler 类"></a>（2）重构后的 NewsCrawler 类</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urljoin</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NewsCrawler</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;桂林理工「桂工要闻」静态列表页爬虫。&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    URL = <span class="string">&quot;https://glut.edu.cn/ggyw/424.htm&quot;</span></span><br><span class="line">    HEADERS = &#123;</span><br><span class="line">        <span class="string">&quot;User-Agent&quot;</span>: (</span><br><span class="line">            <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) &quot;</span></span><br><span class="line">            <span class="string">&quot;AppleWebKit/537.36 (KHTML, like Gecko) &quot;</span></span><br><span class="line">            <span class="string">&quot;Chrome/120.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">        ),</span><br><span class="line">        <span class="string">&quot;Accept&quot;</span>: <span class="string">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Accept-Language&quot;</span>: <span class="string">&quot;zh-CN,zh;q=0.9&quot;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    FIELDNAMES = [<span class="string">&quot;title&quot;</span>, <span class="string">&quot;publish_time&quot;</span>, <span class="string">&quot;author&quot;</span>, <span class="string">&quot;url&quot;</span>]</span><br><span class="line">    CSV_PATH = <span class="string">&quot;result.csv&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, url=<span class="literal">None</span>, csv_path=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.url = url <span class="keyword">or</span> <span class="variable language_">self</span>.URL</span><br><span class="line">        <span class="variable language_">self</span>.csv_path = csv_path <span class="keyword">or</span> <span class="variable language_">self</span>.CSV_PATH</span><br><span class="line">        <span class="variable language_">self</span>.records = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">fetch</span>(<span class="params">self, max_retries=<span class="number">3</span>, timeout=<span class="number">10</span></span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;发送 GET 请求获取 HTML，超时/异常重试 3 次，间隔 2 秒。&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> attempt <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, max_retries + <span class="number">1</span>):</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                resp = requests.get(<span class="variable language_">self</span>.url, headers=<span class="variable language_">self</span>.HEADERS, timeout=timeout)</span><br><span class="line">                resp.raise_for_status()</span><br><span class="line">                resp.encoding = resp.apparent_encoding</span><br><span class="line">                <span class="keyword">return</span> resp.text</span><br><span class="line">            <span class="keyword">except</span> requests.exceptions.RequestException <span class="keyword">as</span> e:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;第 <span class="subst">&#123;attempt&#125;</span> 次请求失败：<span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">            time.sleep(<span class="number">2</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_extract_title</span>(<span class="params">li, a</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;多级容错提取标题，剔除阅读量 &lt;font&gt; 与摘要 &lt;p&gt;。&quot;&quot;&quot;</span></span><br><span class="line">        h5 = li.find(<span class="string">&quot;h5&quot;</span>, class_=<span class="string">&quot;overflow-dot&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> h5:</span><br><span class="line">            <span class="keyword">for</span> font <span class="keyword">in</span> h5.find_all(<span class="string">&quot;font&quot;</span>):</span><br><span class="line">                font.decompose()</span><br><span class="line">            t = h5.get_text(strip=<span class="literal">True</span>)</span><br><span class="line">            <span class="keyword">if</span> t:</span><br><span class="line">                <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line">        node = li.find(class_=<span class="string">&quot;overflow-dot&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> node:</span><br><span class="line">            <span class="keyword">for</span> font <span class="keyword">in</span> node.find_all(<span class="string">&quot;font&quot;</span>):</span><br><span class="line">                font.decompose()</span><br><span class="line">            t = node.get_text(strip=<span class="literal">True</span>)</span><br><span class="line">            <span class="keyword">if</span> t:</span><br><span class="line">                <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line">        t = a.get(<span class="string">&quot;title&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">and</span> t.strip():</span><br><span class="line">            <span class="keyword">return</span> t.strip()</span><br><span class="line"></span><br><span class="line">        con = li.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;con&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> con:</span><br><span class="line">            <span class="keyword">for</span> font <span class="keyword">in</span> con.find_all(<span class="string">&quot;font&quot;</span>):</span><br><span class="line">                font.decompose()</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> con.find_all(<span class="string">&quot;p&quot;</span>):</span><br><span class="line">                p.decompose()</span><br><span class="line">            t = <span class="string">&quot; &quot;</span>.join(con.get_text().split())</span><br><span class="line">            <span class="keyword">if</span> t:</span><br><span class="line">                <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, html</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;解析 HTML，提取 title / publish_time / author / url。&quot;&quot;&quot;</span></span><br><span class="line">        soup = BeautifulSoup(html, <span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">        items = soup.select(<span class="string">&quot;ul.list_box_riqi &gt; li&quot;</span>)</span><br><span class="line">        records = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> li <span class="keyword">in</span> items:</span><br><span class="line">            a = li.find(<span class="string">&quot;a&quot;</span>, href=<span class="literal">True</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> a:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">            url = urljoin(<span class="variable language_">self</span>.url, a[<span class="string">&quot;href&quot;</span>])</span><br><span class="line"></span><br><span class="line">            time_div = li.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;time&quot;</span>)</span><br><span class="line">            publish_time = <span class="string">&quot;&quot;</span></span><br><span class="line">            <span class="keyword">if</span> time_div:</span><br><span class="line">                h6 = time_div.find(<span class="string">&quot;h6&quot;</span>)</span><br><span class="line">                h3 = time_div.find(<span class="string">&quot;h3&quot;</span>)</span><br><span class="line">                <span class="keyword">if</span> h6 <span class="keyword">and</span> h3:</span><br><span class="line">                    publish_time = <span class="string">f&quot;<span class="subst">&#123;h6.get_text(strip=<span class="literal">True</span>)&#125;</span>-<span class="subst">&#123;h3.get_text(strip=<span class="literal">True</span>)&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">            title = <span class="variable language_">self</span>._extract_title(li, a)</span><br><span class="line">            author = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">            records.append(&#123;</span><br><span class="line">                <span class="string">&quot;title&quot;</span>: title,</span><br><span class="line">                <span class="string">&quot;publish_time&quot;</span>: publish_time,</span><br><span class="line">                <span class="string">&quot;author&quot;</span>: author,</span><br><span class="line">                <span class="string">&quot;url&quot;</span>: url,</span><br><span class="line">            &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.records = records</span><br><span class="line">        <span class="keyword">return</span> records</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">save</span>(<span class="params">self, records=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;写入 result.csv（utf-8-sig），返回成功写入条数。&quot;&quot;&quot;</span></span><br><span class="line">        records = records <span class="keyword">if</span> records <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">else</span> <span class="variable language_">self</span>.records</span><br><span class="line">        success_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="variable language_">self</span>.csv_path, <span class="string">&quot;w&quot;</span>, newline=<span class="string">&quot;&quot;</span>, encoding=<span class="string">&quot;utf-8-sig&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                writer = csv.DictWriter(f, fieldnames=<span class="variable language_">self</span>.FIELDNAMES)</span><br><span class="line">                writer.writeheader()</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span> i, rec <span class="keyword">in</span> <span class="built_in">enumerate</span>(records, start=<span class="number">1</span>):</span><br><span class="line">                    <span class="keyword">try</span>:</span><br><span class="line">                        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">all</span>(key <span class="keyword">in</span> rec <span class="keyword">for</span> key <span class="keyword">in</span> <span class="variable language_">self</span>.FIELDNAMES):</span><br><span class="line">                            <span class="built_in">print</span>(<span class="string">f&quot;警告：第 <span class="subst">&#123;i&#125;</span> 条记录字段缺失，已跳过&quot;</span>)</span><br><span class="line">                            <span class="keyword">continue</span></span><br><span class="line">                        row = &#123;key: rec.get(key, <span class="string">&quot;&quot;</span>) <span class="keyword">for</span> key <span class="keyword">in</span> <span class="variable language_">self</span>.FIELDNAMES&#125;</span><br><span class="line">                        writer.writerow(row)</span><br><span class="line">                        success_count += <span class="number">1</span></span><br><span class="line">                    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">f&quot;警告：第 <span class="subst">&#123;i&#125;</span> 条记录写入失败（<span class="subst">&#123;e&#125;</span>），已跳过&quot;</span>)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;写入文件失败：<span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">            success_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;成功写入 <span class="subst">&#123;success_count&#125;</span> 条数据至 <span class="subst">&#123;self.csv_path&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> success_count</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;运行入口：获取 -&gt; 解析 -&gt; 保存。&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;正在获取网页...&quot;</span>)</span><br><span class="line">        html = <span class="variable language_">self</span>.fetch()</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> html:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;获取失败&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取成功，开始解析...\n&quot;</span>)</span><br><span class="line">        records = <span class="variable language_">self</span>.parse(html)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.save(records)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    crawler = NewsCrawler()</span><br><span class="line">    crawler.run()</span><br></pre></td></tr></table></figure>
+
+<p>重构后保持 requests + BeautifulSoup、User-Agent 伪装、超时重试 3 次、utf-8-sig 编码、字段名与文件名完全不变，同时补充了 h6&#x2F;h3 的 None 防护。</p>
+<h2 id="五、实验总结"><a href="#五、实验总结" class="headerlink" title="五、实验总结"></a>五、实验总结</h2><p>本次实验完整走通了 Vibe Coding 的“需求澄清 → 分步生成 → 运行验证 → 报错反馈”流程，主要收获如下：</p>
+<ol>
+<li>学会了用“角色 + 目标 + 约束 + 验收标准”的结构化 Prompt 精确描述需求，避免了 AI 一次性生成不可控代码。</li>
+<li>体会到分步生成与最小化验证的价值：每一步先验证再推进，能够快速定位问题（如标题为空的 HTML 结构问题）。</li>
+<li>掌握了 requests + BeautifulSoup 静态网页抓取的基本方法，以及 CSV 持久化、utf-8-sig 编码处理和异常容错。</li>
+<li>建立了代码审查意识，能从性能、异常处理、反爬合规、安全四个维度审视 AI 生成的代码，并通过重构提升可读性与可维护性。</li>
+</ol>
+<p>存在的问题与不足：本次仅完成单页抓取，尚未涉及分页遍历、动态渲染页面与更复杂的反爬处理，后续可在进阶挑战中继续实践。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" rel="tag">实验报告</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-Python学习笔记：从“田字格绘制”看函数与代码复用的艺术"
   class="article article-type-post"
   itemscope
@@ -1902,117 +2042,6 @@ public void normalMethod() &#123;
 <p>使用了匿名内部类</p>
 <p>支持毫秒&#x2F;纳秒两种精度</p>
 <p>支持带返回值的场景</p>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-JAVA作业：形式化方法学习与《大象——Thinking-in-UML》阅读推荐"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/05/20/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E5%BD%A2%E5%BC%8F%E5%8C%96%E6%96%B9%E6%B3%95%E5%AD%A6%E4%B9%A0%E4%B8%8E%E3%80%8A%E5%A4%A7%E8%B1%A1%E2%80%94%E2%80%94Thinking-in-UML%E3%80%8B%E9%98%85%E8%AF%BB%E6%8E%A8%E8%8D%90/"
-    >JAVA作业：形式化方法学习与《大象——Thinking in UML》阅读推荐</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/05/20/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E5%BD%A2%E5%BC%8F%E5%8C%96%E6%96%B9%E6%B3%95%E5%AD%A6%E4%B9%A0%E4%B8%8E%E3%80%8A%E5%A4%A7%E8%B1%A1%E2%80%94%E2%80%94Thinking-in-UML%E3%80%8B%E9%98%85%E8%AF%BB%E6%8E%A8%E8%8D%90/" class="article-date">
-  <time datetime="2026-05-20T05:14:21.000Z" itemprop="datePublished">2026-05-20</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、形式化方法概述<br>1.1 定义<br>形式化方法（Formal Methods）是一种基于数学的软件和硬件系统开发技术，采用严格的形式化规约语言描述系统，并通过数学推理 验证系统性质是否正确。</p>
-<p>计算机科学家Edsger Dijkstra曾指出：“程序测试只能表明错误的存在，而不能表明错误的不存在。”这一论断揭示了传统测试方法的根本局限——测试无法穷尽所有可能的输入状态。形式化方法正是解决这一局限的重要途径。</p>
-<p>1.2 软件工程 方法的分类<br>方法类型	特征	优势	局限性<br>非形式化方法	自然语言描述	通俗易懂，便于沟通	存在歧义，缺乏精确性<br>半形式化方法	图形化表示（如UML）	直观清晰，结构明确	语义不够精确<br>形式化方法	数学符号描述	精确无歧义，可验证	学习门槛高，开发成本高<br>1.3 形式化方法的核心构成<br>形式化方法由两个核心部分组成：</p>
-<p>（1）形式化模型<br>具有严格数学定义的抽象模型，常见的有：</p>
-<p>有穷自动机（Finite Automaton）</p>
-<p>Petri网（Petri Net）</p>
-<p>迁移系统（Transition System）</p>
-<p>Z语言规范</p>
-<p>（2）形式化分析<br>对模型进行数学验证的技术，主要包括：</p>
-<p>技术	原理	特点<br>模型检查	遍历系统所有状态空间	自动化程度高，但存在状态爆炸问题<br>演绎证明	采用数学公理和推理规则证明	可处理无限状态，但需要人工引导<br>抽象解释	对程序行为进行静态近似分析	适用于大型程序，存在精度损失<br>1.4 主要应用领域<br>由于形式化方法具有较高的技术门槛和实施成本，其主要应用于对安全性、可靠性要求极高的关键系统：</p>
-<p>航空航天：飞行控制系统、导航系统</p>
-<p>轨道交通：列车信号控制系统</p>
-<p>医疗设备：生命支持系统、放射治疗设备</p>
-<p>核工业：核反应堆安全控制系统</p>
-<p>金融交易：高频交易系统、清算系统</p>
-<p>1.5 形式化方法的优势与局限<br>优势	局限<br>规约精确，无二义性	学习曲线陡峭<br>可进行数学正确性证明	开发周期较长<br>早期发现设计缺陷	需要专门的工具支持<br>提高系统可靠性和安全性	不适用于所有类型的项目<br>1.6 形式化方法与UML的互补关系<br>对比维度	形式化方法	UML<br>表达方式	数学符号	图形化语言<br>语义精确性	高（无歧义）	中等（存在解释空间）<br>可验证性	强（可数学证明）	弱（主要依赖评审）<br>学习门槛	高	中等<br>适用场景	安全关键系统	一般软件项目<br>主要用途	验证系统正确性	沟通系统设计<br>两者并非对立关系，而是互补关系：UML提供直观的系统视图用于团队沟通，形式化方法提供严格的语义和验证手段用于保证系统可靠性。在实践中，可将UML模型转换为形式化规约进行验证，实现优势互补。</p>
-<p>二、《大象——Thinking  in UML》阅读推荐<br>2.1 书籍基本信息<br>项目	内容<br>书名	《大象——Thinking in UML》<br>作者	谭云杰<br>出版社	中国水利水电出版社<br>版本	第2版<br>出版时间	2012年<br>豆瓣评分	8.1分<br>2.2 内容概述<br>本书并非一本简单的UML符号参考手册，而是一部系统讲解面向对象分析与设计思想的专业著作。</p>
-<p>书名“大象”取意于“盲人摸象”的寓言——软件开发涉及需求、分析、设计、编码、测试等多个环节，参与者往往只了解局部而难以把握全貌。UML作为一种标准化 的建模语言，其价值在于帮助开发团队建立对软件系统的完整、一致的理解。</p>
-<p>2.3 全书结构<br>部分	主题	核心内容<br>准备篇	面向对象基础	面向对象基本概念、建模原理<br>基础篇	UML核心元素	用例、类、接口、组件等及相互关系<br>进阶篇	统一开发过程	需求获取、系统分析、架构设计<br>总结篇	深入探讨	常见疑难问题与实践经验<br>2.4 核心价值<br>（1）培养面向对象思维方式</p>
-<p>许多学习者虽然掌握了Java等语言的语法，但习惯于用面向对象 的语言编写面向过程的代码。本书从认知层面帮助读者理解：</p>
-<p>何为抽象？</p>
-<p>如何从业务领域中识别对象？</p>
-<p>如何建立类之间的合理关系？</p>
-<p>（2）建立用例驱动的开发流程</p>
-<p>书中系统阐述了用例驱动的开发方法论：</p>
-<p>用例作为分析单元</p>
-<p>用例作为设计单元</p>
-<p>用例作为开发单元</p>
-<p>用例作为测试单元</p>
-<p>（3）理论与实践相结合</p>
-<p>区别于仅介绍UML符号的教材，本书以实际项目为背景，完整展示了从需求获取到架构设计 的过程，具有较强的实践指导意义。</p>
-<p>（4）语言通俗，降低学习门槛</p>
-<p>本书写作风格贴近开发者实际认知，避免了学术化的晦涩表达，适合初学者系统学习。</p>
-<p>2.5 适用读者<br>读者群体	推荐程度<br>已完成Java基础学习的学生	★★★★★ 强烈推荐<br>正在学习UML建模的读者	★★★★★ 推荐<br>初次参与软件项目的开发者	★★★★★ 推荐<br>希望提升设计能力的初级工程师	★★★★☆ 推荐<br>2.6 阅读建议<br>建议按以下顺序阅读：</p>
-<p>第一遍通读：把握全书框架，理解核心思想，不纠结技术细节</p>
-<p>第二遍精读：重点研读用例图、类图、时序图等相关章节</p>
-<p>边读边实践：选取一个小型项目（如图书管理系统），同步进行建模练习</p>
-<p>2.7 关联参考<br>参考书目	推荐理由<br>《UML用户指南》（Grady Booch）	UML创始人著作，经典权威<br>《形式化方法导论》（张广泉）	清华教材，系统学习形式化方法<br>《设计模式：可复用面向对象软件的基础》（GoF）	面向对象设计进阶读物<br>三、总结<br>本次作业的主要收获如下：</p>
-<p>理解形式化方法：形式化方法以数学为理论基础，能够精确描述系统行为并验证其正确性，但实施成本较高，主要应用于安全关键领域。</p>
-<p>UML的定位与价值：作为半形式化方法，UML通过图形化方式表达软件设计，在直观性与规范性之间取得平衡，是当前工业界主流的建模工具。</p>
-<p>理论与实践的关系：形式化方法提供理论严谨性，UML提供实践可操作性，二者相互补充。</p>
-<p>《大象——Thinking in UML》的阅读价值：该书有助于建立面向对象思维方式、掌握UML建模方法、提升软件设计能力，适合作为UML入门的首选读物。</p>
 
       
 
