@@ -555,6 +555,300 @@
 
     
     <article
+  id="post-Python实验-本地文档智能审查与摘要"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-%E6%9C%AC%E5%9C%B0%E6%96%87%E6%A1%A3%E6%99%BA%E8%83%BD%E5%AE%A1%E6%9F%A5%E4%B8%8E%E6%91%98%E8%A6%81/"
+    >Python实验-本地文档智能审查与摘要</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-%E6%9C%AC%E5%9C%B0%E6%96%87%E6%A1%A3%E6%99%BA%E8%83%BD%E5%AE%A1%E6%9F%A5%E4%B8%8E%E6%91%98%E8%A6%81/" class="article-date">
+  <time datetime="2026-11-22T09:26:00.000Z" itemprop="datePublished">2026-11-22</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>这次实验的目标不是再写一个”统计词频、画张词云”的脚本，而是把它收成一个能自己跑完整个流程的小 Agent：丢给它一个文件夹，它自己读文件、判断编码、分词、出审查报告、画词云，还会对每篇文档写一句审查意见。</p>
+<p>语料我没另找，直接拿博客里三篇旧实验文章，外加一篇故意留了 TODO 的草稿。四篇文档、1129 个有效词，跑完之后该抓的问题都抓出来了，也暴露了几个只有真跑才会遇到的问题。</p>
+<h2 id="一、实验目的"><a href="#一、实验目的" class="headerlink" title="一、实验目的"></a>一、实验目的</h2><ol>
+<li>掌握 Python 批量读取文件与文本预处理的方法；</li>
+<li>熟练使用 jieba 做中文分词、停用词过滤和自定义词典加载；</li>
+<li>掌握 wordcloud 的参数配置，让词云真的能表达业务信息，而不是一堆好看的方块；</li>
+<li>体验 Vibe Coding：先用结构化 Prompt 把需求边界说清楚，再让 AI 出代码，人负责验证和微调。</li>
+</ol>
+<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>版本 &#x2F; 说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作系统</td>
+<td>Windows 11</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.13.18</td>
+</tr>
+<tr>
+<td>jieba</td>
+<td>0.42.1</td>
+</tr>
+<tr>
+<td>wordcloud</td>
+<td>1.9.6</td>
+</tr>
+<tr>
+<td>matplotlib</td>
+<td>3.11.2</td>
+</tr>
+<tr>
+<td>Pillow</td>
+<td>13.0.0</td>
+</tr>
+</tbody></table>
+<p>依赖安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install jieba wordcloud matplotlib numpy pillow</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、实验原理"><a href="#三、实验原理" class="headerlink" title="三、实验原理"></a>三、实验原理</h2><h3 id="1-分词：jieba-精确模式-自定义词典"><a href="#1-分词：jieba-精确模式-自定义词典" class="headerlink" title="1. 分词：jieba 精确模式 + 自定义词典"></a>1. 分词：jieba 精确模式 + 自定义词典</h3><p>jieba 先按前缀词典构造有向无环图，再用动态规划找最大概率路径；词典里没有的词，用 HMM 按字的位置概率兜底。所以”精确模式”并不等于”一定准”：领域词只要没进词典，就会被切碎。</p>
+<p>比如”不可哈希”在默认词典里不存在，会被切成”不可 &#x2F; 哈希”；”列表推导式”也会散成”列表 &#x2F; 推导 &#x2F; 式”。这类词一旦被切碎，词频统计就会失真。解决办法有两个：<code>jieba.add_word()</code> 临时加词，或者 <code>jieba.load_userdict()</code> 加载整份词典。</p>
+<h3 id="2-词频与词云"><a href="#2-词频与词云" class="headerlink" title="2. 词频与词云"></a>2. 词频与词云</h3><p>词云本质上是对词频做视觉编码：词越大，出现次数越多。<code>generate_from_frequencies()</code> 接收一个 <code>&#123;词: 频次&#125;</code> 字典，<code>max_words</code> 控制展示数量，<code>font_path</code> 必须指向中文字体，否则全是方框。</p>
+<p><code>collocations=False</code> 要关掉，不然 wordcloud 会自动把相邻词拼成”人工智能”这种双词短语，中文语料里很容易出现莫名其妙的组合。中文还有一个坑：默认允许 10% 的词竖排，汉字一旋转就读不出来，所以我把 <code>prefer_horizontal</code> 设成 1.0，全部横排。</p>
+<h3 id="3-抽取式摘要"><a href="#3-抽取式摘要" class="headerlink" title="3. 抽取式摘要"></a>3. 抽取式摘要</h3><p>没有接大模型，摘要用的是最朴素的抽取式做法：</p>
+<ol>
+<li>按句号、问号、分号、换行切句；</li>
+<li>每句话里的词，按全局词频加权求和；</li>
+<li>除以句子长度的 0.6 次方做惩罚，避免一句话越长分越高；</li>
+<li>取分数最高的 3 句，按原文顺序拼起来，超过 100 字截断。</li>
+</ol>
+<p>它不会改写，只会”挑句子”，所以读起来偶尔跳跃，但不会编造原文里没有的东西。</p>
+<h3 id="4-规则化审查"><a href="#4-规则化审查" class="headerlink" title="4. 规则化审查"></a>4. 规则化审查</h3><p>审查意见由四条规则拼出来：</p>
+<ul>
+<li>正文少于 300 字 → 篇幅偏短；</li>
+<li>最高频词占比超过 8% → 高频词重复度偏高；</li>
+<li>平均句长超过 60 字 → 长句偏多；</li>
+<li>命中 <code>TODO</code>、<code>待补充</code>、<code>XXX</code>、<code>占位</code> → 存在待完善占位。</li>
+</ul>
+<p>规则很笨，但胜在可解释：每条意见都能指出是哪条规则触发的，不会给一个”感觉写得不太好”这种没法改的结论。</p>
+<h3 id="5-Agent-化：和普通脚本差在哪"><a href="#5-Agent-化：和普通脚本差在哪" class="headerlink" title="5. Agent 化：和普通脚本差在哪"></a>5. Agent 化：和普通脚本差在哪</h3><p>普通脚本的假设是”输入是对的”；Agent 原型要自己处理输入的不确定性：</p>
+<ul>
+<li>编码不确定 → UTF-8、UTF-8-SIG、GB18030 依次尝试；</li>
+<li>字体路径不确定 → 按 msyh.ttc、simhei.ttf、Arial Unicode 的顺序找；</li>
+<li>文件坏了 → 跳过并在终端说明，不中断整批任务；</li>
+<li>输出要能被别的程序接 → 固定 CSV 字段，UTF-8-SIG 保存，Excel 直接打开不乱码。</li>
+</ul>
+<h2 id="四、需求边界"><a href="#四、需求边界" class="headerlink" title="四、需求边界"></a>四、需求边界</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>约定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入</td>
+<td>一个包含若干 <code>.txt</code> &#x2F; <code>.md</code> 的文件夹；可选的停用词表、自定义词典、输出目录</td>
+</tr>
+<tr>
+<td>处理</td>
+<td>批量读取 → 编码识别 → Markdown 清洗 → 加载词典 → jieba 精确分词 → 过滤停用词与单字 → 词频统计</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>每个文件的关键词、摘要、审查意见（CSV）；全局 Top 50 词云（PNG，1000×800，白底）</td>
+</tr>
+<tr>
+<td>约束</td>
+<td>文件不存在、编码错误、字体缺失都要有兜底；中文正常显示；单文件失败不影响整批</td>
+</tr>
+</tbody></table>
+<h2 id="五、结构化-Prompt"><a href="#五、结构化-Prompt" class="headerlink" title="五、结构化 Prompt"></a>五、结构化 Prompt</h2><p>真正让 AI 出代码之前，我先把需求写成这样一段，而不是一句”帮我写个词云脚本”：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">需求：开发一个本地文档分析工具，批量处理文件夹里的 .txt / .md 文件，提取高频词、生成词云，并输出审查报告。</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">- 文件夹路径</span><br><span class="line">- stopwords.txt（每行一个停用词，UTF-8）</span><br><span class="line">- user_dict.txt（每行一个专业词，UTF-8）</span><br><span class="line"></span><br><span class="line">处理流程：</span><br><span class="line">1. 用 pathlib 遍历目录，只处理 .txt / .md</span><br><span class="line">2. 读取时按 utf-8-sig → utf-8 → gb18030 依次回退</span><br><span class="line">3. 清洗 Markdown：去 front matter、代码块、图片、链接、表格行</span><br><span class="line">4. jieba 精确模式分词，过滤停用词、单字、纯数字</span><br><span class="line">5. 统计词频，输出每个文件的 Top10 关键词和 Top3 摘要句</span><br><span class="line">6. 按规则生成审查意见</span><br><span class="line">7. 全局 Top50 生成词云</span><br><span class="line"></span><br><span class="line">约束：</span><br><span class="line">- 词云 1000x800、白底、font_path 指定中文字体</span><br><span class="line">- 单文件读取失败要跳过，不能中断整批</span><br><span class="line">- CSV 用 utf-8-sig，保证 Excel 打开不乱码</span><br><span class="line">- 代码带注释，函数拆分清楚</span><br><span class="line"></span><br><span class="line">输出：完整 Python 代码 + 运行方式说明。</span><br></pre></td></tr></table></figure>
+
+<p>这段 Prompt 的好处是把”异常怎么处理”也写进了需求。否则 AI 默认写的是”快乐路径”：文件一定存在、编码一定是 UTF-8、字体一定找得到，真跑起来第一步就挂。</p>
+<h2 id="六、核心代码"><a href="#六、核心代码" class="headerlink" title="六、核心代码"></a>六、核心代码</h2><p>文件结构：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">doc_review_agent/</span><br><span class="line">├── doc_review_agent.py</span><br><span class="line">├── stopwords.txt</span><br><span class="line">├── user_dict.txt</span><br><span class="line">├── docs/</span><br><span class="line">│   ├── 01-turtle彩图.md</span><br><span class="line">│   ├── 02-列表元组集合.md</span><br><span class="line">│   ├── 03-蒙特卡罗.md</span><br><span class="line">│   └── 04-草稿-待补充.md</span><br><span class="line">└── output/</span><br><span class="line">    ├── doc_review_report.csv</span><br><span class="line">    └── document_wordcloud.png</span><br></pre></td></tr></table></figure>
+
+<p>主程序：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;本地文档智能审查与摘要 Agent（原型）</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">功能：</span></span><br><span class="line"><span class="string">1. 批量读取指定目录下的 .txt / .md 文件（自动识别 UTF-8 / GB18030 编码）</span></span><br><span class="line"><span class="string">2. 清洗 Markdown 标记与代码块，jieba 分词，过滤停用词</span></span><br><span class="line"><span class="string">3. 统计全局 Top 50 词频并生成词云</span></span><br><span class="line"><span class="string">4. 输出每个文件的关键词、摘要句和规则化审查意见（CSV 报告）</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"><span class="keyword">from</span> wordcloud <span class="keyword">import</span> WordCloud</span><br><span class="line"></span><br><span class="line">BASE_STOPWORDS = <span class="built_in">set</span>(<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">的 了 和 是 在 与 及 等 为 以 对 把 被 向 从 到 于 并 而 其 该 各 这 那 之 也 都 就 要 将</span></span><br><span class="line"><span class="string">使 让 所 着 过 又 更 最 很 不 无 非 上 下 中 内 外 前 后 全 每 第 个 种 类 批 次</span></span><br><span class="line"><span class="string">我们 你们 他们 我 你 他 她 它 自己 这个 那个 这些 那些 什么 怎么 因为 所以 如果 但是</span></span><br><span class="line"><span class="string">可以 需要 应该 可能 已经 还是 就是 这样 那样 时候 一个 没有 以及 通过 对于 其中 同时</span></span><br><span class="line"><span class="string">之后 之前 目前 主要 相关 一定 进行 使用 实现 完成 内容 部分 问题 方法 方面 情况 过程</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span>.split())</span><br><span class="line"></span><br><span class="line">DEFAULT_USER_TERMS = [</span><br><span class="line">    <span class="string">&#x27;词云&#x27;</span>, <span class="string">&#x27;分词&#x27;</span>, <span class="string">&#x27;停用词&#x27;</span>, <span class="string">&#x27;自定义词典&#x27;</span>, <span class="string">&#x27;词频&#x27;</span>, <span class="string">&#x27;摘要&#x27;</span>, <span class="string">&#x27;审查&#x27;</span>, <span class="string">&#x27;智能体&#x27;</span>, <span class="string">&#x27;大模型&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;蒙特卡洛&#x27;</span>, <span class="string">&#x27;五角星&#x27;</span>, <span class="string">&#x27;顶点&#x27;</span>, <span class="string">&#x27;画笔&#x27;</span>, <span class="string">&#x27;列表&#x27;</span>, <span class="string">&#x27;元组&#x27;</span>, <span class="string">&#x27;集合&#x27;</span>, <span class="string">&#x27;切片&#x27;</span>, <span class="string">&#x27;哈希&#x27;</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">CODE_NOISE = &#123;</span><br><span class="line">    <span class="string">&#x27;step&#x27;</span>, <span class="string">&#x27;del&#x27;</span>, <span class="string">&#x27;add&#x27;</span>, <span class="string">&#x27;ls&#x27;</span>, <span class="string">&#x27;print&#x27;</span>, <span class="string">&#x27;def&#x27;</span>, <span class="string">&#x27;return&#x27;</span>, <span class="string">&#x27;if&#x27;</span>, <span class="string">&#x27;for&#x27;</span>, <span class="string">&#x27;while&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;else&#x27;</span>, <span class="string">&#x27;import&#x27;</span>, <span class="string">&#x27;self&#x27;</span>, <span class="string">&#x27;none&#x27;</span>, <span class="string">&#x27;true&#x27;</span>, <span class="string">&#x27;false&#x27;</span>, <span class="string">&#x27;str&#x27;</span>, <span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;bool&#x27;</span>, <span class="string">&#x27;dict&#x27;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">FONT_CANDIDATES = [</span><br><span class="line">    <span class="string">r&#x27;C:\Windows\Fonts\msyh.ttc&#x27;</span>,</span><br><span class="line">    <span class="string">r&#x27;C:\Windows\Fonts\simhei.ttf&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;/System/Library/Fonts/Supplemental/Arial Unicode.ttf&#x27;</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pick_font</span>(<span class="params">font_path=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;优先使用指定字体，否则按常见中文字体路径回退&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> font_path:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> Path(font_path).exists():</span><br><span class="line">            <span class="keyword">raise</span> FileNotFoundError(<span class="string">f&#x27;字体文件不存在：<span class="subst">&#123;font_path&#125;</span>&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> font_path</span><br><span class="line">    <span class="keyword">for</span> candidate <span class="keyword">in</span> FONT_CANDIDATES:</span><br><span class="line">        <span class="keyword">if</span> Path(candidate).exists():</span><br><span class="line">            <span class="keyword">return</span> candidate</span><br><span class="line">    <span class="keyword">raise</span> FileNotFoundError(<span class="string">&#x27;未找到可用的中文字体，请通过 --font 指定&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_stopwords</span>(<span class="params">path=<span class="literal">None</span></span>):</span><br><span class="line">    words = <span class="built_in">set</span>(BASE_STOPWORDS)</span><br><span class="line">    <span class="keyword">if</span> path <span class="keyword">and</span> Path(path).exists():</span><br><span class="line">        text = Path(path).read_text(encoding=<span class="string">&#x27;utf-8-sig&#x27;</span>)</span><br><span class="line">        words |= &#123;line.strip() <span class="keyword">for</span> line <span class="keyword">in</span> text.splitlines() <span class="keyword">if</span> line.strip()&#125;</span><br><span class="line">    <span class="keyword">return</span> words</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_user_dict</span>(<span class="params">path=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">for</span> term <span class="keyword">in</span> DEFAULT_USER_TERMS:</span><br><span class="line">        jieba.add_word(term)</span><br><span class="line">    <span class="keyword">if</span> path <span class="keyword">and</span> Path(path).exists():</span><br><span class="line">        jieba.load_userdict(<span class="built_in">str</span>(path))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_text</span>(<span class="params">path</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;按 UTF-8 → GB18030 依次尝试，全部失败则抛出异常&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> enc <span class="keyword">in</span> (<span class="string">&#x27;utf-8-sig&#x27;</span>, <span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&#x27;gb18030&#x27;</span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> Path(path).read_text(encoding=enc), enc</span><br><span class="line">        <span class="keyword">except</span> UnicodeDecodeError:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">raise</span> UnicodeError(<span class="string">f&#x27;<span class="subst">&#123;path.name&#125;</span> 编码无法识别&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">clean_text</span>(<span class="params">text</span>):</span><br><span class="line">    text = re.sub(<span class="string">r&#x27;^---\s*\n.*?\n---\s*\n&#x27;</span>, <span class="string">&#x27;&#x27;</span>, text, flags=re.S)   <span class="comment"># 去掉 front matter</span></span><br><span class="line">    text = re.sub(<span class="string">r&#x27;`&#123;3&#125;.*?`&#123;3&#125;&#x27;</span>, <span class="string">&#x27;&#x27;</span>, text, flags=re.S)               <span class="comment"># 去掉代码块</span></span><br><span class="line">    text = re.sub(<span class="string">r&#x27;!\[[^\]]*\]\([^)]*\)&#x27;</span>, <span class="string">&#x27;&#x27;</span>, text)                 <span class="comment"># 去掉图片</span></span><br><span class="line">    text = re.sub(<span class="string">r&#x27;\[([^\]]*)\]\([^)]*\)&#x27;</span>, <span class="string">r&#x27;\1&#x27;</span>, text)             <span class="comment"># 链接只留文字</span></span><br><span class="line">    text = re.sub(<span class="string">r&#x27;https?://\S+&#x27;</span>, <span class="string">&#x27;&#x27;</span>, text)</span><br><span class="line">    text = <span class="string">&#x27;\n&#x27;</span>.join(                                                <span class="comment"># 去掉表格行，表格留给报告但会污染摘要</span></span><br><span class="line">        line <span class="keyword">for</span> line <span class="keyword">in</span> text.splitlines() <span class="keyword">if</span> line.count(<span class="string">&#x27;|&#x27;</span>) &lt; <span class="number">2</span></span><br><span class="line">    )</span><br><span class="line">    text = re.sub(<span class="string">r&#x27;[#&gt;*`_\-]&#x27;</span>, <span class="string">&#x27; &#x27;</span>, text)                           <span class="comment"># 去掉 Markdown 符号</span></span><br><span class="line">    text = re.sub(<span class="string">r&#x27;[ \t]+&#x27;</span>, <span class="string">&#x27; &#x27;</span>, text)</span><br><span class="line">    text = re.sub(<span class="string">r&#x27;\n&#123;2,&#125;&#x27;</span>, <span class="string">&#x27;\n&#x27;</span>, text)</span><br><span class="line">    <span class="keyword">return</span> text.strip()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">split_sentences</span>(<span class="params">text</span>):</span><br><span class="line">    parts = re.split(<span class="string">r&#x27;[。！？!?；;\n]+\s*&#x27;</span>, text)</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> parts:</span><br><span class="line">        s = p.strip(<span class="string">&#x27; ，,、:：&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="number">10</span> &lt;= <span class="built_in">len</span>(s) &lt;= <span class="number">200</span>:</span><br><span class="line">            result.append(s)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tokenize</span>(<span class="params">text, stopwords</span>):</span><br><span class="line">    words = jieba.lcut(text)</span><br><span class="line">    <span class="keyword">return</span> [</span><br><span class="line">        w <span class="keyword">for</span> w <span class="keyword">in</span> words</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(w) &gt; <span class="number">1</span> <span class="keyword">and</span> w <span class="keyword">not</span> <span class="keyword">in</span> stopwords <span class="keyword">and</span> w.lower() <span class="keyword">not</span> <span class="keyword">in</span> CODE_NOISE</span><br><span class="line">        <span class="keyword">and</span> <span class="keyword">not</span> re.fullmatch(<span class="string">r&#x27;[\d\.%％\-]+&#x27;</span>, w)</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">summarize</span>(<span class="params">sentences, counter, top_k=<span class="number">3</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;按关键词权重给句子打分，取分数最高的几句，按原文顺序拼接&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> sentences:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    scored = []</span><br><span class="line">    <span class="keyword">for</span> idx, sentence <span class="keyword">in</span> <span class="built_in">enumerate</span>(sentences):</span><br><span class="line">        words = [w <span class="keyword">for</span> w <span class="keyword">in</span> jieba.lcut(sentence) <span class="keyword">if</span> <span class="built_in">len</span>(w) &gt; <span class="number">1</span>]</span><br><span class="line">        weight = <span class="built_in">sum</span>(counter.get(w, <span class="number">0</span>) <span class="keyword">for</span> w <span class="keyword">in</span> words) / (<span class="built_in">len</span>(sentence) ** <span class="number">0.6</span> + <span class="number">1</span>)</span><br><span class="line">        scored.append((weight, idx, sentence))</span><br><span class="line">    chosen = <span class="built_in">sorted</span>(<span class="built_in">sorted</span>(scored, reverse=<span class="literal">True</span>)[:top_k], key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line">    trimmed = [s <span class="keyword">if</span> <span class="built_in">len</span>(s) &lt;= <span class="number">100</span> <span class="keyword">else</span> s[:<span class="number">100</span>] + <span class="string">&#x27;…&#x27;</span> <span class="keyword">for</span> _, _, s <span class="keyword">in</span> chosen]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;；&#x27;</span>.join(trimmed)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">review</span>(<span class="params">text, counter, total_tokens, sentence_count</span>):</span><br><span class="line">    notes = []</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(text) &lt; <span class="number">300</span>:</span><br><span class="line">        notes.append(<span class="string">&#x27;篇幅偏短&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> counter <span class="keyword">and</span> total_tokens <span class="keyword">and</span> counter.most_common(<span class="number">1</span>)[<span class="number">0</span>][<span class="number">1</span>] / total_tokens &gt; <span class="number">0.08</span>:</span><br><span class="line">        notes.append(<span class="string">&#x27;高频词重复度偏高&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> sentence_count <span class="keyword">and</span> <span class="built_in">len</span>(text) / sentence_count &gt; <span class="number">60</span>:</span><br><span class="line">        notes.append(<span class="string">&#x27;长句偏多&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> re.search(<span class="string">r&#x27;TODO|待补充|XXX|占位&#x27;</span>, text):</span><br><span class="line">        notes.append(<span class="string">&#x27;存在待完善占位&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;；&#x27;</span>.join(notes) <span class="keyword">if</span> notes <span class="keyword">else</span> <span class="string">&#x27;未见明显问题&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">analyze_folder</span>(<span class="params">folder, stop_path=<span class="literal">None</span>, dict_path=<span class="literal">None</span>, out_dir=<span class="string">&#x27;output&#x27;</span>, font_path=<span class="literal">None</span></span>):</span><br><span class="line">    folder = Path(folder)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> folder.exists():</span><br><span class="line">        <span class="keyword">raise</span> FileNotFoundError(<span class="string">f&#x27;文件夹不存在：<span class="subst">&#123;folder&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    load_user_dict(dict_path)</span><br><span class="line">    stopwords = load_stopwords(stop_path)</span><br><span class="line"></span><br><span class="line">    files = <span class="built_in">sorted</span>(p <span class="keyword">for</span> p <span class="keyword">in</span> folder.iterdir() <span class="keyword">if</span> p.suffix.lower() <span class="keyword">in</span> &#123;<span class="string">&#x27;.txt&#x27;</span>, <span class="string">&#x27;.md&#x27;</span>&#125;)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> files:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;目录下没有可分析的 .txt / .md 文件&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    rows, all_tokens = [], []</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;共发现 <span class="subst">&#123;<span class="built_in">len</span>(files)&#125;</span> 个文档\n&#x27;</span> + <span class="string">&#x27;-&#x27;</span> * <span class="number">60</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> path <span class="keyword">in</span> files:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            raw, encoding = read_text(path)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&#x27;[跳过] <span class="subst">&#123;path.name&#125;</span>: <span class="subst">&#123;exc&#125;</span>&#x27;</span>)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        text = clean_text(raw)</span><br><span class="line">        sentences = split_sentences(text)</span><br><span class="line">        tokens = tokenize(text, stopwords)</span><br><span class="line">        all_tokens.extend(tokens)</span><br><span class="line">        counter = Counter(tokens)</span><br><span class="line"></span><br><span class="line">        top10 = <span class="string">&#x27;、&#x27;</span>.join(<span class="string">f&#x27;<span class="subst">&#123;w&#125;</span>(<span class="subst">&#123;c&#125;</span>)&#x27;</span> <span class="keyword">for</span> w, c <span class="keyword">in</span> counter.most_common(<span class="number">10</span>))</span><br><span class="line">        summary = summarize(sentences, counter)</span><br><span class="line">        comment = review(text, counter, <span class="built_in">len</span>(tokens), <span class="built_in">len</span>(sentences))</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;文件：<span class="subst">&#123;path.name&#125;</span>（<span class="subst">&#123;encoding&#125;</span>）&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;  字数 <span class="subst">&#123;<span class="built_in">len</span>(text)&#125;</span>｜句子 <span class="subst">&#123;<span class="built_in">len</span>(sentences)&#125;</span>｜有效词 <span class="subst">&#123;<span class="built_in">len</span>(tokens)&#125;</span>&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;  关键词：<span class="subst">&#123;top10&#125;</span>&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;  审查意见：<span class="subst">&#123;comment&#125;</span>\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        rows.append(&#123;</span><br><span class="line">            <span class="string">&#x27;文件&#x27;</span>: path.name,</span><br><span class="line">            <span class="string">&#x27;字数&#x27;</span>: <span class="built_in">len</span>(text),</span><br><span class="line">            <span class="string">&#x27;句子数&#x27;</span>: <span class="built_in">len</span>(sentences),</span><br><span class="line">            <span class="string">&#x27;有效词数&#x27;</span>: <span class="built_in">len</span>(tokens),</span><br><span class="line">            <span class="string">&#x27;Top10关键词&#x27;</span>: top10,</span><br><span class="line">            <span class="string">&#x27;摘要&#x27;</span>: summary,</span><br><span class="line">            <span class="string">&#x27;审查意见&#x27;</span>: comment,</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> all_tokens:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;未提取到有效词汇，请检查文件内容&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    global_counter = Counter(all_tokens)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;-&#x27;</span> * <span class="number">60</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;全局统计：文档 <span class="subst">&#123;<span class="built_in">len</span>(rows)&#125;</span> 篇｜有效词 <span class="subst">&#123;<span class="built_in">len</span>(all_tokens)&#125;</span> 个｜唯一词 <span class="subst">&#123;<span class="built_in">len</span>(global_counter)&#125;</span> 个&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;全局 Top 20：&#x27;</span>)</span><br><span class="line">    <span class="keyword">for</span> rank, (word, count) <span class="keyword">in</span> <span class="built_in">enumerate</span>(global_counter.most_common(<span class="number">20</span>), <span class="number">1</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;  <span class="subst">&#123;rank:&gt;<span class="number">2</span>&#125;</span>. <span class="subst">&#123;word:&lt;<span class="number">6</span>&#125;</span> <span class="subst">&#123;count&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    out = Path(out_dir)</span><br><span class="line">    out.mkdir(parents=<span class="literal">True</span>, exist_ok=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    csv_path = out / <span class="string">&#x27;doc_review_report.csv&#x27;</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(csv_path, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8-sig&#x27;</span>, newline=<span class="string">&#x27;&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        writer = csv.DictWriter(f, fieldnames=<span class="built_in">list</span>(rows[<span class="number">0</span>].keys()))</span><br><span class="line">        writer.writeheader()</span><br><span class="line">        writer.writerows(rows)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;\n审查报告已保存：<span class="subst">&#123;csv_path&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    wordcloud = WordCloud(</span><br><span class="line">        font_path=pick_font(font_path),</span><br><span class="line">        width=<span class="number">1000</span>, height=<span class="number">800</span>,</span><br><span class="line">        background_color=<span class="string">&#x27;white&#x27;</span>,</span><br><span class="line">        max_words=<span class="number">50</span>,</span><br><span class="line">        collocations=<span class="literal">False</span>,</span><br><span class="line">        colormap=<span class="string">&#x27;viridis&#x27;</span>,</span><br><span class="line">        margin=<span class="number">15</span>,</span><br><span class="line">        max_font_size=<span class="number">90</span>,</span><br><span class="line">        min_font_size=<span class="number">10</span>,</span><br><span class="line">        prefer_horizontal=<span class="number">1.0</span>,</span><br><span class="line">        relative_scaling=<span class="number">0.4</span>,</span><br><span class="line">        random_state=<span class="number">42</span>,</span><br><span class="line">    )</span><br><span class="line">    wordcloud.generate_from_frequencies(<span class="built_in">dict</span>(global_counter.most_common(<span class="number">50</span>)))</span><br><span class="line">    image_path = out / <span class="string">&#x27;document_wordcloud.png&#x27;</span></span><br><span class="line">    wordcloud.to_file(<span class="built_in">str</span>(image_path))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;词云已保存：<span class="subst">&#123;image_path&#125;</span>（实际排入 <span class="subst">&#123;<span class="built_in">len</span>(wordcloud.words_)&#125;</span> 个词）&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">import</span> argparse</span><br><span class="line"></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&#x27;本地文档智能审查与摘要&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;folder&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;待分析文档所在目录&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--stopwords&#x27;</span>, default=<span class="string">&#x27;stopwords.txt&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--user-dict&#x27;</span>, default=<span class="string">&#x27;user_dict.txt&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--out&#x27;</span>, default=<span class="string">&#x27;output&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--font&#x27;</span>, default=<span class="literal">None</span>, <span class="built_in">help</span>=<span class="string">&#x27;中文字体路径，默认自动查找 msyh.ttc&#x27;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        analyze_folder(args.folder, args.stopwords, args.user_dict, args.out, args.font)</span><br><span class="line">    <span class="keyword">except</span> (FileNotFoundError, UnicodeError) <span class="keyword">as</span> exc:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;[错误] <span class="subst">&#123;exc&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>运行方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python doc_review_agent.py docs \</span><br><span class="line">  --stopwords stopwords.txt \</span><br><span class="line">  --user-dict user_dict.txt \</span><br><span class="line">  --out output</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、运行结果"><a href="#七、运行结果" class="headerlink" title="七、运行结果"></a>七、运行结果</h2><h3 id="1-终端输出"><a href="#1-终端输出" class="headerlink" title="1. 终端输出"></a>1. 终端输出</h3><p><img src="/images/doc-review-terminal.png" alt="终端运行记录"></p>
+<p>四篇文档全部读进去了，编码识别都是 <code>utf-8-sig</code>；三篇正式文章审查意见是”未见明显问题”，那篇只有 52 字的草稿被三条规则同时命中。</p>
+<h3 id="2-每篇文档的统计与审查意见"><a href="#2-每篇文档的统计与审查意见" class="headerlink" title="2. 每篇文档的统计与审查意见"></a>2. 每篇文档的统计与审查意见</h3><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>字数</th>
+<th>句子</th>
+<th>有效词</th>
+<th>Top3 关键词</th>
+<th>审查意见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01-turtle彩图.md</td>
+<td>1459</td>
+<td>41</td>
+<td>276</td>
+<td>顶点(9)、颜色(8)、笔画(7)</td>
+<td>未见明显问题</td>
+</tr>
+<tr>
+<td>02-列表元组集合.md</td>
+<td>2578</td>
+<td>67</td>
+<td>501</td>
+<td>集合(15)、删除(15)、元素(15)</td>
+<td>未见明显问题</td>
+</tr>
+<tr>
+<td>03-蒙特卡罗.md</td>
+<td>1850</td>
+<td>43</td>
+<td>338</td>
+<td>图例(8)、误差(7)、面积(6)</td>
+<td>未见明显问题</td>
+</tr>
+<tr>
+<td>04-草稿-待补充.md</td>
+<td>52</td>
+<td>3</td>
+<td>14</td>
+<td>补充(2)、本地(1)、文档(1)</td>
+<td>篇幅偏短；高频词重复度偏高；存在待完善占位</td>
+</tr>
+</tbody></table>
+<h3 id="3-摘要样例"><a href="#3-摘要样例" class="headerlink" title="3. 摘要样例"></a>3. 摘要样例</h3><p>第一篇挑出来的是：</p>
+<blockquote>
+<p>按”一笔画、每条边一种颜色”的思路重做了一版：整幅画面只有一个图形、一条线，8 条边 8 种颜色，笔尖全程没有离开过画布；所以”一笔画”不是靠手稳，而是由顶点编号的步长和顶点数决定的。</p>
+</blockquote>
+<p>第二篇是：</p>
+<blockquote>
+<p>一边遍历一边删除，等于每隔一个元素才检查一次；结论 ：元组的可哈希性是”逐元素继承”的——只要有一个元素不可哈希，整个元组就不可哈希。</p>
+</blockquote>
+<p>第三篇是：</p>
+<blockquote>
+<p>一开始以为要写一大堆循环和判断，真动手才发现核心逻辑只有四五行，剩下的时间基本都花在调图上——中文乱码、圆被压成椭圆、图例把散点挡住，一个比一个磨人。</p>
+</blockquote>
+<p>都还挺像”人话”，至少抓住的是文章里真正有信息量的句子，不是开头那句”这次实验我们学习了”。</p>
+<h3 id="4-全局词云"><a href="#4-全局词云" class="headerlink" title="4. 全局词云"></a>4. 全局词云</h3><p><img src="/images/doc-review-wordcloud.png" alt="全局词云"></p>
+<p>全局统计：4 篇文档，1129 个有效词，654 个唯一词。Top 20 是：集合 15、删除 15、元素 15、set 13、元组 11、列表 10、list 10、可哈希 10、顶点 9、哈希 9、颜色 8、遍历 8、切片 8、下标 8、图例 8、笔画 7、顺序 7、索引 7、对象 7、误差 7。</p>
+<p>一眼就能看出问题：<strong>词云被最长的那篇”列表元组集合”主导了</strong>。它 2578 字，另外两篇只有 1459 和 1850 字，Top 20 里一半的词都来自它。词云本身没问题，问题是”把不同长度的文档直接倒进同一个桶”。</p>
+<h3 id="5-报告文件"><a href="#5-报告文件" class="headerlink" title="5. 报告文件"></a>5. 报告文件</h3><p><code>doc_review_report.csv</code> 一共七列：文件名、字数、句子数、有效词数、Top10 关键词、摘要、审查意见。用 <code>utf-8-sig</code> 编码保存，Excel 双击打开中文不会变成乱码。</p>
+<h2 id="八、预判与实测对比"><a href="#八、预判与实测对比" class="headerlink" title="八、预判与实测对比"></a>八、预判与实测对比</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>我的预判</th>
+<th>实测结果</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>文件都是 UTF-8，读进来就行</td>
+<td>四篇全部识别为 <code>utf-8-sig</code>，带 BOM</td>
+<td>用 <code>utf-8</code> 硬读时 BOM 会粘在正文第一个字符上，第一个词就废了，必须把 <code>utf-8-sig</code> 放在回退链最前面</td>
+</tr>
+<tr>
+<td>2</td>
+<td>jieba 默认词典够用</td>
+<td>“不可哈希”被切成”不可 &#x2F; 哈希”，”列表推导式”被切碎</td>
+<td>领域词没进词典；补了 <code>user_dict.txt</code> 和 <code>add_word</code> 之后，”可哈希”才成为一个独立词条</td>
+</tr>
+<tr>
+<td>3</td>
+<td>停用词过滤掉”的、了、吗”就够了</td>
+<td>“一种、这次、每条、不能、结果、代码、方案”全挤进了词云</td>
+<td>停用词要按语料迭代，通用停用词表在技术博客上不够用，最后加到 70 多个才干净</td>
+</tr>
+<tr>
+<td>4</td>
+<td>全局词云能代表整个文件夹的主题</td>
+<td>Top 20 一半来自最长的那篇，短文档被淹没</td>
+<td>词频是绝对计数，长文天然占优；要么按文档长度归一化，要么每个文件单独出图</td>
+</tr>
+<tr>
+<td>5</td>
+<td>摘要取”含高频词最多的句子”就行</td>
+<td>第一版摘要抓到 Markdown 表格残片和”五、运行结果”这种标题</td>
+<td>表格行和标题不是完整句子；去掉表格行、按句长做惩罚、限制 100 字之后才像摘要</td>
+</tr>
+<tr>
+<td>6</td>
+<td>审查规则容易误报</td>
+<td>三篇成稿全部”未见明显问题”，草稿三条规则全中</td>
+<td>阈值保守；但也要清楚，规则只能查形式问题（太短、重复、占位），查不了事实错误</td>
+</tr>
+</tbody></table>
+<p>第 2 条和第 3 条是最典型的”预料之外”：分词和停用词看起来是调参，实际上是<strong>语料适配</strong>。同一套词典，换一个领域的文档，结果就完全不一样。</p>
+<h2 id="九、思考题"><a href="#九、思考题" class="headerlink" title="九、思考题"></a>九、思考题</h2><h3 id="1-为什么统计词频前要先过滤单字和停用词？如果不过滤会怎样？"><a href="#1-为什么统计词频前要先过滤单字和停用词？如果不过滤会怎样？" class="headerlink" title="1. 为什么统计词频前要先过滤单字和停用词？如果不过滤会怎样？"></a>1. 为什么统计词频前要先过滤单字和停用词？如果不过滤会怎样？</h3><p>中文里”的、了、是、在”这类词出现频率极高，但几乎不携带主题信息。不过滤的话，Top 50 会被虚词和单字占满，词云看起来热热闹闹，实际上什么也没说明。单字还有一层问题：中文单字歧义大，”行”可能是”银行”也可能是”可行”，单独统计没有意义。所以过滤规则是：长度小于 2 的词不要，停用词表里的不要，纯数字不要。</p>
+<h3 id="2-自定义词典和停用词表冲突时，以谁为准？"><a href="#2-自定义词典和停用词表冲突时，以谁为准？" class="headerlink" title="2. 自定义词典和停用词表冲突时，以谁为准？"></a>2. 自定义词典和停用词表冲突时，以谁为准？</h3><p>当前实现是先分词、再查停用词，所以<strong>停用词优先</strong>：一个词就算被词典收录，只要在停用词表里，还是会被丢掉。如果某个术语必须保留，正确做法是把它从停用词表里删掉，而不是指望词典覆盖。分词质量可以用小样本人工标注来评估：抽 20 句，人工标出正确切分，算准确率和召回率；更省事的办法是看 Top 关键词是否符合你对这批文档的预期。</p>
+<h3 id="3-抽取式摘要的天花板在哪？什么情况下必须接大模型？"><a href="#3-抽取式摘要的天花板在哪？什么情况下必须接大模型？" class="headerlink" title="3. 抽取式摘要的天花板在哪？什么情况下必须接大模型？"></a>3. 抽取式摘要的天花板在哪？什么情况下必须接大模型？</h3><p>抽取式只能”选原句”，不能合并、改写、消解指代，所以句子之间经常跳跃，遇到跨段落推理就无能为力。它适合”快速知道这篇讲了什么”，不适合”给我一份能直接发出去的综述”。如果要生成式摘要、要回答”这篇文档里的方案有什么风险”这种问题，就得接大模型；但要把原文和关键词一起放进 Prompt，并要求它只基于给定材料回答，否则很容易编。</p>
+<h3 id="4-如果文档从-4-篇涨到-1000-篇，当前实现最先撑不住的是哪一步？"><a href="#4-如果文档从-4-篇涨到-1000-篇，当前实现最先撑不住的是哪一步？" class="headerlink" title="4. 如果文档从 4 篇涨到 1000 篇，当前实现最先撑不住的是哪一步？"></a>4. 如果文档从 4 篇涨到 1000 篇，当前实现最先撑不住的是哪一步？</h3><p>先是内存：<code>all_tokens</code> 把全部词都存下来，1000 篇就是线性增长；其次是串行 IO 和每篇一次 <code>jieba.lcut</code>，速度会明显变慢；词云反倒不是瓶颈。改造方向是流式统计（读完一篇就更新 Counter，不保留全量 token）、分批处理、多进程分词，以及给已经分析过的文件做缓存。</p>
+<h2 id="十、实验小结"><a href="#十、实验小结" class="headerlink" title="十、实验小结"></a>十、实验小结</h2><p>这次最值钱的不是”会写词云”了，而是把一堆看似零散的小判断写进了流程：编码要回退、字体要兜底、表格要清洗、停用词要按语料改、摘要要防长句、审查要能解释。所谓 Agent，很大一部分就是这些”如果……就……”的工程细节，而不是模型本身。</p>
+<p>现在的版本还是个规则原型：摘要靠抽句，审查靠阈值，没有接大模型，也没有文件监控。下一步想试两件事：用 <code>watchdog</code> 监听文件夹，新文章一落盘就自动生成审查报告；再把关键词和摘要喂给大模型，让它输出真正的修改建议，而不是”篇幅偏短”这种我自己也能看出来的结论。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E9%AA%8C/" rel="tag">实验</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E6%9E%90/" rel="tag">文本分析</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%8D%E4%BA%91/" rel="tag">词云</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-python实验-统计十五五发展规划报告热词频率（词云）"
   class="article article-type-post"
   itemscope
@@ -1757,262 +2051,6 @@
 </tbody></table>
 <p>单一职责原则解决的是<strong>类的设计质量</strong>问题，开闭原则解决的是<strong>系统的可扩展性</strong>问题。两者相辅相成——遵循单一职责原则设计的类，通常也更容易符合开闭原则。</p>
 <p><strong>参考资料</strong>：耿祥义、张跃平《Java面向对象程序设计（第4版）》第7章</p>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-Java作业：两种创建线程方式的对比"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/06/06/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%B8%A4%E7%A7%8D%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E6%96%B9%E5%BC%8F%E7%9A%84%E5%AF%B9%E6%AF%94/"
-    >Java作业：两种创建线程方式的对比</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/06/06/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%B8%A4%E7%A7%8D%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E6%96%B9%E5%BC%8F%E7%9A%84%E5%AF%B9%E6%AF%94/" class="article-date">
-  <time datetime="2026-06-06T05:40:12.000Z" itemprop="datePublished">2026-06-06</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、作业概述<br>在Java中，创建线程主要有两种方式：</p>
-<p>方式	核心类&#x2F;接口	实现方法<br>方式一	继承Thread类	重写run()方法<br>方式二	实现Runnable接口	实现run()方法，传入Thread对象<br>这两种方式都可以创建并启动线程，但在设计理念、使用场景和灵活性 上存在显著差异。</p>
-<p>核心问题：我们应该在什么时候选择继承Thread类？什么时候选择实现Runnable接口？</p>
-<p>二、基础知识回顾<br>2.1 什么是线程？<br>线程（Thread）是操作系统能够进行运算调度的最小单位，被包含在进程之中，是进程中的实际运作单位。一个进程中可以并发多个线程，每条线程并行执行不同的任务。</p>
-<p>2.2 Java中的线程模型<br>text</p>
-<p>Java线程模型<br>├── Thread类（java.lang.Thread）<br>│   └── 代表一个线程对象<br>└── Runnable接口（java.lang.Runnable）<br>    └── 定义可执行的任务代码<br>2.3 线程的生命周期<br>text</p>
-<p>新建(New) → 就绪(Runnable) → 运行(Running) → 阻塞(Blocked) → 终止(Terminated)<br>                ↑                  ↓<br>                └── 时间片用完 ────┘<br>三、方式一：继承Thread类<br>3.1 实现步骤<br>定义一个类继承Thread类</p>
-<p>重写run()方法，将线程要执行的任务代码放入其中</p>
-<p>创建该类的实例（即创建线程对象）</p>
-<p>调用线程对象的start()方法启动线程</p>
-<p>3.2 代码实现<br>&#x2F;**</p>
-<ul>
-<li>方式一：继承Thread类创建线程<br> *&#x2F;<br>public class ThreadDemo {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 3. 创建线程对象<br> MyThread t1 &#x3D; new MyThread(“线程A”);<br> MyThread t2 &#x3D; new MyThread(“线程B”);<br><br> &#x2F;&#x2F; 4. 启动线程（会自动调用run方法）<br> t1.start();<br> t2.start();<br><br> &#x2F;&#x2F; 主线程也执行任务<br> for (int i &#x3D; 0; i &lt; 5; i++) {<br>     System.out.println(“主线程正在执行：” + i);<br>     try {<br>         Thread.sleep(100);<br>     } catch (InterruptedException e) {<br>         e.printStackTrace();<br>     }<br> }<br> }</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><ol>
-<li>继承Thread类</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>重写run()方法<br> *&#x2F;<br>class MyThread extends Thread {<br> private String name;</li>
-</ol>
-<p> public MyThread(String name) {<br>     this.name &#x3D; name;<br> }</p>
-<p> @Override<br> public void run() {<br>     for (int i &#x3D; 0; i &lt; 5; i++) {<br>         System.out.println(name + “正在执行：” + i);<br>         try {<br>             Thread.sleep(100);<br>         } catch (InterruptedException e) {<br>             e.printStackTrace();<br>         }<br>     }<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>3.3 运行结果（示例）</p>
-<p>text</p>
-<p>线程A正在执行：0<br>主线程正在执行：0<br>线程B正在执行：0<br>线程A正在执行：1<br>主线程正在执行：1<br>线程B正在执行：1<br>线程A正在执行：2<br>主线程正在执行：2<br>…<br>3.4 继承Thread类的特点<br>特点	说明<br>简单直接	代码结构简单，易于理解<br>线程独立	每个线程对象都是独立的Thread实例<br>单继承限制	Java不支持多继承，继承Thread后无法再继承其他类<br>四、方式二：实现Runnable接口<br>4.1 实现步骤<br>定义一个类实现Runnable接口</p>
-<p>实现run()方法，将线程要执行的任务代码放入其中</p>
-<p>创建该类的实例（即任务对象）</p>
-<p>创建Thread对象，将任务对象作为参数传入</p>
-<p>调用Thread对象的start()方法启动线程</p>
-<p>4.2 代码实现<br>&#x2F;**</p>
-<ul>
-<li>方式二：实现Runnable接口创建线程<br> *&#x2F;<br>public class RunnableDemo {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 3. 创建任务对象<br> MyRunnable task1 &#x3D; new MyRunnable(“任务A”);<br> MyRunnable task2 &#x3D; new MyRunnable(“任务B”);<br><br> &#x2F;&#x2F; 4. 创建Thread对象，将任务对象传入<br> Thread t1 &#x3D; new Thread(task1);<br> Thread t2 &#x3D; new Thread(task2);<br><br> &#x2F;&#x2F; 5. 启动线程<br> t1.start();<br> t2.start();<br><br> &#x2F;&#x2F; 主线程执行<br> for (int i &#x3D; 0; i &lt; 5; i++) {<br>     System.out.println(“主线程正在执行：” + i);<br>     try {<br>         Thread.sleep(100);<br>     } catch (InterruptedException e) {<br>         e.printStackTrace();<br>     }<br> }<br> }</li>
-</ul>
-<p>}</p>
-<p>&#x2F;**</p>
-<ul>
-<li><ol>
-<li>实现Runnable接口</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>实现run()方法<br> *&#x2F;<br>class MyRunnable implements Runnable {<br> private String name;</li>
-</ol>
-<p> public MyRunnable(String name) {<br>     this.name &#x3D; name;<br> }</p>
-<p> @Override<br> public void run() {<br>     for (int i &#x3D; 0; i &lt; 5; i++) {<br>         System.out.println(name + “正在执行：” + i);<br>         try {<br>             Thread.sleep(100);<br>         } catch (InterruptedException e) {<br>             e.printStackTrace();<br>         }<br>     }<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>4.3 Lambda表达式简化（Java 8+）<br>&#x2F;** </p>
-<ul>
-<li>使用Lambda表达式简化Runnable创建<br> *&#x2F;<br>public class RunnableLambdaDemo {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 使用Lambda表达式创建Runnable任务<br> Runnable task &#x3D; () -&gt; {<br>     for (int i &#x3D; 0; i &lt; 5; i++) {<br>         System.out.println(Thread.currentThread().getName() + “： “ + i);<br>         try {<br>             Thread.sleep(100);<br>         } catch (InterruptedException e) {<br>             e.printStackTrace();<br>         }<br>     }<br> };<br><br> &#x2F;&#x2F; 创建并启动线程<br> new Thread(task, “线程A”).start();<br> new Thread(task, “线程B”).start();<br> }</li>
-</ul>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>4.4 实现Runnable接口的特点</p>
-<p>特点	说明<br>避免单继承限制	类可以实现多个接口，更灵活<br>任务与线程分离	Runnable定义任务，Thread定义线程，职责清晰<br>便于资源共享	多个线程可以共享同一个Runnable任务对象<br>符合面向接口编程	推荐的设计模式<br>五、两种方式的核心区别<br>5.1 代码层面对比<br>对比项	继承Thread类	实现Runnable接口<br>实现方式	class MyThread extends Thread	class MyTask implements Runnable<br>启动方式	new MyThread().start()	new Thread(new MyTask()).start()<br>资源共享	每个线程独立的对象	多个线程可共享同一个任务对象<br>单继承限制	受限制（无法继承其他类）	无限制（可实现多个接口）<br>获取当前线程	this（直接使用）	Thread.currentThread()<br>线程名字设置	setName()或构造方法	new Thread(task, name)<br>5.2 设计理念对比<br>text</p>
-<p>继承Thread类：<br>┌─────────────────┐<br>│   MyThread      │<br>│   (is-a Thread) │  ← 线程就是任务本身<br>└─────────────────┘</p>
-<p>实现Runnable接口：<br>┌─────────────┐      ┌─────────────┐<br>│  MyTask     │      │   Thread    │  ← 线程和任务分离<br>│ (is-a 任务) │ ─────→│ (is-a 线程) │    (组合关系)<br>└─────────────┘      └─────────────┘<br>5.3 资源共享示例对比<br>继承Thread类（无法共享资源）：</p>
-<p>class CounterThread extends Thread {<br>    private int count &#x3D; 0;</p>
-<pre><code>@Override
-public void run() &#123;
-    for (int i = 0; i &lt; 5; i++) &#123;
-        count++;
-        System.out.println(getName() + &quot; count=&quot; + count);
-    &#125;
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;&#x2F; 测试<br>public class ThreadShareTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建两个独立的对象，每个有自己的count<br>        CounterThread t1 &#x3D; new CounterThread();<br>        CounterThread t2 &#x3D; new CounterThread();</p>
-<pre><code>    t1.start();  // 输出：Thread-0 count=1,2,3,4,5
-    t2.start();  // 输出：Thread-1 count=1,2,3,4,5
-    // 两个线程各自计数，互不影响
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>实现Runnable接口（可以共享资源）：</p>
-<p>class CounterRunnable implements Runnable {<br>    private int count &#x3D; 0;  &#x2F;&#x2F; 共享的资源</p>
-<pre><code>@Override
-public void run() &#123;
-    for (int i = 0; i &lt; 5; i++) &#123;
-        count++;
-        System.out.println(Thread.currentThread().getName() + &quot; count=&quot; + count);
-    &#125;
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;&#x2F; 测试<br>public class RunnableShareTest {<br>    public static void main(String[] args) {<br>        &#x2F;&#x2F; 创建一个任务对象<br>        CounterRunnable task &#x3D; new CounterRunnable();</p>
-<pre><code>    // 多个线程共享同一个任务对象
-    Thread t1 = new Thread(task, &quot;线程A&quot;);
-    Thread t2 = new Thread(task, &quot;线程B&quot;);
-    
-    t1.start();
-    t2.start();
-    // 两个线程共享同一个count，会产生竞态条件
-    // 输出：线程A count=1,2,3,4,5；线程B count=6,7,8,9,10
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>六、详细区别对比表</p>
-<p>对比维度	继承Thread类	实现Runnable接口<br>灵活性	低（单继承限制）	高（可实现多接口）<br>代码耦合度	高（任务与线程绑定）	低（任务与线程分离）<br>资源共享	困难（需用静态变量）	容易（自然共享）<br>适用场景	简单的独立任务	复杂任务、资源共享场景<br>面向对象原则	违反“组合优于继承”	符合“组合优于继承”<br>线程池支持	不友好	友好（Runnable可放入线程池）<br>多次执行同一任务	需创建多个对象	可多次传入不同线程<br>可读性	简单直观	稍复杂但更清晰<br>七、适用场景分析<br>7.1 继承Thread类适用场景<br>场景	说明<br>简单临时线程	只需执行一次，不需要复用<br>需要直接覆盖Thread的其他方法	如重写run()以外的interrupt()、isAlive()等<br>代码量很小	不需要复杂的任务拆分<br>&#x2F;&#x2F; 示例：简单的一次性线程<br>new Thread() {<br>    @Override<br>    public void run() {<br>        System.out.println(“执行一次的任务”);<br>    }<br>}.start();</p>
-<p>AI写代码<br>java<br>运行<br>7.2 实现Runnable接口适用场景<br>场景	说明<br>多个线程执行相同任务	资源共享，如卖票系统<br>类已继承其他类	无法再继承Thread<br>需要配合线程池使用	ExecutorService提交Runnable<br>任务需要复用	同一个Runnable可多次执行<br>追求高内聚低耦合设计	任务与线程分离<br>&#x2F;&#x2F; 示例：多个线程共享任务（模拟卖票）<br>class TicketTask implements Runnable {<br>    private int tickets &#x3D; 100;</p>
-<pre><code>@Override
-public void run() &#123;
-    while (tickets &gt; 0) &#123;
-        System.out.println(Thread.currentThread().getName() + &quot;卖出第&quot; + tickets-- + &quot;张票&quot;);
-    &#125;
-&#125;
-</code></pre>
-<p>}</p>
-<p>&#x2F;&#x2F; 启动多个卖票窗口<br>TicketTask task &#x3D; new TicketTask();<br>new Thread(task, “窗口1”).start();<br>new Thread(task, “窗口2”).start();<br>new Thread(task, “窗口3”).start();</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>八、面试常考对比</p>
-<p>8.1 为什么推荐使用Runnable而不是Thread？<br>避免单继承限制：Java只支持单继承，继承Thread后就无法继承其他类了</p>
-<p>任务与线程解耦：Runnable专注于定义任务，Thread专注于执行任务</p>
-<p>便于资源共享：多个线程可以共享同一个Runnable实例</p>
-<p>便于配合线程池：线程池接受Runnable和Callable，而不是Thread</p>
-<p>符合面向接口编程原则：面向接口编程比面向具体类编程更灵活</p>
-<p>8.2 两者可以混用吗？<br>可以。Runnable最终还是要交给Thread来执行：</p>
-<p>线程创建的两种方式<br>Lambda表达式实现Runnable接口</p>
-<p>Runnable task &#x3D; () -&gt; System.out.println(“Hello”);<br>new Thread(task).start();<br>AI写代码<br>java<br>运行<br>通过Lambda表达式创建Runnable实现类，简洁地定义任务逻辑。Thread构造函数接收Runnable参数，调用start()启动新线程执行。</p>
-<p>继承Thread类重写run方法</p>
-<p>Thread t &#x3D; new Thread() {<br>    @Override<br>    public void run() {<br>        System.out.println(“Thread中的run”);<br>    }<br>};<br>new Thread(t).start();<br>AI写代码<br>java<br>运行<br>Thread类本身实现了Runnable接口，其实例可作为Runnable对象传递给其他Thread。这种嵌套方式虽然合法，但通常直接调用t.start()更合理。</p>
-<p>关键区别<br>Runnable是函数式接口，适合与Lambda结合实现任务与线程控制的分离<br>Thread作为Runnable的实现类，重写run()时可直接访问线程方法，但会失去Java单继承的灵活性<br>嵌套Thread实例作为参数的方式在实际开发中较少使用，容易造成理解困难<br>注意事项<br>线程启动必须调用start()而非run()，后者会在当前线程同步执行。两种方式创建的线程在功能上没有本质区别，但实现接口的方式更符合面向对象设计原则。</p>
-<p>九、完整对比示例：银行取款<br>&#x2F;**</p>
-<ul>
-<li><p>综合示例：模拟银行取款</p>
-</li>
-<li><p>演示两种方式的区别<br> *&#x2F;<br>&#x2F;&#x2F; 方式一：继承Thread类<br>class ATMThread extends Thread {<br> private static int balance &#x3D; 1000;  &#x2F;&#x2F; 静态变量实现共享<br> private String customerName;</p>
-<p> public ATMThread(String customerName) {<br> this.customerName &#x3D; customerName;<br> }</p>
-<p> @Override<br> public void run() {<br> for (int i &#x3D; 0; i &lt; 3; i++) {<br>     synchronized (ATMThread.class) {<br>         if (balance &gt;&#x3D; 100) {<br>             balance -&#x3D; 100;<br>             System.out.println(customerName + “取款100元，余额：” + balance);<br>         } else {<br>             System.out.println(customerName + “取款失败，余额不足！”);<br>         }<br>     }<br>     try {<br>         Thread.sleep(50);<br>     } catch (InterruptedException e) {<br>         e.printStackTrace();<br>     }<br> }<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>&#x2F;&#x2F; 方式二：实现Runnable接口<br>class ATMRunnable implements Runnable {<br>    private int balance &#x3D; 1000;  &#x2F;&#x2F; 实例变量，自然共享<br>    private String customerName;</p>
-<pre><code>public ATMRunnable(String customerName) &#123;
-    this.customerName = customerName;
-&#125;
-
-@Override
-public void run() &#123;
-    for (int i = 0; i &lt; 3; i++) &#123;
-        synchronized (this) &#123;
-            if (balance &gt;= 100) &#123;
-                balance -= 100;
-                System.out.println(customerName + &quot;取款100元，余额：&quot; + balance);
-            &#125; else &#123;
-                System.out.println(customerName + &quot;取款失败，余额不足！&quot;);
-            &#125;
-        &#125;
-        try &#123;
-            Thread.sleep(50);
-        &#125; catch (InterruptedException e) &#123;
-            e.printStackTrace();
-        &#125;
-    &#125;
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class BankDemo {<br>    public static void main(String[] args) {<br>        System.out.println(“&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; 方式一：继承Thread类 &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;”);<br>        ATMThread t1 &#x3D; new ATMThread(“小明”);<br>        ATMThread t2 &#x3D; new ATMThread(“小红”);<br>        t1.start();<br>        t2.start();</p>
-<pre><code>    try &#123;
-        Thread.sleep(1000);  // 等待线程执行完
-    &#125; catch (InterruptedException e) &#123;
-        e.printStackTrace();
-    &#125;
-    
-    System.out.println(&quot;\n========== 方式二：实现Runnable接口 ==========&quot;);
-    ATMRunnable task = new ATMRunnable(&quot;张三&quot;);
-    new Thread(task, &quot;线程A&quot;).start();
-    new Thread(task, &quot;线程B&quot;).start();
-&#125;
-</code></pre>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>十、总结</p>
-<p>10.1 核心知识点回顾<br>知识点	要点<br>继承Thread类	简单直接，但受单继承限制<br>实现Runnable接口	灵活、解耦、可资源共享<br>启动线程	必须调用start()，不能直接调用run()<br>资源共享	Runnable天然支持，Thread需静态变量<br>推荐方式	优先使用Runnable<br>10.2 选择建议<br>text</p>
-<p>是否需要资源共享？<br>    ├── 是 → 使用Runnable接口<br>    └── 否 → 继续判断<br>            ├── 类是否已继承其他类？<br>            │   ├── 是 → 使用Runnable接口<br>            │   └── 否 → 两种都可以，但Runnable更推荐<br>            └── 是否需要重写Thread的其他方法？<br>                ├── 是 → 使用Thread子类<br>                └── 否 → 使用Runnable接口（推荐）<br>————————————————<br>版权声明：本文为CSDN博主「江城墨雨xs」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2401_87661118/article/details/161711152">https://blog.csdn.net/2401_87661118/article/details/161711152</a></p>
 
       
 
