@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Python实验-列表、元组与集合 |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Python实验-列表、元组与集合"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Python实验-列表、元组与集合
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-%E5%88%97%E8%A1%A8%E3%80%81%E5%85%83%E7%BB%84%E4%B8%8E%E9%9B%86%E5%90%88/" class="article-date">
+  <time datetime="2026-11-22T11:10:00.000Z" itemprop="datePublished">2026-11-22</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>这次实验的主题是三种最常用的容器：列表、元组、集合。题目看起来都是”基础语法”，但真跑起来，切片删除的索引规则、嵌套容器的哈希判定、边遍历边删除的漏删问题，一个比一个反直觉。下面是完整的实验过程、真实运行结果和原因分析。</p>
+<h2 id="一、实验目的与环境"><a href="#一、实验目的与环境" class="headerlink" title="一、实验目的与环境"></a>一、实验目的与环境</h2><p><strong>目的</strong>：掌握 list &#x2F; tuple &#x2F; set 的可变性与可哈希规则；弄清切片删除、步长正负的执行逻辑；熟练使用集合运算与推导式；能独立排查 <code>TypeError: unhashable type</code> 这类问题。</p>
+<p><strong>环境</strong>：Python 3.12（CPython），Windows 11，无第三方库依赖。</p>
+<h2 id="二、实验原理（先记住这四条）"><a href="#二、实验原理（先记住这四条）" class="headerlink" title="二、实验原理（先记住这四条）"></a>二、实验原理（先记住这四条）</h2><ol>
+<li><strong>list</strong> 是动态数组，存的是对象引用；切片生成新列表，<code>del ls[切片]</code> 是原地批量删除。</li>
+<li><strong>tuple</strong> 的”不可变”指元组保存的引用地址不能改，不限制引用指向的对象内部被修改。</li>
+<li><strong>set</strong> 用哈希表实现，元素必须可哈希；set 本身可变，所以不能嵌套；<code>frozenset</code> 不可变、可哈希，可以放进集合。</li>
+<li><strong>可哈希</strong>的本质是：对象在生命周期内哈希值不变。</li>
+</ol>
+<h2 id="三、任务1：切片删除深度探究"><a href="#三、任务1：切片删除深度探究" class="headerlink" title="三、任务1：切片删除深度探究"></a>三、任务1：切片删除深度探究</h2><h3 id="预判与实测"><a href="#预判与实测" class="headerlink" title="预判与实测"></a>预判与实测</h3><table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>预判结果</th>
+<th>实际结果</th>
+<th>是否一致</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>del ls1[::3]</code>（ls1&#x3D;0~9）</td>
+<td><code>[1,2,4,5,7,8]</code></td>
+<td><code>[1,2,4,5,7,8]</code></td>
+<td>一致</td>
+</tr>
+<tr>
+<td><code>del ls2[1::3]</code>（ls2&#x3D;0~9）</td>
+<td><code>[0,2,3,5,6,8,9]</code></td>
+<td><code>[0,2,3,5,6,8,9]</code></td>
+<td>一致</td>
+</tr>
+<tr>
+<td><code>del ls3[::-2]</code>（ls3&#x3D;0~5）</td>
+<td><code>[0,2,4]</code></td>
+<td><code>[0,2,4]</code></td>
+<td>一致</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ls1 = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line"><span class="keyword">del</span> ls1[::<span class="number">3</span>]      <span class="comment"># 删除下标 0,3,6,9</span></span><br><span class="line"><span class="built_in">print</span>(ls1)        <span class="comment"># [1, 2, 4, 5, 7, 8]</span></span><br><span class="line"></span><br><span class="line">ls2 = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line"><span class="keyword">del</span> ls2[<span class="number">1</span>::<span class="number">3</span>]     <span class="comment"># 删除下标 1,4,7</span></span><br><span class="line"><span class="built_in">print</span>(ls2)        <span class="comment"># [0, 2, 3, 5, 6, 8, 9]</span></span><br><span class="line"></span><br><span class="line">ls3 = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line"><span class="keyword">del</span> ls3[::-<span class="number">2</span>]     <span class="comment"># 从末尾开始，步长 -2：下标 5,3,1</span></span><br><span class="line"><span class="built_in">print</span>(ls3)        <span class="comment"># [0, 2, 4]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="为什么和直觉不一样"><a href="#为什么和直觉不一样" class="headerlink" title="为什么和直觉不一样"></a>为什么和直觉不一样</h3><p>关键在于：<strong>切片在删除前一次性算好所有下标，再统一删除</strong>，而不是边删边重新编号。<code>ls[::3]</code> 拿到的是 <code>[0,3,6,9]</code> 四个位置，删完自然变成 <code>[1,2,4,5,7,8]</code>。如果按”动态索引”理解，删掉 0 之后列表整体左移，下一个”第 3 个”就变成 2，结果会完全不同。</p>
+<p>负步长也一样：<code>[::-2]</code> 的下标序列是 <code>5, 3, 1</code>（从最后一个元素往前数，每隔一个），删除后剩下 <code>0,2,4</code>。</p>
+<h3 id="边遍历边删除的坑"><a href="#边遍历边删除的坑" class="headerlink" title="边遍历边删除的坑"></a>边遍历边删除的坑</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ls4 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ls4:</span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        ls4.remove(i)</span><br><span class="line"><span class="built_in">print</span>(ls4)          <span class="comment"># [1, 3, 5]</span></span><br></pre></td></tr></table></figure>
+
+<p>这个结果看起来是对的，但<strong>过程其实是错的</strong>：删掉 2 之后，列表变成 <code>[1,3,4,5,6]</code>，迭代器内部下标从 1 移到 2，正好指向 4，元素 3 根本没被访问。它恰好是奇数，所以最终结果”碰巧正确”。</p>
+<p>换一组连续偶数就能暴露问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ls5 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ls5:</span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        ls5.remove(i)</span><br><span class="line"><span class="built_in">print</span>(ls5)          <span class="comment"># [1, 4, 8]  ← 4 和 8 没被删掉</span></span><br></pre></td></tr></table></figure>
+
+<p>原因：<code>list</code> 的迭代器维护一个自增下标，<code>remove()</code> 会让后面的元素整体左移一位，于是”下一个元素”被跳过。<strong>一边遍历一边删除，等于每隔一个元素才检查一次。</strong></p>
+<p>安全写法有三种：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 列表推导式重建（推荐）</span></span><br><span class="line">ls = [x <span class="keyword">for</span> x <span class="keyword">in</span> ls <span class="keyword">if</span> x % <span class="number">2</span> != <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 遍历副本，删原列表</span></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> ls[:]:</span><br><span class="line">    <span class="keyword">if</span> x % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        ls.remove(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 切片整体替换</span></span><br><span class="line">ls[:] = [x <span class="keyword">for</span> x <span class="keyword">in</span> ls <span class="keyword">if</span> x % <span class="number">2</span> != <span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、任务2：嵌套容器与可哈希"><a href="#四、任务2：嵌套容器与可哈希" class="headerlink" title="四、任务2：嵌套容器与可哈希"></a>四、任务2：嵌套容器与可哈希</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="built_in">set</span>()</span><br><span class="line">s.add((<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>))            <span class="comment"># 成功</span></span><br><span class="line">s.add((<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>]))          <span class="comment"># TypeError: unhashable type: &#x27;list&#x27;</span></span><br><span class="line">s.add([<span class="number">1</span>, <span class="number">2</span>])               <span class="comment"># TypeError: unhashable type: &#x27;list&#x27;</span></span><br><span class="line">s.add(<span class="built_in">frozenset</span>(&#123;<span class="number">1</span>, <span class="number">2</span>&#125;))    <span class="comment"># 成功</span></span><br><span class="line">s.add(&#123;<span class="number">1</span>, <span class="number">2</span>&#125;)               <span class="comment"># TypeError: unhashable type: &#x27;set&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>结果</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>add((1,2,3))</code></td>
+<td>成功</td>
+<td>元组内全是 int，整体可哈希</td>
+</tr>
+<tr>
+<td><code>add((1,[2,3]))</code></td>
+<td>报错</td>
+<td>元组里有 list，list 可变不可哈希，整个元组跟着不可哈希</td>
+</tr>
+<tr>
+<td><code>add([1,2])</code></td>
+<td>报错</td>
+<td>list 是可变对象，哈希值会随内容变化</td>
+</tr>
+<tr>
+<td><code>add(frozenset(&#123;1,2&#125;))</code></td>
+<td>成功</td>
+<td>frozenset 不可变，哈希值固定</td>
+</tr>
+<tr>
+<td><code>add(&#123;1,2&#125;)</code></td>
+<td>报错</td>
+<td>set 可变，不能作为集合元素</td>
+</tr>
+</tbody></table>
+<p>最终集合内容为 <code>&#123;(1, 2, 3), frozenset(&#123;1, 2&#125;)&#125;</code>。</p>
+<p><strong>结论</strong>：元组的可哈希性是”逐元素继承”的——只要有一个元素不可哈希，整个元组就不可哈希。需要”集合里放集合”时，用 <code>frozenset</code>。</p>
+<h2 id="五、任务3：集合运算与集合推导式"><a href="#五、任务3：集合运算与集合推导式" class="headerlink" title="五、任务3：集合运算与集合推导式"></a>五、任务3：集合运算与集合推导式</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">A = &#123;<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>, <span class="number">12</span>&#125;</span><br><span class="line">B = &#123;<span class="number">3</span>, <span class="number">6</span>, <span class="number">9</span>, <span class="number">12</span>, <span class="number">15</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(A &amp; B)   <span class="comment"># 交集      &#123;6, 12&#125;</span></span><br><span class="line"><span class="built_in">print</span>(A | B)   <span class="comment"># 并集      &#123;2, 3, 4, 6, 8, 9, 10, 12, 15&#125;</span></span><br><span class="line"><span class="built_in">print</span>(A - B)   <span class="comment"># 差集      &#123;2, 4, 8, 10&#125;</span></span><br><span class="line"><span class="built_in">print</span>(B - A)   <span class="comment"># 差集      &#123;3, 9, 15&#125;</span></span><br><span class="line"><span class="built_in">print</span>(A ^ B)   <span class="comment"># 对称差集  &#123;2, 3, 4, 8, 9, 10, 15&#125;</span></span><br><span class="line"></span><br><span class="line">C = &#123;x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">31</span>) <span class="keyword">if</span> x % <span class="number">4</span> == <span class="number">0</span>&#125;</span><br><span class="line"><span class="built_in">print</span>(C)       <span class="comment"># &#123;4, 8, 12, 16, 20, 24, 28&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>说明：set 不保证顺序，上面按数值升序写出来只是为了便于阅读，实际打印顺序由哈希决定。</p>
+</blockquote>
+<p>集合推导式 <code>&#123;x for x in range(1,31) if x % 4 == 0&#125;</code> 一行就筛出了 1~30 中所有 4 的倍数，共 7 个。</p>
+<h2 id="六、任务4：去重算法对比"><a href="#六、任务4：去重算法对比" class="headerlink" title="六、任务4：去重算法对比"></a>六、任务4：去重算法对比</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">data = [<span class="number">5</span>, <span class="number">2</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">9</span>, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(<span class="built_in">set</span>(data)))        <span class="comment"># [1, 2, 3, 5, 7, 9]  顺序变了</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(<span class="built_in">dict</span>.fromkeys(data)))  <span class="comment"># [5, 2, 7, 9, 3, 1]</span></span><br><span class="line"></span><br><span class="line">res = []</span><br><span class="line"><span class="keyword">for</span> num <span class="keyword">in</span> data:</span><br><span class="line">    <span class="keyword">if</span> num <span class="keyword">not</span> <span class="keyword">in</span> res:</span><br><span class="line">        res.append(num)</span><br><span class="line"><span class="built_in">print</span>(res)                    <span class="comment"># [5, 2, 7, 9, 3, 1]</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>结果</th>
+<th>时间复杂度</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>list(set(data))</code></td>
+<td>顺序丢失</td>
+<td>O(n)</td>
+<td>顺序不可控；元素必须可哈希</td>
+</tr>
+<tr>
+<td>手写循环 <code>not in</code></td>
+<td>保序</td>
+<td>O(n²)</td>
+<td>数据量大时慢</td>
+</tr>
+<tr>
+<td><code>dict.fromkeys(data)</code></td>
+<td>保序</td>
+<td>O(n)</td>
+<td>Python 3.7+ 才保证插入顺序</td>
+</tr>
+</tbody></table>
+<p><strong>结论</strong>：要顺序就用 <code>dict.fromkeys</code>，它同时兼顾了速度和保序；<code>list(set())</code> 只适合”只关心有哪些值”的场景。</p>
+<h2 id="七、任务5：综合设计——选课统计"><a href="#七、任务5：综合设计——选课统计" class="headerlink" title="七、任务5：综合设计——选课统计"></a>七、任务5：综合设计——选课统计</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class1 = [<span class="number">101</span>, <span class="number">103</span>, <span class="number">105</span>, <span class="number">107</span>, <span class="number">109</span>, <span class="number">103</span>, <span class="number">101</span>]</span><br><span class="line">class2 = [<span class="number">102</span>, <span class="number">104</span>, <span class="number">106</span>, <span class="number">108</span>, <span class="number">109</span>, <span class="number">107</span>, <span class="number">102</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">unique_ordered</span>(<span class="params">seq</span>):</span><br><span class="line">    seen, result = <span class="built_in">set</span>(), []</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> seq:</span><br><span class="line">        <span class="keyword">if</span> x <span class="keyword">not</span> <span class="keyword">in</span> seen:</span><br><span class="line">            seen.add(x)</span><br><span class="line">            result.append(x)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">u1, u2 = unique_ordered(class1), unique_ordered(class2)</span><br><span class="line">s1, s2 = <span class="built_in">set</span>(u1), <span class="built_in">set</span>(u2)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;① 1班去重：&quot;</span>, u1)          <span class="comment"># [101, 103, 105, 107, 109]</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;   2班去重：&quot;</span>, u2)          <span class="comment"># [102, 104, 106, 108, 109, 107]</span></span><br><span class="line"></span><br><span class="line">both = s1 &amp; s2</span><br><span class="line">only_one = s1 ^ s2</span><br><span class="line">only_c1 = s1 - s2</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;② 同时选两门：&quot;</span>, both)      <span class="comment"># &#123;107, 109&#125;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;③ 只选一门：&quot;</span>, only_one)    <span class="comment"># &#123;101,102,103,104,105,106,108&#125;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;④ 只选1班：&quot;</span>, only_c1)      <span class="comment"># &#123;101, 103, 105&#125;</span></span><br><span class="line"></span><br><span class="line">t_both = <span class="built_in">tuple</span>(both)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;⑤ 交集转元组：&quot;</span>, t_both)    <span class="comment"># (107, 109) 左右顺序不固定</span></span><br><span class="line"><span class="built_in">print</span>(&#123;t_both&#125;)                    <span class="comment"># &#123;(107, 109)&#125; 能放进集合</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>每一步的文字说明</strong>：</p>
+<ol>
+<li>① 用 <code>unique_ordered</code> 保留首次出现的顺序去重，两个班各自得到 5 个和 6 个编号。</li>
+<li>② 交集 <code>&amp;</code> 就是同时出现在两个班里的学生：107、109。</li>
+<li>③ 对称差 <code>^</code> 是”只属于其中一个集合”的元素，正好对应”只选了一门课”。</li>
+<li>④ 差集 <code>s1 - s2</code> 表示”在 1 班但不在 2 班”。</li>
+<li>⑤ 交集元素都是 int（可哈希），由它们组成的元组也整体可哈希，所以既能转成元组，也能直接放进集合。</li>
+</ol>
+<h2 id="八、拓展：嵌套列表去重"><a href="#八、拓展：嵌套列表去重" class="headerlink" title="八、拓展：嵌套列表去重"></a>八、拓展：嵌套列表去重</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">nest = [[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>], [<span class="number">1</span>, <span class="number">2</span>], [<span class="number">5</span>, <span class="number">6</span>]]</span><br><span class="line"></span><br><span class="line">seen, result = <span class="built_in">set</span>(), []</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> nest:</span><br><span class="line">    key = <span class="built_in">tuple</span>(item)      <span class="comment"># 内层 list 不可哈希，先转元组</span></span><br><span class="line">    <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> seen:</span><br><span class="line">        seen.add(key)</span><br><span class="line">        result.append(item)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(result)              <span class="comment"># [[1, 2], [3, 4], [5, 6]]</span></span><br></pre></td></tr></table></figure>
+
+<p>把内层 list 直接放进 set（<code>s.add([1, 2])</code>）会立刻抛出 <code>TypeError: unhashable type: &#39;list&#39;</code>，所以”先把内层列表转成元组、去重后再按需转回列表”是标准解法。Python 3.7+ 还可以用 <code>dict.fromkeys</code> 一行完成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>([<span class="built_in">list</span>(t) <span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">dict</span>.fromkeys(<span class="built_in">tuple</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> nest)])</span><br></pre></td></tr></table></figure>
+
+<h2 id="九、必答思考题"><a href="#九、必答思考题" class="headerlink" title="九、必答思考题"></a>九、必答思考题</h2><p><strong>1. <code>del ls[::3]</code> 是按删除前索引还是动态实时索引？</strong></p>
+<p>按删除前的索引一次性计算。切片会先确定下标集合 <code>&#123;0,3,6,9&#125;</code>，再统一删除这些位置。如果理解成动态索引，删掉 0 之后原下标 3 已经不是同一个元素，结果会和实际不符。</p>
+<p><strong>2. <code>t=(1,[2,3])</code>，为什么 <code>t[1].append(4)</code> 合法，但 t 不能放进集合？</strong></p>
+<p>元组的不可变指的是”元组保存的引用不能换”，不是”引用指向的对象不能变”。<code>t[1]</code> 仍指向同一个 list，往这个 list 里 append 不改变元组结构，所以合法。但哈希要求整个对象可哈希，list 不可哈希，因此元组整体也不可哈希，不能放进 set。</p>
+<p><strong>3. 为什么普通 set 不能嵌套，frozenset 可以？</strong></p>
+<p>set 是可变对象，内容一变哈希值就变，这会破坏哈希表”桶位置稳定”的前提。frozenset 一旦创建就不能修改，哈希值固定，因此可以安全地作为另一个集合的元素。</p>
+<p><strong>4. for 遍历同时 remove 为什么会删不干净？安全方案？</strong></p>
+<p>迭代器内部维护一个自增下标，<code>remove()</code> 让后面的元素左移，于是每删一个就有一个元素被跳过。安全方案：用列表推导式重建、遍历副本 <code>ls[:]</code>、或用 <code>while</code> 手动控制索引。</p>
+<p><strong>5. <code>list(set(数据))</code> 去重的缺陷？保序去重有哪些实现方式？</strong></p>
+<p>缺陷有两个：顺序丢失；元素必须可哈希（嵌套列表这类直接报错）。保序方案：手写 <code>not in</code> 循环、<code>dict.fromkeys(data)</code>、<code>OrderedDict</code>（3.7 之后普通 dict 已保序）。</p>
+<h2 id="十、实验小结"><a href="#十、实验小结" class="headerlink" title="十、实验小结"></a>十、实验小结</h2><table>
+<thead>
+<tr>
+<th>容器</th>
+<th>有序性</th>
+<th>可变性</th>
+<th>元素重复</th>
+<th>可哈希</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>list</td>
+<td>有序</td>
+<td>可变</td>
+<td>允许</td>
+<td>不可哈希</td>
+</tr>
+<tr>
+<td>tuple</td>
+<td>有序</td>
+<td>不可变</td>
+<td>允许</td>
+<td>取决于元素</td>
+</tr>
+<tr>
+<td>set</td>
+<td>无序</td>
+<td>可变</td>
+<td>不允许</td>
+<td>自身不可哈希</td>
+</tr>
+<tr>
+<td>frozenset</td>
+<td>无序</td>
+<td>不可变</td>
+<td>不允许</td>
+<td>可哈希</td>
+</tr>
+</tbody></table>
+<p>这次实验最值钱的不是记住某个 API，而是理解两条底层规则：<strong>切片删除先算后删</strong>，<strong>哈希要求对象在生命周期内不可变</strong>。前一条解释了 <code>del ls[::3]</code> 的结果，后一条解释了为什么 <code>frozenset</code> 能进集合而 <code>set</code> 不能。至于”一边遍历一边删除”的漏删，本质上是迭代器下标和列表长度不同步——凡是”边遍历边改结构”的操作，都应该先停下来想一想。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F11%2F22%2FPython%25E5%25AE%259E%25E9%25AA%258C-%25E5%2588%2597%25E8%25A1%25A8%25E3%2580%2581%25E5%2585%2583%25E7%25BB%2584%25E4%25B8%258E%25E9%259B%2586%25E5%2590%2588%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python-%E5%AE%9E%E9%AA%8C-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">python 实验 数据结构</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-Turtle%20%E8%87%AA%E5%8A%A8%E8%BD%A8%E8%BF%B9%E7%BB%98%E5%88%B6%E5%BD%A9%E8%89%B2%E5%9B%BE%E5%BD%A2/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Python实验-Turtle 自动轨迹绘制彩色图形</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=2738145650&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

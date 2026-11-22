@@ -116,6 +116,264 @@
     
     
     <article
+  id="post-Java作业：文件复制四种实现方式"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/06/05/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6%E5%9B%9B%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F/"
+    >Java作业：文件复制四种实现方式</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/06/05/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6%E5%9B%9B%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time datetime="2026-06-05T05:39:54.000Z" itemprop="datePublished">2026-06-05</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、作业概述<br>本次作业要求实现文件复制的四种不同方式：</p>
+<p>序号	方式	核心类	适用场景<br>1	文本文件复制	FileReader &#x2F; FileWriter	仅文本文件<br>2	字符缓冲流	BufferedReader &#x2F; BufferedWriter	文本文件（最常用）<br>3	任意文件复制	FileInputStream &#x2F; FileOutputStream	任意类型文件<br>4	字节缓冲流	BufferedInputStream &#x2F; BufferedOutputStream	任意文件（万能复制）<br>核心原理：从一个文件中读取数据，写入到另一个文件中。</p>
+<p>二、基础知识回顾<br>2.1 Java IO流分类<br>text</p>
+<p>Java IO流<br>├── 字节流（处理所有文件）<br>│   ├── InputStream（输入流）—— FileInputStream<br>│   ├── OutputStream（输出流）—— FileOutputStream<br>│   ├── BufferedInputStream（缓冲输入流）<br>│   └── BufferedOutputStream（缓冲输出流）<br>└── 字符流（仅处理文本文件）<br>    ├── Reader（输入流）—— FileReader<br>    ├── Writer（输出流）—— FileWriter<br>    ├── BufferedReader（缓冲输入流）<br>    └── BufferedWriter（缓冲输出流）<br>2.2 字符流 vs 字节流<br>对比项	字符流	字节流<br>处理单位	字符（16-bit）	字节（8-bit）<br>适用文件	文本文件（.txt， .java， .csv）	任意文件（图片、视频、音频等）<br>核心类	Reader， Writer	InputStream， OutputStream<br>是否支持中文	是	需要手动处理编码<br>2.3 缓冲流的作用<br>特性	无缓冲流	有缓冲流<br>读取方式	每次读一个字节&#x2F;字符	一次读一批数据到内存缓冲区<br>IO次数	频繁	减少<br>性能	较低	较高<br>特有方法	无	readLine()（字符缓冲流）<br>三、方式一：文本文件复制（字符流）<br>3.1 实现原理<br>使用 FileReader 读取文本文件，FileWriter 写入到目标文件。一次读取一个字符数组，提高效率。</p>
+<p>3.2 代码实现<br>以下是整理后的代码块，符合Markdown 格式要求：</p>
+<p>import java.io.FileReader;<br>import java.io.FileWriter;<br>import java.io.IOException;</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>方式一：文本文件复制</p>
+</li>
+<li><p>使用字符流 FileReader&#x2F;FileWriter</p>
+</li>
+<li><p>适用于：.txt， .java， .csv 等文本文件<br> *&#x2F;<br>public class TextFileCopy {<br> public static void main(String[] args) {<br> String sourceFile &#x3D; “source.txt”;<br> String destFile &#x3D; “dest_text.txt”;<br><br> try {<br>     copyFile(sourceFile, destFile);<br>     System.out.println(“文件复制成功！”);<br>     System.out.println(“源文件：” + sourceFile);<br>     System.out.println(“目标文件：” + destFile);<br> } catch (IOException e) {<br>     System.out.println(“文件复制失败：” + e.getMessage());<br>     e.printStackTrace();<br> }<br> }</p>
+<p> public static void copyFile(String sourcePath, String destPath) throws IOException {<br> try (FileReader fr &#x3D; new FileReader(sourcePath);<br>      FileWriter fw &#x3D; new FileWriter(destPath)) {<br><br>     char[] buffer &#x3D; new char[1024];<br>     int len;<br><br>     while ((len &#x3D; fr.read(buffer)) !&#x3D; -1) {<br>         fw.write(buffer, 0, len);<br>     }<br><br>     System.out.println(“已复制 “ + len + “ 个字符”);<br> }<br> }</p>
+</li>
+</ul>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>3.3 代码解释</p>
+<p>代码	说明<br>FileReader fr &#x3D; new FileReader(sourcePath)	创建文件字符输入流，用于读取源文件<br>FileWriter fw &#x3D; new FileWriter(destPath)	创建文件字符输出流，用于写入目标文件<br>char[] buffer &#x3D; new char[1024]	创建字符数组缓冲区，一次读取1024个字符<br>fr.read(buffer)	从源文件读取数据到缓冲区，返回实际读取的字符数<br>fw.write(buffer， 0， len)	将缓冲区中的数据写入目标文件<br>try-with-resources	自动关闭流资源，不需要手动调用close()<br>3.4 运行效果<br>假设 source.txt 内容为：</p>
+<p>text</p>
+<p>Hello Java!<br>你好，世界！<br>这是文件复制测试。<br>复制后的 dest_text.txt 内容完全相同。</p>
+<p>四、方式二：字符缓冲流（最常用）<br>4.1 实现原理<br>使用 BufferedReader 和 BufferedWriter 包装基本的字符流，提供缓冲功能，提高读写效率。BufferedReader 提供了 readLine() 方法，可以一次读取一行文本，非常方便。</p>
+<p>4.2 代码实现<br>import java.io.BufferedReader;<br>import java.io.BufferedWriter;<br>import java.io.FileReader;<br>import java.io.FileWriter;<br>import java.io.IOException;</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>方式二：字符缓冲流复制文本文件</p>
+</li>
+<li><p>使用 BufferedReader&#x2F;BufferedWriter</p>
+</li>
+<li><p>特点：最常用、支持按行读取、性能高<br> *&#x2F;<br>public class BufferedTextFileCopy {</p>
+<p> public static void main(String[] args) {<br> String sourceFile &#x3D; “source.txt”;<br> String destFile &#x3D; “dest_buffered.txt”;<br><br> try {<br>     copyFile(sourceFile, destFile);<br>     System.out.println(“文件复制成功！”);<br> } catch (IOException e) {<br>     System.out.println(“文件复制失败：” + e.getMessage());<br> }<br> }</p>
+<p> &#x2F;**</p>
+<ul>
+<li>使用缓冲流复制文本文件</li>
+<li>@param sourcePath 源文件路径</li>
+<li>@param destPath 目标文件路径</li>
+<li>@throws IOException IO异常<br>  *&#x2F;<br> public static void copyFile(String sourcePath, String destPath) throws IOException {<br> &#x2F;&#x2F; 使用 try-with-resources 自动关闭资源<br> try (BufferedReader br &#x3D; new BufferedReader(new FileReader(sourcePath));<br>  BufferedWriter bw &#x3D; new BufferedWriter(new FileWriter(destPath))) {<br><br> String line;<br> int lineCount &#x3D; 0;<br><br> &#x2F;&#x2F; 按行读取，逐行写入<br> while ((line &#x3D; br.readLine()) !&#x3D; null) {<br>     bw.write(line);<br>     bw.newLine();  &#x2F;&#x2F; 写入换行符<br>     lineCount++;<br> }<br><br> System.out.println(“共复制 “ + lineCount + “ 行”);<br> }</li>
+</ul>
+<p> }</p>
+</li>
+</ul>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>4.3 为什么是最常用的？<br>优点	说明<br>按行读取	readLine() 方法非常方便处理文本<br>缓冲性能	减少实际IO次数，提高效率<br>编码友好	正确处理中文字符<br>代码简洁	逻辑清晰，易于理解和维护<br>4.4 代码解释<br>代码	说明<br>new BufferedReader(new FileReader(…))	在 FileReader 外层包装缓冲流<br>br.readLine()	读取一行文本（不包含换行符），返回 null 表示读到文件末尾<br>bw.write(line)	写入一行文本<br>bw.newLine()	写入系统相关的换行符（Windows: \r\n， Linux: \n）<br>五、方式三：任意文件复制（字节流）<br>5.1 实现原理<br>使用 FileInputStream 和 FileOutputStream 处理字节数据。这种方式可以复制任意类型的文件，因为所有文件在计算机中本质上都是字节序列。</p>
+<p>5.2 代码实现<br>以下是转换后的代码块格式：</p>
+<p>import java.io.FileInputStream;<br>import java.io.FileOutputStream;<br>import java.io.IOException;</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>方式三：任意文件复制</p>
+</li>
+<li><p>使用字节流 FileInputStream&#x2F;FileOutputStream</p>
+</li>
+<li><p>适用于：图片、视频、音频、压缩包等任意文件<br> *&#x2F;<br>public class AnyFileCopy {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 示例：复制图片文件<br> String sourceFile &#x3D; “photo.jpg”;<br> String destFile &#x3D; “photo_copy.jpg”;<br><br> &#x2F;&#x2F; 示例：复制视频文件<br> &#x2F;&#x2F; String sourceFile &#x3D; “video.mp4”;<br> &#x2F;&#x2F; String destFile &#x3D; “video_copy.mp4”;<br><br> try {<br>     copyFile(sourceFile, destFile);<br>     System.out.println(“文件复制成功！”);<br> } catch (IOException e) {<br>     System.out.println(“文件复制失败：” + e.getMessage());<br> }<br> }</p>
+<p> &#x2F;**</p>
+<ul>
+<li>使用字节流复制任意文件</li>
+<li>@param sourcePath 源文件路径</li>
+<li>@param destPath 目标文件路径</li>
+<li>@throws IOException IO异常<br>  *&#x2F;<br> public static void copyFile(String sourcePath, String destPath) throws IOException {<br> try (FileInputStream fis &#x3D; new FileInputStream(sourcePath);<br>  FileOutputStream fos &#x3D; new FileOutputStream(destPath)) {<br><br> &#x2F;&#x2F; 字节数组缓冲区，一次读取1024个字节<br> byte[] buffer &#x3D; new byte[1024];<br> int len;<br> long totalBytes &#x3D; 0;<br><br> while ((len &#x3D; fis.read(buffer)) !&#x3D; -1) {<br>     fos.write(buffer, 0, len);<br>     totalBytes +&#x3D; len;<br> }<br><br> System.out.println(“共复制 “ + totalBytes + “ 字节”);<br> System.out.println(“约 “ + (totalBytes &#x2F; 1024) + “ KB”);<br> }</li>
+</ul>
+<p> }</p>
+</li>
+</ul>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>5.3 支持的任意文件类型</p>
+<p>文件类型	扩展名	是否支持<br>文本文件	.txt， .java， .xml， .json	   支持<br>图片	.jpg， .png， .gif， .bmp	   支持<br>视频	.mp4， .avi， .mkv， .flv	   支持<br>音频	.mp3， .wav， .flac	   支持<br>压缩包	.zip， .rar， .7z	   支持<br>可执行文件	.exe， .dll	   支持<br>5.4 字节流 vs 字符流选择<br>if (fileType &#x3D;&#x3D; 文本文件) {<br>    &#x2F;&#x2F; 使用字符流（方便处理文本）<br>    useReaderWriter();<br>} else {<br>    &#x2F;&#x2F; 使用字节流（万能）<br>    useInputStreamOutputStream();<br>}</p>
+<p>AI写代码<br>java<br>运行<br>六、方式四：字节缓冲流（万能复制）</p>
+<p>6.1 实现原理<br>使用 BufferedInputStream 和 BufferedOutputStream 包装基本的字节流，提供内部缓冲区，减少实际IO次数，是最通用、性能最好的文件复制方式。</p>
+<p>6.2 代码实现<br>以下是转换后的代码块格式：</p>
+<p>import java.io.BufferedInputStream;<br>import java.io.BufferedOutputStream;<br>import java.io.FileInputStream;<br>import java.io.FileOutputStream;<br>import java.io.IOException;</p>
+<p>public class BufferedAnyFileCopy {<br>    public static void main(String[] args) {<br>        copyFile(“photo.jpg”, “photo_buffered_copy.jpg”);<br>    }</p>
+<pre><code>public static boolean copyFile(String sourcePath, String destPath) &#123;
+    if (sourcePath == null || destPath == null) &#123;
+        System.err.println(&quot;文件路径不能为空&quot;);
+        return false;
+    &#125;
+
+    long startTime = System.currentTimeMillis();
+
+    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(sourcePath));
+         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destPath))) &#123;
+        
+        byte[] buffer = new byte[8192];
+        int len;
+        long totalBytes = 0;
+
+        while ((len = bis.read(buffer)) != -1) &#123;
+            bos.write(buffer, 0, len);
+            totalBytes += len;
+        &#125;
+
+        bos.flush();
+
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+
+        System.out.println(&quot;========== 复制完成 ==========&quot;);
+        System.out.println(&quot;源文件：&quot; + sourcePath);
+        System.out.println(&quot;目标文件：&quot; + destPath);
+        System.out.println(&quot;文件大小：&quot; + formatSize(totalBytes));
+        System.out.println(&quot;耗时：&quot; + duration + &quot; 毫秒&quot;);
+        System.out.println(&quot;================================&quot;);
+
+        return true;
+    &#125; catch (IOException e) &#123;
+        System.err.println(&quot;文件复制失败：&quot; + e.getMessage());
+        return false;
+    &#125;
+&#125;
+
+private static String formatSize(long bytes) &#123;
+    if (bytes &lt; 1024) &#123;
+        return bytes + &quot; B&quot;;
+    &#125; else if (bytes &lt; 1024 * 1024) &#123;
+        return String.format(&quot;%.2f KB&quot;, bytes / 1024.0);
+    &#125; else if (bytes &lt; 1024 * 1024 * 1024) &#123;
+        return String.format(&quot;%.2f MB&quot;, bytes / (1024.0 * 1024));
+    &#125; else &#123;
+        return String.format(&quot;%.2f GB&quot;, bytes / (1024.0 * 1024 * 1024));
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>AI写代码<br>java<br>运行</p>
+<p>6.3 为什么是“万能复制”？</p>
+<p>特点	说明<br>文件类型无关	无论是文本、图片、视频还是可执行文件，都能正确处理<br>编码无关	按字节处理，不涉及编码问题<br>性能优化	内置缓冲区，减少IO次数<br>大文件支持	边读边写，不会一次性加载整个文件到内存<br>6.4 性能对比测试<br>&#x2F;** </p>
+<ul>
+<li><p>性能对比测试 </p>
+</li>
+<li><p>比较四种复制方式的效率<br> *&#x2F;<br>public class PerformanceTest {<br> public static void main(String[] args) {<br> String testFile &#x3D; “large_file.txt”;  &#x2F;&#x2F; 假设有一个10MB的文件<br><br> &#x2F;&#x2F; 测试四种方式的复制时间<br> testMethod(“方式一：字符流”, () -&gt; {<br>     TextFileCopy.copyFile(testFile, “test1.txt”);<br> });<br><br> testMethod(“方式二：字符缓冲流”, () -&gt; {<br>     BufferedTextFileCopy.copyFile(testFile, “test2.txt”);<br> });<br><br> testMethod(“方式三：字节流”, () -&gt; {<br>     AnyFileCopy.copyFile(testFile, “test3.txt”);<br> });<br><br> testMethod(“方式四：字节缓冲流”, () -&gt; {<br>     BufferedAnyFileCopy.copyFile(testFile, “test4.txt”);<br> });<br> }</p>
+<p> private static void testMethod(String name, Runnable method) {<br> long start &#x3D; System.nanoTime();<br> method.run();<br> long end &#x3D; System.nanoTime();<br> System.out.println(name + “ 耗时：” + (end - start) &#x2F; 1000000 + “ ms”);<br> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>典型运行结果（复制10MB文件）：</p>
+<p>text</p>
+<p>方式一：字符流 耗时：450 ms<br>方式二：字符缓冲流 耗时：120 ms   ← 比无缓冲快3-4倍<br>方式三：字节流 耗时：480 ms<br>方式四：字节缓冲流 耗时：100 ms   ← 最快，万能选择<br>七、四种方式对比总结<br>对比项	方式一	方式二	方式三	方式四<br>核心类	FileReader&#x2F;Writer	BufferedReader&#x2F;Writer	FileInput&#x2F;OutputStream	BufferedInput&#x2F;OutputStream<br>处理单位	字符	字符（按行）	字节	字节<br>适用文件	仅文本	仅文本	任意文件	任意文件<br>缓冲支持	手动数组	内置缓冲	手动数组	内置缓冲<br>性能	中	高	中	最高<br>编码问题	自动处理	自动处理	需注意	需注意<br>推荐场景	小文本文件	文本文件（最常用）	任意小文件	万能复制（推荐）<br>选择建议：</p>
+<p>复制文本文件 → 用方式二（字符缓冲流）</p>
+<p>复制任意文件（图片、视频等） → 用方式四（字节缓冲流）</p>
+<p>简单小文件测试 → 方式一或方式三</p>
+<p>生产环境 → 方式四</p>
+<p>八、完整代码整合版<br>以下是一个完整的工具类，整合了四种复制方式：</p>
+<p>import java.io.*;</p>
+<p>&#x2F;**</p>
+<ul>
+<li><p>文件复制工具类</p>
+</li>
+<li><p>提供四种不同的文件复制方式<br> *&#x2F;<br>public class FileCopyUtil {</p>
+<p> &#x2F;**</p>
+<ul>
+<li>方式一：字符流复制文本文件<br>  *&#x2F;<br> public static void copyByCharStream(String src, String dest) throws IOException {<br> try (FileReader fr &#x3D; new FileReader(src);<br>  FileWriter fw &#x3D; new FileWriter(dest)) {<br> char[] buffer &#x3D; new char[1024];<br> int len;<br> while ((len &#x3D; fr.read(buffer)) !&#x3D; -1) {<br>     fw.write(buffer, 0, len);<br> }<br> }<br> }</li>
+</ul>
+<p> &#x2F;**</p>
+<ul>
+<li>方式二：字符缓冲流复制文本文件（推荐文本文件使用）<br>  *&#x2F;<br> public static void copyByBufferedCharStream(String src, String dest) throws IOException {<br> try (BufferedReader br &#x3D; new BufferedReader(new FileReader(src));<br>  BufferedWriter bw &#x3D; new BufferedWriter(new FileWriter(dest))) {<br> String line;<br> while ((line &#x3D; br.readLine()) !&#x3D; null) {<br>     bw.write(line);<br>     bw.newLine();<br> }<br> }<br> }</li>
+</ul>
+<p> &#x2F;**</p>
+<ul>
+<li>方式三：字节流复制任意文件<br>  *&#x2F;<br> public static void copyByByteStream(String src, String dest) throws IOException {<br> try (FileInputStream fis &#x3D; new FileInputStream(src);<br>  FileOutputStream fos &#x3D; new FileOutputStream(dest)) {<br> byte[] buffer &#x3D; new byte[1024];<br> int len;<br> while ((len &#x3D; fis.read(buffer)) !&#x3D; -1) {<br>     fos.write(buffer, 0, len);<br> }<br> }<br> }</li>
+</ul>
+<p> &#x2F;**</p>
+<ul>
+<li>方式四：字节缓冲流复制任意文件（万能复制，推荐）<br>  *&#x2F;<br> public static void copyByBufferedByteStream(String src, String dest) throws IOException {<br> try (BufferedInputStream bis &#x3D; new BufferedInputStream(new FileInputStream(src));<br>  BufferedOutputStream bos &#x3D; new BufferedOutputStream(new FileOutputStream(dest))) {<br> byte[] buffer &#x3D; new byte[8192];<br> int len;<br> while ((len &#x3D; bis.read(buffer)) !&#x3D; -1) {<br>     bos.write(buffer, 0, len);<br> }<br> bos.flush();<br> }<br> }</li>
+</ul>
+<p> &#x2F;&#x2F; 测试<br> public static void main(String[] args) {<br>     try {<br>         &#x2F;&#x2F; 文本文件复制测试<br>         copyByBufferedCharStream(“source.txt”, “dest.txt”);</p>
+<pre><code>     // 图片文件复制测试
+     copyByBufferedByteStream(&quot;photo.jpg&quot;, &quot;photo_copy.jpg&quot;);
+
+     System.out.println(&quot;所有文件复制完成！&quot;);
+ &#125; catch (IOException e) &#123;
+     e.printStackTrace();
+ &#125;
+</code></pre>
+<p> }</p>
+</li>
+</ul>
+<p>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>九、常见问题与解决方案<br>9.1 文件找不到异常（FileNotFoundException）<br>&#x2F;&#x2F; 错误示例<br>FileReader fr &#x3D; new FileReader(“nonexistent.txt”);</p>
+<p>&#x2F;&#x2F; 解决方案1：检查文件路径是否正确<br>&#x2F;&#x2F; 解决方案2：使用绝对路径<br>FileReader fr &#x3D; new FileReader(“D:&#x2F;project&#x2F;files&#x2F;source.txt”);</p>
+<p>&#x2F;&#x2F; 解决方案3：先判断文件是否存在<br>File file &#x3D; new File(“source.txt”);<br>if (!file.exists()) {<br>    System.out.println(“文件不存在：” + file.getAbsolutePath());<br>    return;<br>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>9.2 中文乱码问题</p>
+<p>&#x2F;&#x2F; 问题：使用字节流读取中文文本文件可能出现乱码<br>&#x2F;&#x2F; 解决：指定正确的字符集编码<br>&#x2F;&#x2F; 方式一：使用字符流（默认使用系统编码）<br>BufferedReader br &#x3D; new BufferedReader(new FileReader(“source.txt”));</p>
+<p>&#x2F;&#x2F; 方式二：指定编码（推荐）<br>BufferedReader br &#x3D; new BufferedReader(<br>    new InputStreamReader(new FileInputStream(“source.txt”), “UTF-8”));</p>
+<p>AI写代码<br>java<br>运行<br>9.3 大文件复制内存 溢出<br>&#x2F;&#x2F; 错误做法：一次性读取整个文件<br>byte[] allBytes &#x3D; fis.readAllBytes();  &#x2F;&#x2F; 大文件会内存溢出</p>
+<p>&#x2F;&#x2F; 正确做法：边读边写，使用缓冲区<br>byte[] buffer &#x3D; new byte[8192];<br>int len;<br>while ((len &#x3D; fis.read(buffer)) !&#x3D; -1) {<br>    fos.write(buffer, 0, len);<br>}</p>
+<p>AI写代码<br>java<br>运行</p>
+<p>十、总结</p>
+<p>10.1 核心知识点回顾<br>知识点	要点<br>字符流	用于文本文件，处理字符数据<br>字节流	用于任意文件，处理字节数据<br>缓冲流	提高IO性能，减少实际读写次数<br>try-with-resources	自动关闭流资源<br>缓冲区大小	通常 1024、2048、8192 字节</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-hello-world"
   class="article article-type-post"
   itemscope
@@ -2200,101 +2458,6 @@ System.out.println(&quot;验证结果：5050&quot;);
 <li>整数除法会丢失小数部分</li>
 <li>循环变量要确保能退出循环，避免死循环</li>
 </ol>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-Java学习笔记（二）：基本数据类型、数组与枚举"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/04/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E6%95%B0%E7%BB%84%E4%B8%8E%E6%9E%9A%E4%B8%BE/"
-    >Java学习笔记（二）：基本数据类型、数组与枚举</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/04/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E6%95%B0%E7%BB%84%E4%B8%8E%E6%9E%9A%E4%B8%BE/" class="article-date">
-  <time datetime="2026-04-14T05:35:12.000Z" itemprop="datePublished">2026-04-14</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、今日学习内容<br>今天学习了第二章，主要内容包括：</p>
-<ol>
-<li>标识符与关键字</li>
-<li>8种基本数据类型</li>
-<li>数据类型转换</li>
-<li>数组的声明、创建和遍历</li>
-<li>枚举类型</li>
-</ol>
-<p>二、重点知识整理</p>
-<p>2.1 标识符命名规则<br>由字母、数字、下划线 <code>_</code>、美元符号 <code>$</code> 组成<br>不能以数字开头<br>不能是Java关键字（如 <code>public</code>、<code>class</code>、<code>int</code>）<br>区分大小写<br>命名规范：类名首字母大写（驼峰命名），变量名首字母小写（驼峰命名）</p>
-<p>2.2 8种基本数据类型（重点！）</p>
-<p>|        类型       | 关键字    | 占用字节 |     取值范围         |  默认值  |<br>|       字节型     |    byte    |         1      |     -128 ~ 127      |      0      |<br>|      短整型      |   short    |         2      |  -32768 ~ 32767 |     0       |<br>|         整型       |      int     |        4       |        约 ±21亿      |     0       |<br>|       长整型     |    long     |        8      |           很大          |     0L      |<br>| 单精度浮点型 |   float     |        4       |    约 ±3.4e38      |   0.0f     |<br>| 双精度浮点型 |  double  |        8       |    约 ±1.8e308    |    0.0     |<br>|        字符型     |     char   |        2       |      0 ~ 65535     | ‘\u0000’ |<br>|        布尔型     | boolean | 1(概念上) |     true &#x2F; false     |    false   |</p>
-<p>记忆 口诀：byte short int long，float double char boolean</p>
-<p>2.3 注意事项</p>
-<ol>
-<li>long类型数值后面要加L<br>long distance &#x3D; 12345678900L;</li>
-<li>float类型数值后面要加f<br>float price &#x3D; 19.99f;</li>
-<li>char用单引号，String用双引号<br>char grade &#x3D; ‘A’;<br>String name &#x3D; “张三”;</li>
-<li>布尔值只能是true或false，不能用0或1代替<br>boolean isPass &#x3D; true;   &#x2F;&#x2F; 对<br>boolean isFail &#x3D; false;  &#x2F;&#x2F; 对<br>&#x2F;&#x2F; boolean isOk &#x3D; 1;     &#x2F;&#x2F;  错误！</li>
-</ol>
-<p>2.4 数据类型转换<br>自动类型转换（小→大）：byte → short → int → long → float → double<br>java<br>int a &#x3D; 100; double b &#x3D; a; &#x2F;&#x2F; 自动转换，b &#x3D; 100.0<br>强制类型转换（大→小）：需要手动写 (类型)<br>java<br>double x &#x3D; 3.14; int y &#x3D; (int)x; &#x2F;&#x2F; 强制转换，y &#x3D; 3（小数部分丢失）<br>2.5 数组</p>
-<p>声明数组<br>java<br>int[] scores;      &#x2F;&#x2F; 推荐写法<br>int scores[];      &#x2F;&#x2F; 也可以，但不推荐</p>
-<p>创建数组<br>java<br>&#x2F;&#x2F; 方式1：先声明后创建<br>int[] scores;<br>scores &#x3D; new int[5];<br>&#x2F;&#x2F; 方式2：声明并创建<br>int[] scores &#x3D; new int[5];<br>&#x2F;&#x2F; 方式3：声明并初始化<br>int[] scores &#x3D; {90, 85, 78, 92, 88};</p>
-<p>遍历数组<br>java<br>int[] arr &#x3D; {10, 20, 30, 40, 50}; &#x2F;&#x2F; 普通for循环 <br>for (int i &#x3D; 0; i &lt; arr.length; i++) { System.out.println(arr[i]); } &#x2F;&#x2F; 增强for循环（foreach） <br>for (int num : arr) { System.out.println(num); }</p>
-<p>数组的 length 属性可以获取数组长度，注意是属性不是方法，没有括号。</p>
-<p>2.6 枚举类型<br>枚举用于定义一组常量，比如星期、季节、方向等。<br>java<br>&#x2F;&#x2F; 定义枚举<br>enum  Weekday {<br>    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY<br>}<br>enum Season {<br>    春, 夏, 秋, 冬   &#x2F;&#x2F; 可以使用中文<br>}<br>&#x2F;&#x2F; 使用枚举<br>public class EnumDemo {<br>    public static  void main(String[] args) {<br>        Weekday today &#x3D; Weekday.MONDAY;<br>        Season current &#x3D; 秋;<br>        System.out.println(“今天是：” + today);<br>        System.out.println(“当前季节：” + current);<br>        &#x2F;&#x2F; 遍历枚举<br>        for (Season s : Season.values()) {<br>            System.out.println(s);<br>        }<br>    }<br>}<br>三、代码示例<br>示例1：计算平均分<br>java<br>public class ScoreAverage {<br>    public static void main (String[] args) {<br>        int[] scores &#x3D; {85, 90, 78, 92, 88};<br>        int sum &#x3D; 0;<br>        for (int i &#x3D; 0; i &lt; scores.length; i++) {<br>            sum &#x3D; sum + scores[i];<br>        }       <br>        double average &#x3D; (double)sum &#x2F; scores.length;<br>        System.out.println(“总分：” + sum);<br>        System.out.println(“平均分：” + average);<br>    }<br>}<br>示例2：使用枚举表示一周计划<br>java<br>enum Weekday {<br>    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY<br>}<br>public class WeeklyPlan {<br>    public static void main(String[] args) {<br>        Weekday today &#x3D; Weekday.MONDAY;    <br>        switch  (today) {<br>            case MONDAY:<br>                System.out.println(“周一：学习Java第一章”);<br>                break;<br>            case TUESDAY:<br>                System.out.println(“周二：学习Java第二章”);<br>                break;<br>            &#x2F;&#x2F; … 其他日子<br>            default:<br>                System.out.println(“周末：休息”);<br>        }<br>    }<br>}<br>四、常见错误与注意点 <br>|         错误写法        |             正确写法          |                         说明                       |<br>|int a[] &#x3D; new int(5);  |    int[] a &#x3D; new int[5];    |     数组用方括号，不是圆括号       |<br>|String str &#x3D; ‘hello’;   |    String str &#x3D; “hello”;    |     String用双引号，char用单引号  |<br>|      float f &#x3D; 3.14;     |       float f &#x3D; 3.14f;        |            float后面要加f                      |<br>|      int x &#x3D; 3.14;       |      int x &#x3D; (int)3.14;      |           大转小要强制转换                 |<br>|     arr.length()         |          arr.length            |    数组的length是属性，不是方法   |<br>五、小结<br>今天学会了：<br>8种基本数据类型的取值范围和默认值<br>自动类型转换和强制类型转换<br>数组的声明、创建和三种遍历方式<br>枚举的定义和使用<br>核心：<br>int是默认的整数类型，double是默认的小数类型<br>数组下标从0开始，最大下标 &#x3D; length - 1<br>枚举可以把一组常量组织在一起，让代码更清晰</p>
 
       
 

@@ -116,6 +116,101 @@
     
     
     <article
+  id="post-Java学习笔记（二）：基本数据类型、数组与枚举"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/04/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E6%95%B0%E7%BB%84%E4%B8%8E%E6%9E%9A%E4%B8%BE/"
+    >Java学习笔记（二）：基本数据类型、数组与枚举</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/04/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E6%95%B0%E7%BB%84%E4%B8%8E%E6%9E%9A%E4%B8%BE/" class="article-date">
+  <time datetime="2026-04-14T05:35:12.000Z" itemprop="datePublished">2026-04-14</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>一、今日学习内容<br>今天学习了第二章，主要内容包括：</p>
+<ol>
+<li>标识符与关键字</li>
+<li>8种基本数据类型</li>
+<li>数据类型转换</li>
+<li>数组的声明、创建和遍历</li>
+<li>枚举类型</li>
+</ol>
+<p>二、重点知识整理</p>
+<p>2.1 标识符命名规则<br>由字母、数字、下划线 <code>_</code>、美元符号 <code>$</code> 组成<br>不能以数字开头<br>不能是Java关键字（如 <code>public</code>、<code>class</code>、<code>int</code>）<br>区分大小写<br>命名规范：类名首字母大写（驼峰命名），变量名首字母小写（驼峰命名）</p>
+<p>2.2 8种基本数据类型（重点！）</p>
+<p>|        类型       | 关键字    | 占用字节 |     取值范围         |  默认值  |<br>|       字节型     |    byte    |         1      |     -128 ~ 127      |      0      |<br>|      短整型      |   short    |         2      |  -32768 ~ 32767 |     0       |<br>|         整型       |      int     |        4       |        约 ±21亿      |     0       |<br>|       长整型     |    long     |        8      |           很大          |     0L      |<br>| 单精度浮点型 |   float     |        4       |    约 ±3.4e38      |   0.0f     |<br>| 双精度浮点型 |  double  |        8       |    约 ±1.8e308    |    0.0     |<br>|        字符型     |     char   |        2       |      0 ~ 65535     | ‘\u0000’ |<br>|        布尔型     | boolean | 1(概念上) |     true &#x2F; false     |    false   |</p>
+<p>记忆 口诀：byte short int long，float double char boolean</p>
+<p>2.3 注意事项</p>
+<ol>
+<li>long类型数值后面要加L<br>long distance &#x3D; 12345678900L;</li>
+<li>float类型数值后面要加f<br>float price &#x3D; 19.99f;</li>
+<li>char用单引号，String用双引号<br>char grade &#x3D; ‘A’;<br>String name &#x3D; “张三”;</li>
+<li>布尔值只能是true或false，不能用0或1代替<br>boolean isPass &#x3D; true;   &#x2F;&#x2F; 对<br>boolean isFail &#x3D; false;  &#x2F;&#x2F; 对<br>&#x2F;&#x2F; boolean isOk &#x3D; 1;     &#x2F;&#x2F;  错误！</li>
+</ol>
+<p>2.4 数据类型转换<br>自动类型转换（小→大）：byte → short → int → long → float → double<br>java<br>int a &#x3D; 100; double b &#x3D; a; &#x2F;&#x2F; 自动转换，b &#x3D; 100.0<br>强制类型转换（大→小）：需要手动写 (类型)<br>java<br>double x &#x3D; 3.14; int y &#x3D; (int)x; &#x2F;&#x2F; 强制转换，y &#x3D; 3（小数部分丢失）<br>2.5 数组</p>
+<p>声明数组<br>java<br>int[] scores;      &#x2F;&#x2F; 推荐写法<br>int scores[];      &#x2F;&#x2F; 也可以，但不推荐</p>
+<p>创建数组<br>java<br>&#x2F;&#x2F; 方式1：先声明后创建<br>int[] scores;<br>scores &#x3D; new int[5];<br>&#x2F;&#x2F; 方式2：声明并创建<br>int[] scores &#x3D; new int[5];<br>&#x2F;&#x2F; 方式3：声明并初始化<br>int[] scores &#x3D; {90, 85, 78, 92, 88};</p>
+<p>遍历数组<br>java<br>int[] arr &#x3D; {10, 20, 30, 40, 50}; &#x2F;&#x2F; 普通for循环 <br>for (int i &#x3D; 0; i &lt; arr.length; i++) { System.out.println(arr[i]); } &#x2F;&#x2F; 增强for循环（foreach） <br>for (int num : arr) { System.out.println(num); }</p>
+<p>数组的 length 属性可以获取数组长度，注意是属性不是方法，没有括号。</p>
+<p>2.6 枚举类型<br>枚举用于定义一组常量，比如星期、季节、方向等。<br>java<br>&#x2F;&#x2F; 定义枚举<br>enum  Weekday {<br>    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY<br>}<br>enum Season {<br>    春, 夏, 秋, 冬   &#x2F;&#x2F; 可以使用中文<br>}<br>&#x2F;&#x2F; 使用枚举<br>public class EnumDemo {<br>    public static  void main(String[] args) {<br>        Weekday today &#x3D; Weekday.MONDAY;<br>        Season current &#x3D; 秋;<br>        System.out.println(“今天是：” + today);<br>        System.out.println(“当前季节：” + current);<br>        &#x2F;&#x2F; 遍历枚举<br>        for (Season s : Season.values()) {<br>            System.out.println(s);<br>        }<br>    }<br>}<br>三、代码示例<br>示例1：计算平均分<br>java<br>public class ScoreAverage {<br>    public static void main (String[] args) {<br>        int[] scores &#x3D; {85, 90, 78, 92, 88};<br>        int sum &#x3D; 0;<br>        for (int i &#x3D; 0; i &lt; scores.length; i++) {<br>            sum &#x3D; sum + scores[i];<br>        }       <br>        double average &#x3D; (double)sum &#x2F; scores.length;<br>        System.out.println(“总分：” + sum);<br>        System.out.println(“平均分：” + average);<br>    }<br>}<br>示例2：使用枚举表示一周计划<br>java<br>enum Weekday {<br>    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY<br>}<br>public class WeeklyPlan {<br>    public static void main(String[] args) {<br>        Weekday today &#x3D; Weekday.MONDAY;    <br>        switch  (today) {<br>            case MONDAY:<br>                System.out.println(“周一：学习Java第一章”);<br>                break;<br>            case TUESDAY:<br>                System.out.println(“周二：学习Java第二章”);<br>                break;<br>            &#x2F;&#x2F; … 其他日子<br>            default:<br>                System.out.println(“周末：休息”);<br>        }<br>    }<br>}<br>四、常见错误与注意点 <br>|         错误写法        |             正确写法          |                         说明                       |<br>|int a[] &#x3D; new int(5);  |    int[] a &#x3D; new int[5];    |     数组用方括号，不是圆括号       |<br>|String str &#x3D; ‘hello’;   |    String str &#x3D; “hello”;    |     String用双引号，char用单引号  |<br>|      float f &#x3D; 3.14;     |       float f &#x3D; 3.14f;        |            float后面要加f                      |<br>|      int x &#x3D; 3.14;       |      int x &#x3D; (int)3.14;      |           大转小要强制转换                 |<br>|     arr.length()         |          arr.length            |    数组的length是属性，不是方法   |<br>五、小结<br>今天学会了：<br>8种基本数据类型的取值范围和默认值<br>自动类型转换和强制类型转换<br>数组的声明、创建和三种遍历方式<br>枚举的定义和使用<br>核心：<br>int是默认的整数类型，double是默认的小数类型<br>数组下标从0开始，最大下标 &#x3D; length - 1<br>枚举可以把一组常量组织在一起，让代码更清晰</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-Java学习笔记（一）：Java语言入门与开发环境搭建"
   class="article article-type-post"
   itemscope

@@ -116,6 +116,268 @@
     
     
     <article
+  id="post-Python实验-列表、元组与集合"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-%E5%88%97%E8%A1%A8%E3%80%81%E5%85%83%E7%BB%84%E4%B8%8E%E9%9B%86%E5%90%88/"
+    >Python实验-列表、元组与集合</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-%E5%88%97%E8%A1%A8%E3%80%81%E5%85%83%E7%BB%84%E4%B8%8E%E9%9B%86%E5%90%88/" class="article-date">
+  <time datetime="2026-11-22T11:10:00.000Z" itemprop="datePublished">2026-11-22</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>这次实验的主题是三种最常用的容器：列表、元组、集合。题目看起来都是”基础语法”，但真跑起来，切片删除的索引规则、嵌套容器的哈希判定、边遍历边删除的漏删问题，一个比一个反直觉。下面是完整的实验过程、真实运行结果和原因分析。</p>
+<h2 id="一、实验目的与环境"><a href="#一、实验目的与环境" class="headerlink" title="一、实验目的与环境"></a>一、实验目的与环境</h2><p><strong>目的</strong>：掌握 list &#x2F; tuple &#x2F; set 的可变性与可哈希规则；弄清切片删除、步长正负的执行逻辑；熟练使用集合运算与推导式；能独立排查 <code>TypeError: unhashable type</code> 这类问题。</p>
+<p><strong>环境</strong>：Python 3.12（CPython），Windows 11，无第三方库依赖。</p>
+<h2 id="二、实验原理（先记住这四条）"><a href="#二、实验原理（先记住这四条）" class="headerlink" title="二、实验原理（先记住这四条）"></a>二、实验原理（先记住这四条）</h2><ol>
+<li><strong>list</strong> 是动态数组，存的是对象引用；切片生成新列表，<code>del ls[切片]</code> 是原地批量删除。</li>
+<li><strong>tuple</strong> 的”不可变”指元组保存的引用地址不能改，不限制引用指向的对象内部被修改。</li>
+<li><strong>set</strong> 用哈希表实现，元素必须可哈希；set 本身可变，所以不能嵌套；<code>frozenset</code> 不可变、可哈希，可以放进集合。</li>
+<li><strong>可哈希</strong>的本质是：对象在生命周期内哈希值不变。</li>
+</ol>
+<h2 id="三、任务1：切片删除深度探究"><a href="#三、任务1：切片删除深度探究" class="headerlink" title="三、任务1：切片删除深度探究"></a>三、任务1：切片删除深度探究</h2><h3 id="预判与实测"><a href="#预判与实测" class="headerlink" title="预判与实测"></a>预判与实测</h3><table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>预判结果</th>
+<th>实际结果</th>
+<th>是否一致</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>del ls1[::3]</code>（ls1&#x3D;0~9）</td>
+<td><code>[1,2,4,5,7,8]</code></td>
+<td><code>[1,2,4,5,7,8]</code></td>
+<td>一致</td>
+</tr>
+<tr>
+<td><code>del ls2[1::3]</code>（ls2&#x3D;0~9）</td>
+<td><code>[0,2,3,5,6,8,9]</code></td>
+<td><code>[0,2,3,5,6,8,9]</code></td>
+<td>一致</td>
+</tr>
+<tr>
+<td><code>del ls3[::-2]</code>（ls3&#x3D;0~5）</td>
+<td><code>[0,2,4]</code></td>
+<td><code>[0,2,4]</code></td>
+<td>一致</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ls1 = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line"><span class="keyword">del</span> ls1[::<span class="number">3</span>]      <span class="comment"># 删除下标 0,3,6,9</span></span><br><span class="line"><span class="built_in">print</span>(ls1)        <span class="comment"># [1, 2, 4, 5, 7, 8]</span></span><br><span class="line"></span><br><span class="line">ls2 = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line"><span class="keyword">del</span> ls2[<span class="number">1</span>::<span class="number">3</span>]     <span class="comment"># 删除下标 1,4,7</span></span><br><span class="line"><span class="built_in">print</span>(ls2)        <span class="comment"># [0, 2, 3, 5, 6, 8, 9]</span></span><br><span class="line"></span><br><span class="line">ls3 = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line"><span class="keyword">del</span> ls3[::-<span class="number">2</span>]     <span class="comment"># 从末尾开始，步长 -2：下标 5,3,1</span></span><br><span class="line"><span class="built_in">print</span>(ls3)        <span class="comment"># [0, 2, 4]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="为什么和直觉不一样"><a href="#为什么和直觉不一样" class="headerlink" title="为什么和直觉不一样"></a>为什么和直觉不一样</h3><p>关键在于：<strong>切片在删除前一次性算好所有下标，再统一删除</strong>，而不是边删边重新编号。<code>ls[::3]</code> 拿到的是 <code>[0,3,6,9]</code> 四个位置，删完自然变成 <code>[1,2,4,5,7,8]</code>。如果按”动态索引”理解，删掉 0 之后列表整体左移，下一个”第 3 个”就变成 2，结果会完全不同。</p>
+<p>负步长也一样：<code>[::-2]</code> 的下标序列是 <code>5, 3, 1</code>（从最后一个元素往前数，每隔一个），删除后剩下 <code>0,2,4</code>。</p>
+<h3 id="边遍历边删除的坑"><a href="#边遍历边删除的坑" class="headerlink" title="边遍历边删除的坑"></a>边遍历边删除的坑</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ls4 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ls4:</span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        ls4.remove(i)</span><br><span class="line"><span class="built_in">print</span>(ls4)          <span class="comment"># [1, 3, 5]</span></span><br></pre></td></tr></table></figure>
+
+<p>这个结果看起来是对的，但<strong>过程其实是错的</strong>：删掉 2 之后，列表变成 <code>[1,3,4,5,6]</code>，迭代器内部下标从 1 移到 2，正好指向 4，元素 3 根本没被访问。它恰好是奇数，所以最终结果”碰巧正确”。</p>
+<p>换一组连续偶数就能暴露问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ls5 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ls5:</span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        ls5.remove(i)</span><br><span class="line"><span class="built_in">print</span>(ls5)          <span class="comment"># [1, 4, 8]  ← 4 和 8 没被删掉</span></span><br></pre></td></tr></table></figure>
+
+<p>原因：<code>list</code> 的迭代器维护一个自增下标，<code>remove()</code> 会让后面的元素整体左移一位，于是”下一个元素”被跳过。<strong>一边遍历一边删除，等于每隔一个元素才检查一次。</strong></p>
+<p>安全写法有三种：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 列表推导式重建（推荐）</span></span><br><span class="line">ls = [x <span class="keyword">for</span> x <span class="keyword">in</span> ls <span class="keyword">if</span> x % <span class="number">2</span> != <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 遍历副本，删原列表</span></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> ls[:]:</span><br><span class="line">    <span class="keyword">if</span> x % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        ls.remove(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 切片整体替换</span></span><br><span class="line">ls[:] = [x <span class="keyword">for</span> x <span class="keyword">in</span> ls <span class="keyword">if</span> x % <span class="number">2</span> != <span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、任务2：嵌套容器与可哈希"><a href="#四、任务2：嵌套容器与可哈希" class="headerlink" title="四、任务2：嵌套容器与可哈希"></a>四、任务2：嵌套容器与可哈希</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="built_in">set</span>()</span><br><span class="line">s.add((<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>))            <span class="comment"># 成功</span></span><br><span class="line">s.add((<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>]))          <span class="comment"># TypeError: unhashable type: &#x27;list&#x27;</span></span><br><span class="line">s.add([<span class="number">1</span>, <span class="number">2</span>])               <span class="comment"># TypeError: unhashable type: &#x27;list&#x27;</span></span><br><span class="line">s.add(<span class="built_in">frozenset</span>(&#123;<span class="number">1</span>, <span class="number">2</span>&#125;))    <span class="comment"># 成功</span></span><br><span class="line">s.add(&#123;<span class="number">1</span>, <span class="number">2</span>&#125;)               <span class="comment"># TypeError: unhashable type: &#x27;set&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>结果</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>add((1,2,3))</code></td>
+<td>成功</td>
+<td>元组内全是 int，整体可哈希</td>
+</tr>
+<tr>
+<td><code>add((1,[2,3]))</code></td>
+<td>报错</td>
+<td>元组里有 list，list 可变不可哈希，整个元组跟着不可哈希</td>
+</tr>
+<tr>
+<td><code>add([1,2])</code></td>
+<td>报错</td>
+<td>list 是可变对象，哈希值会随内容变化</td>
+</tr>
+<tr>
+<td><code>add(frozenset(&#123;1,2&#125;))</code></td>
+<td>成功</td>
+<td>frozenset 不可变，哈希值固定</td>
+</tr>
+<tr>
+<td><code>add(&#123;1,2&#125;)</code></td>
+<td>报错</td>
+<td>set 可变，不能作为集合元素</td>
+</tr>
+</tbody></table>
+<p>最终集合内容为 <code>&#123;(1, 2, 3), frozenset(&#123;1, 2&#125;)&#125;</code>。</p>
+<p><strong>结论</strong>：元组的可哈希性是”逐元素继承”的——只要有一个元素不可哈希，整个元组就不可哈希。需要”集合里放集合”时，用 <code>frozenset</code>。</p>
+<h2 id="五、任务3：集合运算与集合推导式"><a href="#五、任务3：集合运算与集合推导式" class="headerlink" title="五、任务3：集合运算与集合推导式"></a>五、任务3：集合运算与集合推导式</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">A = &#123;<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>, <span class="number">12</span>&#125;</span><br><span class="line">B = &#123;<span class="number">3</span>, <span class="number">6</span>, <span class="number">9</span>, <span class="number">12</span>, <span class="number">15</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(A &amp; B)   <span class="comment"># 交集      &#123;6, 12&#125;</span></span><br><span class="line"><span class="built_in">print</span>(A | B)   <span class="comment"># 并集      &#123;2, 3, 4, 6, 8, 9, 10, 12, 15&#125;</span></span><br><span class="line"><span class="built_in">print</span>(A - B)   <span class="comment"># 差集      &#123;2, 4, 8, 10&#125;</span></span><br><span class="line"><span class="built_in">print</span>(B - A)   <span class="comment"># 差集      &#123;3, 9, 15&#125;</span></span><br><span class="line"><span class="built_in">print</span>(A ^ B)   <span class="comment"># 对称差集  &#123;2, 3, 4, 8, 9, 10, 15&#125;</span></span><br><span class="line"></span><br><span class="line">C = &#123;x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">31</span>) <span class="keyword">if</span> x % <span class="number">4</span> == <span class="number">0</span>&#125;</span><br><span class="line"><span class="built_in">print</span>(C)       <span class="comment"># &#123;4, 8, 12, 16, 20, 24, 28&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>说明：set 不保证顺序，上面按数值升序写出来只是为了便于阅读，实际打印顺序由哈希决定。</p>
+</blockquote>
+<p>集合推导式 <code>&#123;x for x in range(1,31) if x % 4 == 0&#125;</code> 一行就筛出了 1~30 中所有 4 的倍数，共 7 个。</p>
+<h2 id="六、任务4：去重算法对比"><a href="#六、任务4：去重算法对比" class="headerlink" title="六、任务4：去重算法对比"></a>六、任务4：去重算法对比</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">data = [<span class="number">5</span>, <span class="number">2</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">9</span>, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(<span class="built_in">set</span>(data)))        <span class="comment"># [1, 2, 3, 5, 7, 9]  顺序变了</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(<span class="built_in">dict</span>.fromkeys(data)))  <span class="comment"># [5, 2, 7, 9, 3, 1]</span></span><br><span class="line"></span><br><span class="line">res = []</span><br><span class="line"><span class="keyword">for</span> num <span class="keyword">in</span> data:</span><br><span class="line">    <span class="keyword">if</span> num <span class="keyword">not</span> <span class="keyword">in</span> res:</span><br><span class="line">        res.append(num)</span><br><span class="line"><span class="built_in">print</span>(res)                    <span class="comment"># [5, 2, 7, 9, 3, 1]</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>结果</th>
+<th>时间复杂度</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>list(set(data))</code></td>
+<td>顺序丢失</td>
+<td>O(n)</td>
+<td>顺序不可控；元素必须可哈希</td>
+</tr>
+<tr>
+<td>手写循环 <code>not in</code></td>
+<td>保序</td>
+<td>O(n²)</td>
+<td>数据量大时慢</td>
+</tr>
+<tr>
+<td><code>dict.fromkeys(data)</code></td>
+<td>保序</td>
+<td>O(n)</td>
+<td>Python 3.7+ 才保证插入顺序</td>
+</tr>
+</tbody></table>
+<p><strong>结论</strong>：要顺序就用 <code>dict.fromkeys</code>，它同时兼顾了速度和保序；<code>list(set())</code> 只适合”只关心有哪些值”的场景。</p>
+<h2 id="七、任务5：综合设计——选课统计"><a href="#七、任务5：综合设计——选课统计" class="headerlink" title="七、任务5：综合设计——选课统计"></a>七、任务5：综合设计——选课统计</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class1 = [<span class="number">101</span>, <span class="number">103</span>, <span class="number">105</span>, <span class="number">107</span>, <span class="number">109</span>, <span class="number">103</span>, <span class="number">101</span>]</span><br><span class="line">class2 = [<span class="number">102</span>, <span class="number">104</span>, <span class="number">106</span>, <span class="number">108</span>, <span class="number">109</span>, <span class="number">107</span>, <span class="number">102</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">unique_ordered</span>(<span class="params">seq</span>):</span><br><span class="line">    seen, result = <span class="built_in">set</span>(), []</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> seq:</span><br><span class="line">        <span class="keyword">if</span> x <span class="keyword">not</span> <span class="keyword">in</span> seen:</span><br><span class="line">            seen.add(x)</span><br><span class="line">            result.append(x)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">u1, u2 = unique_ordered(class1), unique_ordered(class2)</span><br><span class="line">s1, s2 = <span class="built_in">set</span>(u1), <span class="built_in">set</span>(u2)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;① 1班去重：&quot;</span>, u1)          <span class="comment"># [101, 103, 105, 107, 109]</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;   2班去重：&quot;</span>, u2)          <span class="comment"># [102, 104, 106, 108, 109, 107]</span></span><br><span class="line"></span><br><span class="line">both = s1 &amp; s2</span><br><span class="line">only_one = s1 ^ s2</span><br><span class="line">only_c1 = s1 - s2</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;② 同时选两门：&quot;</span>, both)      <span class="comment"># &#123;107, 109&#125;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;③ 只选一门：&quot;</span>, only_one)    <span class="comment"># &#123;101,102,103,104,105,106,108&#125;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;④ 只选1班：&quot;</span>, only_c1)      <span class="comment"># &#123;101, 103, 105&#125;</span></span><br><span class="line"></span><br><span class="line">t_both = <span class="built_in">tuple</span>(both)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;⑤ 交集转元组：&quot;</span>, t_both)    <span class="comment"># (107, 109) 左右顺序不固定</span></span><br><span class="line"><span class="built_in">print</span>(&#123;t_both&#125;)                    <span class="comment"># &#123;(107, 109)&#125; 能放进集合</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>每一步的文字说明</strong>：</p>
+<ol>
+<li>① 用 <code>unique_ordered</code> 保留首次出现的顺序去重，两个班各自得到 5 个和 6 个编号。</li>
+<li>② 交集 <code>&amp;</code> 就是同时出现在两个班里的学生：107、109。</li>
+<li>③ 对称差 <code>^</code> 是”只属于其中一个集合”的元素，正好对应”只选了一门课”。</li>
+<li>④ 差集 <code>s1 - s2</code> 表示”在 1 班但不在 2 班”。</li>
+<li>⑤ 交集元素都是 int（可哈希），由它们组成的元组也整体可哈希，所以既能转成元组，也能直接放进集合。</li>
+</ol>
+<h2 id="八、拓展：嵌套列表去重"><a href="#八、拓展：嵌套列表去重" class="headerlink" title="八、拓展：嵌套列表去重"></a>八、拓展：嵌套列表去重</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">nest = [[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">3</span>, <span class="number">4</span>], [<span class="number">1</span>, <span class="number">2</span>], [<span class="number">5</span>, <span class="number">6</span>]]</span><br><span class="line"></span><br><span class="line">seen, result = <span class="built_in">set</span>(), []</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> nest:</span><br><span class="line">    key = <span class="built_in">tuple</span>(item)      <span class="comment"># 内层 list 不可哈希，先转元组</span></span><br><span class="line">    <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> seen:</span><br><span class="line">        seen.add(key)</span><br><span class="line">        result.append(item)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(result)              <span class="comment"># [[1, 2], [3, 4], [5, 6]]</span></span><br></pre></td></tr></table></figure>
+
+<p>把内层 list 直接放进 set（<code>s.add([1, 2])</code>）会立刻抛出 <code>TypeError: unhashable type: &#39;list&#39;</code>，所以”先把内层列表转成元组、去重后再按需转回列表”是标准解法。Python 3.7+ 还可以用 <code>dict.fromkeys</code> 一行完成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>([<span class="built_in">list</span>(t) <span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">dict</span>.fromkeys(<span class="built_in">tuple</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> nest)])</span><br></pre></td></tr></table></figure>
+
+<h2 id="九、必答思考题"><a href="#九、必答思考题" class="headerlink" title="九、必答思考题"></a>九、必答思考题</h2><p><strong>1. <code>del ls[::3]</code> 是按删除前索引还是动态实时索引？</strong></p>
+<p>按删除前的索引一次性计算。切片会先确定下标集合 <code>&#123;0,3,6,9&#125;</code>，再统一删除这些位置。如果理解成动态索引，删掉 0 之后原下标 3 已经不是同一个元素，结果会和实际不符。</p>
+<p><strong>2. <code>t=(1,[2,3])</code>，为什么 <code>t[1].append(4)</code> 合法，但 t 不能放进集合？</strong></p>
+<p>元组的不可变指的是”元组保存的引用不能换”，不是”引用指向的对象不能变”。<code>t[1]</code> 仍指向同一个 list，往这个 list 里 append 不改变元组结构，所以合法。但哈希要求整个对象可哈希，list 不可哈希，因此元组整体也不可哈希，不能放进 set。</p>
+<p><strong>3. 为什么普通 set 不能嵌套，frozenset 可以？</strong></p>
+<p>set 是可变对象，内容一变哈希值就变，这会破坏哈希表”桶位置稳定”的前提。frozenset 一旦创建就不能修改，哈希值固定，因此可以安全地作为另一个集合的元素。</p>
+<p><strong>4. for 遍历同时 remove 为什么会删不干净？安全方案？</strong></p>
+<p>迭代器内部维护一个自增下标，<code>remove()</code> 让后面的元素左移，于是每删一个就有一个元素被跳过。安全方案：用列表推导式重建、遍历副本 <code>ls[:]</code>、或用 <code>while</code> 手动控制索引。</p>
+<p><strong>5. <code>list(set(数据))</code> 去重的缺陷？保序去重有哪些实现方式？</strong></p>
+<p>缺陷有两个：顺序丢失；元素必须可哈希（嵌套列表这类直接报错）。保序方案：手写 <code>not in</code> 循环、<code>dict.fromkeys(data)</code>、<code>OrderedDict</code>（3.7 之后普通 dict 已保序）。</p>
+<h2 id="十、实验小结"><a href="#十、实验小结" class="headerlink" title="十、实验小结"></a>十、实验小结</h2><table>
+<thead>
+<tr>
+<th>容器</th>
+<th>有序性</th>
+<th>可变性</th>
+<th>元素重复</th>
+<th>可哈希</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>list</td>
+<td>有序</td>
+<td>可变</td>
+<td>允许</td>
+<td>不可哈希</td>
+</tr>
+<tr>
+<td>tuple</td>
+<td>有序</td>
+<td>不可变</td>
+<td>允许</td>
+<td>取决于元素</td>
+</tr>
+<tr>
+<td>set</td>
+<td>无序</td>
+<td>可变</td>
+<td>不允许</td>
+<td>自身不可哈希</td>
+</tr>
+<tr>
+<td>frozenset</td>
+<td>无序</td>
+<td>不可变</td>
+<td>不允许</td>
+<td>可哈希</td>
+</tr>
+</tbody></table>
+<p>这次实验最值钱的不是记住某个 API，而是理解两条底层规则：<strong>切片删除先算后删</strong>，<strong>哈希要求对象在生命周期内不可变</strong>。前一条解释了 <code>del ls[::3]</code> 的结果，后一条解释了为什么 <code>frozenset</code> 能进集合而 <code>set</code> 不能。至于”一边遍历一边删除”的漏删，本质上是迭代器下标和列表长度不同步——凡是”边遍历边改结构”的操作，都应该先停下来想一想。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python-%E5%AE%9E%E9%AA%8C-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">python 实验 数据结构</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-Python实验-Turtle 自动轨迹绘制彩色图形"
   class="article article-type-post"
   itemscope
@@ -1751,264 +2013,6 @@ public void run() &#123;
 <p>十、总结</p>
 <p>10.1 核心知识点回顾<br>知识点	要点<br>继承Thread类	简单直接，但受单继承限制<br>实现Runnable接口	灵活、解耦、可资源共享<br>启动线程	必须调用start()，不能直接调用run()<br>资源共享	Runnable天然支持，Thread需静态变量<br>推荐方式	优先使用Runnable<br>10.2 选择建议<br>text</p>
 <p>是否需要资源共享？<br>    ├── 是 → 使用Runnable接口<br>    └── 否 → 继续判断<br>            ├── 类是否已继承其他类？<br>            │   ├── 是 → 使用Runnable接口<br>            │   └── 否 → 两种都可以，但Runnable更推荐<br>            └── 是否需要重写Thread的其他方法？<br>                ├── 是 → 使用Thread子类<br>                └── 否 → 使用Runnable接口（推荐）<br>————————————————<br>版权声明：本文为CSDN博主「江城墨雨xs」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2401_87661118/article/details/161711152">https://blog.csdn.net/2401_87661118/article/details/161711152</a></p>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-Java作业：文件复制四种实现方式"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/06/05/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6%E5%9B%9B%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F/"
-    >Java作业：文件复制四种实现方式</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/06/05/Java%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6%E5%9B%9B%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F/" class="article-date">
-  <time datetime="2026-06-05T05:39:54.000Z" itemprop="datePublished">2026-06-05</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、作业概述<br>本次作业要求实现文件复制的四种不同方式：</p>
-<p>序号	方式	核心类	适用场景<br>1	文本文件复制	FileReader &#x2F; FileWriter	仅文本文件<br>2	字符缓冲流	BufferedReader &#x2F; BufferedWriter	文本文件（最常用）<br>3	任意文件复制	FileInputStream &#x2F; FileOutputStream	任意类型文件<br>4	字节缓冲流	BufferedInputStream &#x2F; BufferedOutputStream	任意文件（万能复制）<br>核心原理：从一个文件中读取数据，写入到另一个文件中。</p>
-<p>二、基础知识回顾<br>2.1 Java IO流分类<br>text</p>
-<p>Java IO流<br>├── 字节流（处理所有文件）<br>│   ├── InputStream（输入流）—— FileInputStream<br>│   ├── OutputStream（输出流）—— FileOutputStream<br>│   ├── BufferedInputStream（缓冲输入流）<br>│   └── BufferedOutputStream（缓冲输出流）<br>└── 字符流（仅处理文本文件）<br>    ├── Reader（输入流）—— FileReader<br>    ├── Writer（输出流）—— FileWriter<br>    ├── BufferedReader（缓冲输入流）<br>    └── BufferedWriter（缓冲输出流）<br>2.2 字符流 vs 字节流<br>对比项	字符流	字节流<br>处理单位	字符（16-bit）	字节（8-bit）<br>适用文件	文本文件（.txt， .java， .csv）	任意文件（图片、视频、音频等）<br>核心类	Reader， Writer	InputStream， OutputStream<br>是否支持中文	是	需要手动处理编码<br>2.3 缓冲流的作用<br>特性	无缓冲流	有缓冲流<br>读取方式	每次读一个字节&#x2F;字符	一次读一批数据到内存缓冲区<br>IO次数	频繁	减少<br>性能	较低	较高<br>特有方法	无	readLine()（字符缓冲流）<br>三、方式一：文本文件复制（字符流）<br>3.1 实现原理<br>使用 FileReader 读取文本文件，FileWriter 写入到目标文件。一次读取一个字符数组，提高效率。</p>
-<p>3.2 代码实现<br>以下是整理后的代码块，符合Markdown 格式要求：</p>
-<p>import java.io.FileReader;<br>import java.io.FileWriter;<br>import java.io.IOException;</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>方式一：文本文件复制</p>
-</li>
-<li><p>使用字符流 FileReader&#x2F;FileWriter</p>
-</li>
-<li><p>适用于：.txt， .java， .csv 等文本文件<br> *&#x2F;<br>public class TextFileCopy {<br> public static void main(String[] args) {<br> String sourceFile &#x3D; “source.txt”;<br> String destFile &#x3D; “dest_text.txt”;<br><br> try {<br>     copyFile(sourceFile, destFile);<br>     System.out.println(“文件复制成功！”);<br>     System.out.println(“源文件：” + sourceFile);<br>     System.out.println(“目标文件：” + destFile);<br> } catch (IOException e) {<br>     System.out.println(“文件复制失败：” + e.getMessage());<br>     e.printStackTrace();<br> }<br> }</p>
-<p> public static void copyFile(String sourcePath, String destPath) throws IOException {<br> try (FileReader fr &#x3D; new FileReader(sourcePath);<br>      FileWriter fw &#x3D; new FileWriter(destPath)) {<br><br>     char[] buffer &#x3D; new char[1024];<br>     int len;<br><br>     while ((len &#x3D; fr.read(buffer)) !&#x3D; -1) {<br>         fw.write(buffer, 0, len);<br>     }<br><br>     System.out.println(“已复制 “ + len + “ 个字符”);<br> }<br> }</p>
-</li>
-</ul>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>3.3 代码解释</p>
-<p>代码	说明<br>FileReader fr &#x3D; new FileReader(sourcePath)	创建文件字符输入流，用于读取源文件<br>FileWriter fw &#x3D; new FileWriter(destPath)	创建文件字符输出流，用于写入目标文件<br>char[] buffer &#x3D; new char[1024]	创建字符数组缓冲区，一次读取1024个字符<br>fr.read(buffer)	从源文件读取数据到缓冲区，返回实际读取的字符数<br>fw.write(buffer， 0， len)	将缓冲区中的数据写入目标文件<br>try-with-resources	自动关闭流资源，不需要手动调用close()<br>3.4 运行效果<br>假设 source.txt 内容为：</p>
-<p>text</p>
-<p>Hello Java!<br>你好，世界！<br>这是文件复制测试。<br>复制后的 dest_text.txt 内容完全相同。</p>
-<p>四、方式二：字符缓冲流（最常用）<br>4.1 实现原理<br>使用 BufferedReader 和 BufferedWriter 包装基本的字符流，提供缓冲功能，提高读写效率。BufferedReader 提供了 readLine() 方法，可以一次读取一行文本，非常方便。</p>
-<p>4.2 代码实现<br>import java.io.BufferedReader;<br>import java.io.BufferedWriter;<br>import java.io.FileReader;<br>import java.io.FileWriter;<br>import java.io.IOException;</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>方式二：字符缓冲流复制文本文件</p>
-</li>
-<li><p>使用 BufferedReader&#x2F;BufferedWriter</p>
-</li>
-<li><p>特点：最常用、支持按行读取、性能高<br> *&#x2F;<br>public class BufferedTextFileCopy {</p>
-<p> public static void main(String[] args) {<br> String sourceFile &#x3D; “source.txt”;<br> String destFile &#x3D; “dest_buffered.txt”;<br><br> try {<br>     copyFile(sourceFile, destFile);<br>     System.out.println(“文件复制成功！”);<br> } catch (IOException e) {<br>     System.out.println(“文件复制失败：” + e.getMessage());<br> }<br> }</p>
-<p> &#x2F;**</p>
-<ul>
-<li>使用缓冲流复制文本文件</li>
-<li>@param sourcePath 源文件路径</li>
-<li>@param destPath 目标文件路径</li>
-<li>@throws IOException IO异常<br>  *&#x2F;<br> public static void copyFile(String sourcePath, String destPath) throws IOException {<br> &#x2F;&#x2F; 使用 try-with-resources 自动关闭资源<br> try (BufferedReader br &#x3D; new BufferedReader(new FileReader(sourcePath));<br>  BufferedWriter bw &#x3D; new BufferedWriter(new FileWriter(destPath))) {<br><br> String line;<br> int lineCount &#x3D; 0;<br><br> &#x2F;&#x2F; 按行读取，逐行写入<br> while ((line &#x3D; br.readLine()) !&#x3D; null) {<br>     bw.write(line);<br>     bw.newLine();  &#x2F;&#x2F; 写入换行符<br>     lineCount++;<br> }<br><br> System.out.println(“共复制 “ + lineCount + “ 行”);<br> }</li>
-</ul>
-<p> }</p>
-</li>
-</ul>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>4.3 为什么是最常用的？<br>优点	说明<br>按行读取	readLine() 方法非常方便处理文本<br>缓冲性能	减少实际IO次数，提高效率<br>编码友好	正确处理中文字符<br>代码简洁	逻辑清晰，易于理解和维护<br>4.4 代码解释<br>代码	说明<br>new BufferedReader(new FileReader(…))	在 FileReader 外层包装缓冲流<br>br.readLine()	读取一行文本（不包含换行符），返回 null 表示读到文件末尾<br>bw.write(line)	写入一行文本<br>bw.newLine()	写入系统相关的换行符（Windows: \r\n， Linux: \n）<br>五、方式三：任意文件复制（字节流）<br>5.1 实现原理<br>使用 FileInputStream 和 FileOutputStream 处理字节数据。这种方式可以复制任意类型的文件，因为所有文件在计算机中本质上都是字节序列。</p>
-<p>5.2 代码实现<br>以下是转换后的代码块格式：</p>
-<p>import java.io.FileInputStream;<br>import java.io.FileOutputStream;<br>import java.io.IOException;</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>方式三：任意文件复制</p>
-</li>
-<li><p>使用字节流 FileInputStream&#x2F;FileOutputStream</p>
-</li>
-<li><p>适用于：图片、视频、音频、压缩包等任意文件<br> *&#x2F;<br>public class AnyFileCopy {<br> public static void main(String[] args) {<br> &#x2F;&#x2F; 示例：复制图片文件<br> String sourceFile &#x3D; “photo.jpg”;<br> String destFile &#x3D; “photo_copy.jpg”;<br><br> &#x2F;&#x2F; 示例：复制视频文件<br> &#x2F;&#x2F; String sourceFile &#x3D; “video.mp4”;<br> &#x2F;&#x2F; String destFile &#x3D; “video_copy.mp4”;<br><br> try {<br>     copyFile(sourceFile, destFile);<br>     System.out.println(“文件复制成功！”);<br> } catch (IOException e) {<br>     System.out.println(“文件复制失败：” + e.getMessage());<br> }<br> }</p>
-<p> &#x2F;**</p>
-<ul>
-<li>使用字节流复制任意文件</li>
-<li>@param sourcePath 源文件路径</li>
-<li>@param destPath 目标文件路径</li>
-<li>@throws IOException IO异常<br>  *&#x2F;<br> public static void copyFile(String sourcePath, String destPath) throws IOException {<br> try (FileInputStream fis &#x3D; new FileInputStream(sourcePath);<br>  FileOutputStream fos &#x3D; new FileOutputStream(destPath)) {<br><br> &#x2F;&#x2F; 字节数组缓冲区，一次读取1024个字节<br> byte[] buffer &#x3D; new byte[1024];<br> int len;<br> long totalBytes &#x3D; 0;<br><br> while ((len &#x3D; fis.read(buffer)) !&#x3D; -1) {<br>     fos.write(buffer, 0, len);<br>     totalBytes +&#x3D; len;<br> }<br><br> System.out.println(“共复制 “ + totalBytes + “ 字节”);<br> System.out.println(“约 “ + (totalBytes &#x2F; 1024) + “ KB”);<br> }</li>
-</ul>
-<p> }</p>
-</li>
-</ul>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>5.3 支持的任意文件类型</p>
-<p>文件类型	扩展名	是否支持<br>文本文件	.txt， .java， .xml， .json	   支持<br>图片	.jpg， .png， .gif， .bmp	   支持<br>视频	.mp4， .avi， .mkv， .flv	   支持<br>音频	.mp3， .wav， .flac	   支持<br>压缩包	.zip， .rar， .7z	   支持<br>可执行文件	.exe， .dll	   支持<br>5.4 字节流 vs 字符流选择<br>if (fileType &#x3D;&#x3D; 文本文件) {<br>    &#x2F;&#x2F; 使用字符流（方便处理文本）<br>    useReaderWriter();<br>} else {<br>    &#x2F;&#x2F; 使用字节流（万能）<br>    useInputStreamOutputStream();<br>}</p>
-<p>AI写代码<br>java<br>运行<br>六、方式四：字节缓冲流（万能复制）</p>
-<p>6.1 实现原理<br>使用 BufferedInputStream 和 BufferedOutputStream 包装基本的字节流，提供内部缓冲区，减少实际IO次数，是最通用、性能最好的文件复制方式。</p>
-<p>6.2 代码实现<br>以下是转换后的代码块格式：</p>
-<p>import java.io.BufferedInputStream;<br>import java.io.BufferedOutputStream;<br>import java.io.FileInputStream;<br>import java.io.FileOutputStream;<br>import java.io.IOException;</p>
-<p>public class BufferedAnyFileCopy {<br>    public static void main(String[] args) {<br>        copyFile(“photo.jpg”, “photo_buffered_copy.jpg”);<br>    }</p>
-<pre><code>public static boolean copyFile(String sourcePath, String destPath) &#123;
-    if (sourcePath == null || destPath == null) &#123;
-        System.err.println(&quot;文件路径不能为空&quot;);
-        return false;
-    &#125;
-
-    long startTime = System.currentTimeMillis();
-
-    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(sourcePath));
-         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destPath))) &#123;
-        
-        byte[] buffer = new byte[8192];
-        int len;
-        long totalBytes = 0;
-
-        while ((len = bis.read(buffer)) != -1) &#123;
-            bos.write(buffer, 0, len);
-            totalBytes += len;
-        &#125;
-
-        bos.flush();
-
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-
-        System.out.println(&quot;========== 复制完成 ==========&quot;);
-        System.out.println(&quot;源文件：&quot; + sourcePath);
-        System.out.println(&quot;目标文件：&quot; + destPath);
-        System.out.println(&quot;文件大小：&quot; + formatSize(totalBytes));
-        System.out.println(&quot;耗时：&quot; + duration + &quot; 毫秒&quot;);
-        System.out.println(&quot;================================&quot;);
-
-        return true;
-    &#125; catch (IOException e) &#123;
-        System.err.println(&quot;文件复制失败：&quot; + e.getMessage());
-        return false;
-    &#125;
-&#125;
-
-private static String formatSize(long bytes) &#123;
-    if (bytes &lt; 1024) &#123;
-        return bytes + &quot; B&quot;;
-    &#125; else if (bytes &lt; 1024 * 1024) &#123;
-        return String.format(&quot;%.2f KB&quot;, bytes / 1024.0);
-    &#125; else if (bytes &lt; 1024 * 1024 * 1024) &#123;
-        return String.format(&quot;%.2f MB&quot;, bytes / (1024.0 * 1024));
-    &#125; else &#123;
-        return String.format(&quot;%.2f GB&quot;, bytes / (1024.0 * 1024 * 1024));
-    &#125;
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>6.3 为什么是“万能复制”？</p>
-<p>特点	说明<br>文件类型无关	无论是文本、图片、视频还是可执行文件，都能正确处理<br>编码无关	按字节处理，不涉及编码问题<br>性能优化	内置缓冲区，减少IO次数<br>大文件支持	边读边写，不会一次性加载整个文件到内存<br>6.4 性能对比测试<br>&#x2F;** </p>
-<ul>
-<li><p>性能对比测试 </p>
-</li>
-<li><p>比较四种复制方式的效率<br> *&#x2F;<br>public class PerformanceTest {<br> public static void main(String[] args) {<br> String testFile &#x3D; “large_file.txt”;  &#x2F;&#x2F; 假设有一个10MB的文件<br><br> &#x2F;&#x2F; 测试四种方式的复制时间<br> testMethod(“方式一：字符流”, () -&gt; {<br>     TextFileCopy.copyFile(testFile, “test1.txt”);<br> });<br><br> testMethod(“方式二：字符缓冲流”, () -&gt; {<br>     BufferedTextFileCopy.copyFile(testFile, “test2.txt”);<br> });<br><br> testMethod(“方式三：字节流”, () -&gt; {<br>     AnyFileCopy.copyFile(testFile, “test3.txt”);<br> });<br><br> testMethod(“方式四：字节缓冲流”, () -&gt; {<br>     BufferedAnyFileCopy.copyFile(testFile, “test4.txt”);<br> });<br> }</p>
-<p> private static void testMethod(String name, Runnable method) {<br> long start &#x3D; System.nanoTime();<br> method.run();<br> long end &#x3D; System.nanoTime();<br> System.out.println(name + “ 耗时：” + (end - start) &#x2F; 1000000 + “ ms”);<br> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>典型运行结果（复制10MB文件）：</p>
-<p>text</p>
-<p>方式一：字符流 耗时：450 ms<br>方式二：字符缓冲流 耗时：120 ms   ← 比无缓冲快3-4倍<br>方式三：字节流 耗时：480 ms<br>方式四：字节缓冲流 耗时：100 ms   ← 最快，万能选择<br>七、四种方式对比总结<br>对比项	方式一	方式二	方式三	方式四<br>核心类	FileReader&#x2F;Writer	BufferedReader&#x2F;Writer	FileInput&#x2F;OutputStream	BufferedInput&#x2F;OutputStream<br>处理单位	字符	字符（按行）	字节	字节<br>适用文件	仅文本	仅文本	任意文件	任意文件<br>缓冲支持	手动数组	内置缓冲	手动数组	内置缓冲<br>性能	中	高	中	最高<br>编码问题	自动处理	自动处理	需注意	需注意<br>推荐场景	小文本文件	文本文件（最常用）	任意小文件	万能复制（推荐）<br>选择建议：</p>
-<p>复制文本文件 → 用方式二（字符缓冲流）</p>
-<p>复制任意文件（图片、视频等） → 用方式四（字节缓冲流）</p>
-<p>简单小文件测试 → 方式一或方式三</p>
-<p>生产环境 → 方式四</p>
-<p>八、完整代码整合版<br>以下是一个完整的工具类，整合了四种复制方式：</p>
-<p>import java.io.*;</p>
-<p>&#x2F;**</p>
-<ul>
-<li><p>文件复制工具类</p>
-</li>
-<li><p>提供四种不同的文件复制方式<br> *&#x2F;<br>public class FileCopyUtil {</p>
-<p> &#x2F;**</p>
-<ul>
-<li>方式一：字符流复制文本文件<br>  *&#x2F;<br> public static void copyByCharStream(String src, String dest) throws IOException {<br> try (FileReader fr &#x3D; new FileReader(src);<br>  FileWriter fw &#x3D; new FileWriter(dest)) {<br> char[] buffer &#x3D; new char[1024];<br> int len;<br> while ((len &#x3D; fr.read(buffer)) !&#x3D; -1) {<br>     fw.write(buffer, 0, len);<br> }<br> }<br> }</li>
-</ul>
-<p> &#x2F;**</p>
-<ul>
-<li>方式二：字符缓冲流复制文本文件（推荐文本文件使用）<br>  *&#x2F;<br> public static void copyByBufferedCharStream(String src, String dest) throws IOException {<br> try (BufferedReader br &#x3D; new BufferedReader(new FileReader(src));<br>  BufferedWriter bw &#x3D; new BufferedWriter(new FileWriter(dest))) {<br> String line;<br> while ((line &#x3D; br.readLine()) !&#x3D; null) {<br>     bw.write(line);<br>     bw.newLine();<br> }<br> }<br> }</li>
-</ul>
-<p> &#x2F;**</p>
-<ul>
-<li>方式三：字节流复制任意文件<br>  *&#x2F;<br> public static void copyByByteStream(String src, String dest) throws IOException {<br> try (FileInputStream fis &#x3D; new FileInputStream(src);<br>  FileOutputStream fos &#x3D; new FileOutputStream(dest)) {<br> byte[] buffer &#x3D; new byte[1024];<br> int len;<br> while ((len &#x3D; fis.read(buffer)) !&#x3D; -1) {<br>     fos.write(buffer, 0, len);<br> }<br> }<br> }</li>
-</ul>
-<p> &#x2F;**</p>
-<ul>
-<li>方式四：字节缓冲流复制任意文件（万能复制，推荐）<br>  *&#x2F;<br> public static void copyByBufferedByteStream(String src, String dest) throws IOException {<br> try (BufferedInputStream bis &#x3D; new BufferedInputStream(new FileInputStream(src));<br>  BufferedOutputStream bos &#x3D; new BufferedOutputStream(new FileOutputStream(dest))) {<br> byte[] buffer &#x3D; new byte[8192];<br> int len;<br> while ((len &#x3D; bis.read(buffer)) !&#x3D; -1) {<br>     bos.write(buffer, 0, len);<br> }<br> bos.flush();<br> }<br> }</li>
-</ul>
-<p> &#x2F;&#x2F; 测试<br> public static void main(String[] args) {<br>     try {<br>         &#x2F;&#x2F; 文本文件复制测试<br>         copyByBufferedCharStream(“source.txt”, “dest.txt”);</p>
-<pre><code>     // 图片文件复制测试
-     copyByBufferedByteStream(&quot;photo.jpg&quot;, &quot;photo_copy.jpg&quot;);
-
-     System.out.println(&quot;所有文件复制完成！&quot;);
- &#125; catch (IOException e) &#123;
-     e.printStackTrace();
- &#125;
-</code></pre>
-<p> }</p>
-</li>
-</ul>
-<p>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>九、常见问题与解决方案<br>9.1 文件找不到异常（FileNotFoundException）<br>&#x2F;&#x2F; 错误示例<br>FileReader fr &#x3D; new FileReader(“nonexistent.txt”);</p>
-<p>&#x2F;&#x2F; 解决方案1：检查文件路径是否正确<br>&#x2F;&#x2F; 解决方案2：使用绝对路径<br>FileReader fr &#x3D; new FileReader(“D:&#x2F;project&#x2F;files&#x2F;source.txt”);</p>
-<p>&#x2F;&#x2F; 解决方案3：先判断文件是否存在<br>File file &#x3D; new File(“source.txt”);<br>if (!file.exists()) {<br>    System.out.println(“文件不存在：” + file.getAbsolutePath());<br>    return;<br>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>9.2 中文乱码问题</p>
-<p>&#x2F;&#x2F; 问题：使用字节流读取中文文本文件可能出现乱码<br>&#x2F;&#x2F; 解决：指定正确的字符集编码<br>&#x2F;&#x2F; 方式一：使用字符流（默认使用系统编码）<br>BufferedReader br &#x3D; new BufferedReader(new FileReader(“source.txt”));</p>
-<p>&#x2F;&#x2F; 方式二：指定编码（推荐）<br>BufferedReader br &#x3D; new BufferedReader(<br>    new InputStreamReader(new FileInputStream(“source.txt”), “UTF-8”));</p>
-<p>AI写代码<br>java<br>运行<br>9.3 大文件复制内存 溢出<br>&#x2F;&#x2F; 错误做法：一次性读取整个文件<br>byte[] allBytes &#x3D; fis.readAllBytes();  &#x2F;&#x2F; 大文件会内存溢出</p>
-<p>&#x2F;&#x2F; 正确做法：边读边写，使用缓冲区<br>byte[] buffer &#x3D; new byte[8192];<br>int len;<br>while ((len &#x3D; fis.read(buffer)) !&#x3D; -1) {<br>    fos.write(buffer, 0, len);<br>}</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>十、总结</p>
-<p>10.1 核心知识点回顾<br>知识点	要点<br>字符流	用于文本文件，处理字符数据<br>字节流	用于任意文件，处理字节数据<br>缓冲流	提高IO性能，减少实际读写次数<br>try-with-resources	自动关闭流资源<br>缓冲区大小	通常 1024、2048、8192 字节</p>
 
       
 
