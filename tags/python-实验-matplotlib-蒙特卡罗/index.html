@@ -27,6 +27,11 @@
 <link rel="stylesheet" href="/dist/main.css">
 
       
+      
+<link rel="stylesheet" href="/css/APlayer.min.css">
+
+      
+      
 <link rel="stylesheet" href="/css/fonts/remixicon.css">
 
       
@@ -507,22 +512,76 @@
 
 
     
-    <div id="music">
     
-    
-    
-    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
-        src="//music.163.com/outchain/player?type=2&id=2738145650&auto=0&height=66"></iframe>
+
+<div id="music">
+    <div id="aplayer"></div>
 </div>
 
 <style>
     #music {
         position: fixed;
-        right: 15px;
-        bottom: 0;
+        right: 5.5rem;
+        bottom: 1.5rem;
         z-index: 998;
+        width: 340px;
+        max-width: calc(100vw - 7rem);
+    }
+    #music .aplayer {
+        margin: 0;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+        overflow: hidden;
+        font-family: inherit;
+    }
+    #music .aplayer-list ol {
+        max-height: 260px;
+    }
+    @media screen and (max-width: 768px) {
+        #music {
+            left: .8rem;
+            right: 5.4rem;
+            bottom: .8rem;
+            width: auto;
+        }
+        #music .aplayer-list ol {
+            max-height: 180px;
+        }
     }
 </style>
+
+<script src="/js/APlayer.min.js"></script>
+<script>
+    (function () {
+        var api = 'https://api.injahow.cn/meting/';
+        var songs = [{"id":1973875803,"name":"Stranger to Me","artist":"Shirina","cover":"https://p2.music.126.net/Z1QdbIKZSRdY8iw6zti_tg==/109951167798598281.jpg","url":"https://api.injahow.cn/meting/?server=netease&type=url&id=1973875803","lrc":"https://api.injahow.cn/meting/?server=netease&type=lrc&id=1973875803"},{"id":2641081950,"name":"大雪陪我过冬","artist":"格雷西西西","cover":"https://p2.music.126.net/Tx6I8-TvECFNg8ZiER3hvg==/109951170091365927.jpg","url":"https://api.injahow.cn/meting/?server=netease&type=url&id=2641081950","lrc":"https://api.injahow.cn/meting/?server=netease&type=lrc&id=2641081950"},{"id":1343200598,"name":"招摇","artist":"陈楚生 / 胡莎莎","cover":"https://p2.music.126.net/760ZgRAzDD8An9ob9UGRBg==/109951163815997796.jpg","url":"https://api.injahow.cn/meting/?server=netease&type=url&id=1343200598","lrc":"https://api.injahow.cn/meting/?server=netease&type=lrc&id=1343200598"},{"id":1843672411,"name":"Abyssos","artist":"三无Marblue","cover":"https://p2.music.126.net/hKi23Bl2_TUaO9SkhosPdA==/109951165965048461.jpg","url":"https://api.injahow.cn/meting/?server=netease&type=url&id=1843672411","lrc":"https://api.injahow.cn/meting/?server=netease&type=lrc&id=1843672411"},{"id":1367452194,"name":"我的一个道姑朋友","artist":"双笙（陈元汐）","cover":"https://p2.music.126.net/_SPItojIVnmpsNsgz8LlMw==/109951164096961308.jpg","url":"https://api.injahow.cn/meting/?server=netease&type=url&id=1367452194","lrc":"https://api.injahow.cn/meting/?server=netease&type=lrc&id=1367452194"},{"id":1979634279,"name":"女儿国（李荣浩/张靓颖版本翻唱）","artist":"安小兔 / 陈冬霖","cover":"https://p2.music.126.net/uhHnCpIXvTK7lRPfgbqQnA==/109951167856023130.jpg","url":"https://api.injahow.cn/meting/?server=netease&type=url&id=1979634279","lrc":"https://api.injahow.cn/meting/?server=netease&type=lrc&id=1979634279"}];
+
+        function initPlayer() {
+            if (!window.APlayer || !document.getElementById('aplayer')) return;
+            new APlayer({
+                container: document.getElementById('aplayer'),
+                audio: songs,
+                theme: '#3d85c6',
+                lrcType: 3,
+                autoplay: false,
+                loop: 'all',
+                order: 'list',
+                volume: 0.7,
+                preload: 'none',
+                listFolded: true,
+                listMaxHeight: '260px'
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPlayer);
+        } else {
+            initPlayer();
+        }
+    })();
+</script>
+
+
     
     
 
