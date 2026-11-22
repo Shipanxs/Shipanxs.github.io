@@ -81,7 +81,7 @@
     
     <div class="article-meta">
       <a href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-Turtle%20%E8%87%AA%E5%8A%A8%E8%BD%A8%E8%BF%B9%E7%BB%98%E5%88%B6%E5%BD%A9%E8%89%B2%E5%9B%BE%E5%BD%A2/" class="article-date">
-  <time datetime="2026-11-22T09:40:00.000Z" itemprop="datePublished">2026-11-22</time>
+  <time datetime="2026-11-22T10:05:00.000Z" itemprop="datePublished">2026-11-22</time>
 </a>
       
       
@@ -91,7 +91,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.5k</span>
+            <span class="post-count">1.2k</span>
         </span>
     </span>
 
@@ -100,7 +100,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">5 分钟</span>
+            <span class="post-count">4 分钟</span>
         </span>
     </span>
 </div>
@@ -126,62 +126,112 @@
 
 
       
-        <p>上一版是”五颗一样大的星、一笔一笔分开画”。这次把三个要求一起解决：颜色做成彩虹渐变、大小做成渐变，并且从第一颗星起笔到最后一颗收笔，中间一次都不抬笔。</p>
-<h2 id="一、三个要求分别怎么落地"><a href="#一、三个要求分别怎么落地" class="headerlink" title="一、三个要求分别怎么落地"></a>一、三个要求分别怎么落地</h2><ol>
-<li><strong>彩虹渐变</strong>：不手写五个颜色，用 <code>colorsys.hsv_to_rgb</code> 按色相均分。色相从 0 走到 0.72，正好覆盖红、黄、绿、青、蓝紫。</li>
-<li><strong>大小渐变</strong>：外接圆半径从 45 递增到 89，每颗加 11，视觉上像一串由小到大的星。</li>
-<li><strong>一笔画</strong>：五角星本身就是闭合路径——连走 5 步 144°，合计 720°，正好两整圈，回到起笔的那个顶点。既然最终回到原点，就可以从这里直接”走”向下一颗星的顶点，<code>penup()</code> 全程只调用一次。</li>
-</ol>
-<h2 id="二、一笔画的离场点，必须选在顶点"><a href="#二、一笔画的离场点，必须选在顶点" class="headerlink" title="二、一笔画的离场点，必须选在顶点"></a>二、一笔画的离场点，必须选在顶点</h2><p>如果图形没有闭合就离开，就会拖出一条从图形中间穿出去的线，非常难看。五角星的 5 次 144° 恰好回到起点，离场点天然落在顶部顶点上，连接线是从顶点往外走，不会破坏图形。</p>
-<p>这也是前面那个”转角必须是 144°”的细节为什么重要：它决定了图形能不能干净地闭合。</p>
-<h2 id="三、连线：别用直线"><a href="#三、连线：别用直线" class="headerlink" title="三、连线：别用直线"></a>三、连线：别用直线</h2><p>两颗星的顶点之间直接拉一条直线，会显得很生硬。这里用二次贝塞尔曲线做了一段轻微上拱的”轨迹线”：</p>
-<p>B(t) &#x3D; (1-t)² P₁ + 2(1-t)t C + t² P₂</p>
-<p>控制点 C 取在两点的中点上方 28 像素。贝塞尔曲线在中点只到控制点一半的高度，所以实际上拱大约 14 像素，弧度刚好。线宽 1.4、浅灰色，作为星与星之间的过渡。</p>
-<p><strong>一个容易被忽略的点</strong>：换颜色、换线宽都不需要抬笔。<code>penup()/pendown()</code> 管的是笔尖离不离开画布，而 <code>color()</code>、<code>pensize()</code> 可以随时改。所以整幅图确实是”一笔”画完的，只是这一笔中途换了五次颜色、两种粗细。</p>
-<p>当然，如果非要一张完全没有连接线的图，那就只能抬笔——“一笔画完”和”画面干净”这两件事只能选一个。</p>
-<h2 id="四、代码"><a href="#四、代码" class="headerlink" title="四、代码"></a>四、代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> colorsys</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> turtle</span><br><span class="line"></span><br><span class="line">W, H = <span class="number">900</span>, <span class="number">400</span></span><br><span class="line">XS = [-<span class="number">340</span>, -<span class="number">170</span>, <span class="number">0</span>, <span class="number">170</span>, <span class="number">340</span>]   <span class="comment"># 五颗星的横向位置</span></span><br><span class="line">RS = [<span class="number">45</span>, <span class="number">56</span>, <span class="number">67</span>, <span class="number">78</span>, <span class="number">89</span>]       <span class="comment"># 外接圆半径，等差递增</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ys</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">23</span> + <span class="number">0.045</span> * x      <span class="comment"># 让整串星略微上扬</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rainbow</span>(<span class="params">t</span>):</span><br><span class="line">    r, g, b = colorsys.hsv_to_rgb(<span class="number">0.72</span> * t, <span class="number">0.85</span>, <span class="number">0.92</span>)</span><br><span class="line">    <span class="keyword">return</span> (r, g, b)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">screen = turtle.Screen()</span><br><span class="line">screen.setup(W, H)</span><br><span class="line">screen.bgcolor(<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line">screen.tracer(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">pen = turtle.Turtle()</span><br><span class="line">pen.hideturtle()</span><br><span class="line">pen.speed(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">star</span>(<span class="params">cx, cy, r, color, width=<span class="number">3.5</span></span>):</span><br><span class="line">    pen.color(color)</span><br><span class="line">    pen.pensize(width)</span><br><span class="line">    side = <span class="number">2</span> * r * math.sin(math.radians(<span class="number">72</span>))</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">        pen.forward(side)</span><br><span class="line">        pen.right(<span class="number">144</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">link</span>(<span class="params">x1, y1, x2, y2, sag=<span class="number">14</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;从 (x1,y1) 沿一条上拱的二次贝塞尔曲线走到 (x2,y2)&quot;&quot;&quot;</span></span><br><span class="line">    pen.color(<span class="string">&#x27;#B7B7B7&#x27;</span>)</span><br><span class="line">    pen.pensize(<span class="number">1.4</span>)</span><br><span class="line">    mx, my = (x1 + x2) / <span class="number">2</span>, (y1 + y2) / <span class="number">2</span> + <span class="number">2</span> * sag</span><br><span class="line">    <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">41</span>):</span><br><span class="line">        t = k / <span class="number">40</span></span><br><span class="line">        x = (<span class="number">1</span> - t) ** <span class="number">2</span> * x1 + <span class="number">2</span> * (<span class="number">1</span> - t) * t * mx + t * t * x2</span><br><span class="line">        y = (<span class="number">1</span> - t) ** <span class="number">2</span> * y1 + <span class="number">2</span> * (<span class="number">1</span> - t) * t * my + t * t * y2</span><br><span class="line">        pen.goto(x, y)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 一笔画的起点：第一颗星的顶部顶点</span></span><br><span class="line">pen.penup()</span><br><span class="line">pen.goto(XS[<span class="number">0</span>], ys(XS[<span class="number">0</span>]) + RS[<span class="number">0</span>])</span><br><span class="line">pen.setheading(-<span class="number">72</span>)</span><br><span class="line">pen.pendown()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(XS)):</span><br><span class="line">    star(XS[i], ys(XS[i]), RS[i], rainbow(i / (<span class="built_in">len</span>(XS) - <span class="number">1</span>)))</span><br><span class="line">    <span class="keyword">if</span> i &lt; <span class="built_in">len</span>(XS) - <span class="number">1</span>:          <span class="comment"># 还没到最后一颗，就从顶点走向下一颗</span></span><br><span class="line">        link(XS[i], ys(XS[i]) + RS[i],</span><br><span class="line">             XS[i + <span class="number">1</span>], ys(XS[i + <span class="number">1</span>]) + RS[i + <span class="number">1</span>])</span><br><span class="line">        pen.setheading(-<span class="number">72</span>)      <span class="comment"># 到达后重新摆正朝向</span></span><br><span class="line"></span><br><span class="line">screen.update()</span><br><span class="line">turtle.done()</span><br></pre></td></tr></table></figure>
-
-<h2 id="五、运行结果"><a href="#五、运行结果" class="headerlink" title="五、运行结果"></a>五、运行结果</h2><p><img src="/images/turtle-%E4%BA%94%E4%B8%AA%E5%BD%A9%E8%89%B2%E4%BA%94%E8%A7%92%E6%98%9F.png" alt="彩虹渐变、大小渐变的五颗五角星，由一条细轨迹线一笔连成"></p>
+        <p>按”一笔画、每条边一种颜色”的思路重做了一版：整幅画面只有一个图形、一条线，8 条边 8 种颜色，笔尖全程没有离开过画布。</p>
+<h2 id="一、画什么：八角星-8-3"><a href="#一、画什么：八角星-8-3" class="headerlink" title="一、画什么：八角星 {8&#x2F;3}"></a>一、画什么：八角星 {8&#x2F;3}</h2><p>在圆周上均分 8 个顶点，编号 0 到 7，然后每次不按顺序走，而是<strong>隔 3 个顶点</strong>连一条线。这种图形在几何上记作 {8&#x2F;3} 星形多边形。</p>
+<p>走位是这样的：</p>
+<p>0 → 3 → 6 → 1 → 4 → 7 → 2 → 5 → 0</p>
+<p>8 步正好走遍全部 8 个顶点，然后回到起点。8 条边互不重复，于是每条边都能分到一种独立的颜色，一笔画完还不用补线。</p>
+<h2 id="二、一笔画的数学条件"><a href="#二、一笔画的数学条件" class="headerlink" title="二、一笔画的数学条件"></a>二、一笔画的数学条件</h2><p>为什么偏偏是”隔 3 个”？这其实是一个模运算问题：</p>
+<ul>
+<li>每次前进 <code>STEP</code> 个顶点，位置按 <code>(k × STEP) mod N</code> 变化；</li>
+<li>当 <code>gcd(N, STEP) = 1</code>（互质）时，<code>STEP</code> 的倍数能遍历 0 ~ N-1 所有余数，一次走遍所有顶点并闭合 → <strong>一笔画</strong>；</li>
+<li>当 <code>gcd(N, STEP) &gt; 1</code> 时，只能走到一部分顶点就闭合，剩下的要另起一笔。</li>
+</ul>
+<p>对照几个例子：</p>
 <table>
 <thead>
 <tr>
-<th>项目</th>
+<th>图形</th>
+<th>记号</th>
+<th>gcd</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>五角星</td>
+<td>{5&#x2F;2}</td>
+<td>1</td>
+<td>一笔闭合</td>
+</tr>
+<tr>
+<td>六角星</td>
+<td>{6&#x2F;2}</td>
+<td>2</td>
+<td>两个三角形，两笔</td>
+</tr>
+<tr>
+<td>八角星</td>
+<td>{8&#x2F;3}</td>
+<td>1</td>
+<td>一笔闭合</td>
+</tr>
+<tr>
+<td>九角星</td>
+<td>{9&#x2F;4}</td>
+<td>1</td>
+<td>一笔闭合</td>
+</tr>
+<tr>
+<td>十角星</td>
+<td>{10&#x2F;4}</td>
+<td>2</td>
+<td>两个五角星，两笔</td>
+</tr>
+</tbody></table>
+<p>所以”一笔画”不是靠手稳，而是由顶点编号的步长和顶点数决定的。</p>
+<h2 id="三、每条边一种颜色"><a href="#三、每条边一种颜色" class="headerlink" title="三、每条边一种颜色"></a>三、每条边一种颜色</h2><p>颜色不用手写八个值，用色相均分就够了：色相从 0 走到 0.75，依次是红、橙、黄、黄绿、绿、青、蓝、紫。</p>
+<p>关键是：<strong>换色不需要抬笔</strong>。<code>pen.color()</code> 只是改画笔参数，<code>penup()/pendown()</code> 才控制笔尖离不离开画布。所以 8 次换色都发生在笔还落在纸上的时候，路径本身是连续的。</p>
+<h2 id="四、代码"><a href="#四、代码" class="headerlink" title="四、代码"></a>四、代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> colorsys</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> turtle</span><br><span class="line"></span><br><span class="line">N, STEP, R = <span class="number">8</span>, <span class="number">3</span>, <span class="number">300</span></span><br><span class="line">HUES = [<span class="number">0.00</span>, <span class="number">0.09</span>, <span class="number">0.17</span>, <span class="number">0.25</span>, <span class="number">0.36</span>, <span class="number">0.50</span>, <span class="number">0.62</span>, <span class="number">0.75</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">vertex</span>(<span class="params">i</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;第 i 个顶点：从正上方起，按 360/N 均分&quot;&quot;&quot;</span></span><br><span class="line">    a = math.radians(<span class="number">90</span> + i * <span class="number">360</span> / N)</span><br><span class="line">    <span class="keyword">return</span> R * math.cos(a), R * math.sin(a)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">screen = turtle.Screen()</span><br><span class="line">screen.setup(<span class="number">900</span>, <span class="number">760</span>)</span><br><span class="line">screen.bgcolor(<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line">screen.tracer(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">pen = turtle.Turtle()</span><br><span class="line">pen.hideturtle()</span><br><span class="line">pen.speed(<span class="number">0</span>)</span><br><span class="line">pen.pensize(<span class="number">6</span>)</span><br><span class="line"></span><br><span class="line">colors = [colorsys.hsv_to_rgb(h, <span class="number">0.88</span>, <span class="number">0.95</span>) <span class="keyword">for</span> h <span class="keyword">in</span> HUES]</span><br><span class="line"></span><br><span class="line">pen.penup()</span><br><span class="line">pen.goto(*vertex(<span class="number">0</span>))</span><br><span class="line">pen.pendown()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(N):</span><br><span class="line">    pen.color(colors[k])</span><br><span class="line">    pen.goto(*vertex((k + <span class="number">1</span>) * STEP % N))   <span class="comment"># 每次跳 3 个顶点</span></span><br><span class="line"></span><br><span class="line">screen.update()</span><br><span class="line">turtle.done()</span><br></pre></td></tr></table></figure>
+
+<p>代码只有 30 行，核心是最后那个循环：位置始终按 <code>(k+1) × 3 mod 8</code> 计算，颜色按 <code>k</code> 取第 k 个色相。<strong>一次 <code>penup()</code>，之后全是 <code>pendown()</code> 状态下的连线</strong>。</p>
+<h2 id="五、运行结果"><a href="#五、运行结果" class="headerlink" title="五、运行结果"></a>五、运行结果</h2><p><img src="/images/turtle-%E5%BD%A9%E8%89%B2%E5%85%AB%E8%A7%92%E6%98%9F.png" alt="一笔画成的彩色八角星，8 条边 8 种颜色"></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
 <th>取值</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>半径序列</td>
-<td>45, 56, 67, 78, 89</td>
+<td>顶点数 N</td>
+<td>8</td>
 </tr>
 <tr>
-<td>色相范围</td>
-<td>0 → 0.72（红→黄→绿→青→蓝紫）</td>
+<td>步长 STEP</td>
+<td>3</td>
 </tr>
 <tr>
-<td>星间距</td>
-<td>170 px</td>
+<td>外接圆半径 R</td>
+<td>300 px</td>
 </tr>
 <tr>
-<td>笔宽</td>
-<td>星 3.5 px／轨迹线 1.4 px</td>
+<td>色相</td>
+<td>0 → 0.75，八等分</td>
 </tr>
 <tr>
-<td>连接线</td>
-<td>二次贝塞尔，上拱约 14 px</td>
+<td>线宽</td>
+<td>6 px</td>
+</tr>
+<tr>
+<td>总边数</td>
+<td>8（每条颜色不同，无重复描边）</td>
 </tr>
 </tbody></table>
-<h2 id="六、几个细节"><a href="#六、几个细节" class="headerlink" title="六、几个细节"></a>六、几个细节</h2><ol>
-<li>**颜色可以”随走随换”**，只有落不落笔需要 <code>penup()/pendown()</code>。这是 turtle 和不少绘图库不一样的地方。</li>
-<li>**每颗星开始前显式 <code>setheading(-72)</code>**。理论上 5 × 144° 是两整圈，朝向会自动转回初值，但连接线是用 <code>goto</code> 画的、不改变朝向，显式设置更不容易出错。</li>
-<li><strong>半径和间距要一起算</strong>。五角星的横向宽度约 1.902R，相邻半径差 11、中心间距 170，才刚好留出空隙又不会挤在一起。</li>
-<li>**<code>tracer(0)</code> 配 <code>update()</code>**，几百次 <code>goto</code> 瞬间完成，不会看到笔一格一格挪。</li>
+<h2 id="六、踩过的坑"><a href="#六、踩过的坑" class="headerlink" title="六、踩过的坑"></a>六、踩过的坑</h2><ol>
+<li><strong>步长选错就画不成一笔</strong>。一开始随手取了 STEP &#x3D; 2，结果画出来是两个正方形，各画各的。换成 3 才满足互质条件。</li>
+<li><strong>顶点坐标用三角函数算</strong>。<code>math.cos/sin</code> 配合 <code>math.radians</code>，比手动 <code>forward + right</code> 更好控制位置，尤其适合这种跳点连线。</li>
+<li><strong><code>goto</code> 不改变朝向</strong>。所以不需要 <code>setheading</code>，画笔只是一段段”飞”过去，不会留下转角的痕迹。</li>
+<li><strong>中心交叉处颜色容易糊</strong>。8 条边在中心附近交汇，线宽超过 8 就会糊成一团；6 px 配 900×760 的画布刚好。</li>
+<li>**别忘了 <code>tracer(0)</code> 之后的 <code>update()</code>**，否则窗口是白的。</li>
 </ol>
-<h2 id="七、如果想让图形各不相同"><a href="#七、如果想让图形各不相同" class="headerlink" title="七、如果想让图形各不相同"></a>七、如果想让图形各不相同</h2><p>一笔画也能画一串不同的图形，只要把 <code>star()</code> 换成别的形状函数，并且保证它<strong>闭合回到离场点</strong>即可。比如画一串正多边形：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">polygon</span>(<span class="params">cx, cy, r, n, color, width=<span class="number">3.5</span></span>):</span><br><span class="line">    pen.penup()</span><br><span class="line">    pen.goto(cx, cy + r)</span><br><span class="line">    pen.setheading(<span class="number">0</span>)</span><br><span class="line">    pen.color(color)</span><br><span class="line">    pen.pensize(width)</span><br><span class="line">    pen.pendown()</span><br><span class="line">    side = <span class="number">2</span> * r * math.sin(math.pi / n)</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        pen.forward(side)</span><br><span class="line">        pen.left(<span class="number">360</span> / n)</span><br></pre></td></tr></table></figure>
-
-<p>注意这里用 <code>penup/pendown</code> 定位起点会破坏”一笔画”，真要连成一笔，得把起点也算进上一段的路径里。**一笔画的核心不是”连续”，而是”每个子图形都回到离场点”**——闭合点选对了，连接线自然落在图形外面。</p>
-<h2 id="八、小结"><a href="#八、小结" class="headerlink" title="八、小结"></a>八、小结</h2><p>这次最大的收获是理解”一笔”的真正含义：不是不能停，而是笔尖不离开画布。颜色、粗细、方向都可以在一笔之内变，只有落笔状态不能变。五角星之所以能一笔串起来，是因为它走完五步正好回到起点；换成任何一个不闭合的图形，那条多余的连接线就会从图形中间穿出来。</p>
-<p>下一步想试试把五个图形的闭合点和贝塞尔控制点都参数化，让连接线真正变成一条有节奏的曲线，而不是每两颗星之间重复同一段弧。</p>
+<h2 id="七、还能换成什么"><a href="#七、还能换成什么" class="headerlink" title="七、还能换成什么"></a>七、还能换成什么</h2><ul>
+<li><strong>换角数</strong>：N 和 STEP 一改就是新图形。{7&#x2F;3} 七角星、{9&#x2F;4} 九角星、{11&#x2F;5} 十一角星，只要互质都能一笔闭合。</li>
+<li><strong>换线条</strong>：把 <code>goto</code> 的直线换成二次贝塞尔采样，每条边弯成弧，就成了”彩色花瓣”。</li>
+<li><strong>换配色</strong>：色相范围改成 0 → 1 就是完整彩虹；改成单一色系（比如 0.55 ~ 0.75 的蓝紫）会更冷静。</li>
+<li><strong>换不规则图形</strong>：房子、鱼、字母这类图形，只要满足”奇点数为 0 或 2”（欧拉路径条件），同样能一笔画完，只是每条边的颜色要按路径顺序分配。</li>
+</ul>
+<h2 id="八、小结"><a href="#八、小结" class="headerlink" title="八、小结"></a>八、小结</h2><p>这次真正想清楚的是两件事：<strong>一笔画是图论问题，不是手感问题</strong>；<strong>颜色切换和落笔状态是两件独立的事</strong>。前者决定了图形能不能连续，后者决定了这一笔能不能五颜六色。</p>
+<p>下次准备把 {n&#x2F;k} 的 n、k 做成参数，一次生成一整组星形多边形，看看哪一组最好看。</p>
 
       
 
