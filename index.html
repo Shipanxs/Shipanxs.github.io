@@ -116,6 +116,157 @@
     
     
     <article
+  id="post-Python实验-Turtle 自动轨迹绘制5个彩色五角星"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-Turtle%20%E8%87%AA%E5%8A%A8%E8%BD%A8%E8%BF%B9%E7%BB%98%E5%88%B65%E4%B8%AA%E5%BD%A9%E8%89%B2%E4%BA%94%E8%A7%92%E6%98%9F/"
+    >Python实验-Turtle 自动轨迹绘制5个彩色五角星</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/22/Python%E5%AE%9E%E9%AA%8C-Turtle%20%E8%87%AA%E5%8A%A8%E8%BD%A8%E8%BF%B9%E7%BB%98%E5%88%B65%E4%B8%AA%E5%BD%A9%E8%89%B2%E4%BA%94%E8%A7%92%E6%98%9F/" class="article-date">
+  <time datetime="2026-11-22T09:15:00.000Z" itemprop="datePublished">2026-11-22</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>这道题的代码不到 30 行，但真正让我在电脑前坐了一会儿的，不是”怎么画五角星”，而是”为什么我画的星总是偏到右下角、顶端还不朝上”。把这两个细节想明白之后，剩下的就只是排版了。</p>
+<h2 id="一、实验要求"><a href="#一、实验要求" class="headerlink" title="一、实验要求"></a>一、实验要求</h2><p>用 turtle 自动绘制 5 个彩色五角星：颜色各不相同、大小一致、间距均匀，整体排成一条舒服的轨迹。</p>
+<h2 id="二、先搞清楚：为什么转角是-144°"><a href="#二、先搞清楚：为什么转角是-144°" class="headerlink" title="二、先搞清楚：为什么转角是 144°"></a>二、先搞清楚：为什么转角是 144°</h2><ul>
+<li><strong>正五边形</strong>：每到一个顶点转 72°（外角），转 5 次正好 360°，回到起点。</li>
+<li><strong>五角星</strong>：五条边是”隔一个顶点连线”，也就是每到一个顶点要跳过相邻的那个点，所以转角是 2 × 72° &#x3D; <strong>144°</strong>。</li>
+<li>5 次 144° 一共 720°，等于转了两整圈，方向回到初始朝向，图形自然闭合。</li>
+</ul>
+<p>边长和外接圆半径的关系也能推出来：五角星每条边的两个端点都在半径为 R 的圆上，弦长</p>
+<p>L &#x3D; 2R sin 72° ≈ 1.902R</p>
+<p>所以只要给定 R，边长就确定了。R &#x3D; 80 时，边长约 152 像素。</p>
+<h2 id="三、让五角星”摆正”的两个关键"><a href="#三、让五角星”摆正”的两个关键" class="headerlink" title="三、让五角星”摆正”的两个关键"></a>三、让五角星”摆正”的两个关键</h2><ol>
+<li><strong>起点放在正上方的顶点</strong>，坐标是 (cx, cy + R)，而不是圆心 (cx, cy)。从圆心起笔，整个星会偏到右下方去。</li>
+<li><strong>初始朝向设为 -72°</strong>。从正上方那个顶点出发，第一条边要连到右下方角度为 -54° 的顶点，方向正好是 -72°。</li>
+</ol>
+<p>把这两点定下来，五个顶点就会依次落在 90°、-54°、162°、18°、234° 这五个角度上——每隔 144°，正好是一颗端正的五角星。</p>
+<h2 id="四、代码"><a href="#四、代码" class="headerlink" title="四、代码"></a>四、代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> turtle</span><br><span class="line"></span><br><span class="line">WIDTH, HEIGHT = <span class="number">900</span>, <span class="number">430</span></span><br><span class="line">COLORS = [<span class="string">&#x27;#E63946&#x27;</span>, <span class="string">&#x27;#F4A261&#x27;</span>, <span class="string">&#x27;#FFD166&#x27;</span>, <span class="string">&#x27;#2A9D8F&#x27;</span>, <span class="string">&#x27;#457B9D&#x27;</span>]</span><br><span class="line">R = <span class="number">80</span>                          <span class="comment"># 五角星外接圆半径</span></span><br><span class="line">XS = [-<span class="number">340</span>, -<span class="number">170</span>, <span class="number">0</span>, <span class="number">170</span>, <span class="number">340</span>]  <span class="comment"># 5 颗星的横向位置</span></span><br><span class="line"></span><br><span class="line">screen = turtle.Screen()</span><br><span class="line">screen.setup(WIDTH, HEIGHT)</span><br><span class="line">screen.bgcolor(<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line">screen.title(<span class="string">&#x27;5个彩色五角星&#x27;</span>)</span><br><span class="line">screen.tracer(<span class="number">0</span>)                <span class="comment"># 关掉逐笔刷新，画完再一次性显示</span></span><br><span class="line"></span><br><span class="line">pen = turtle.Turtle()</span><br><span class="line">pen.hideturtle()</span><br><span class="line">pen.speed(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">star</span>(<span class="params">cx, cy, r, color</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;以 (cx, cy) 为中心，画一个外接圆半径为 r 的五角星&quot;&quot;&quot;</span></span><br><span class="line">    pen.penup()</span><br><span class="line">    pen.goto(cx, cy + r)        <span class="comment"># 从正上方顶点起笔</span></span><br><span class="line">    pen.setheading(-<span class="number">72</span>)         <span class="comment"># 第一条边的方向</span></span><br><span class="line">    pen.color(color)</span><br><span class="line">    pen.pensize(<span class="number">4</span>)</span><br><span class="line">    pen.pendown()</span><br><span class="line"></span><br><span class="line">    side = <span class="number">2</span> * r * math.sin(math.radians(<span class="number">72</span>))</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">        pen.forward(side)</span><br><span class="line">        pen.right(<span class="number">144</span>)          <span class="comment"># 关键：不是 72°，是 144°</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x, color <span class="keyword">in</span> <span class="built_in">zip</span>(XS, COLORS):</span><br><span class="line">    y = <span class="number">10</span> - <span class="number">0.00025</span> * x * x    <span class="comment"># 用抛物线让 5 颗星排成微微上拱的弧</span></span><br><span class="line">    star(x, y, R, color)</span><br><span class="line"></span><br><span class="line">screen.update()</span><br><span class="line">turtle.done()</span><br></pre></td></tr></table></figure>
+
+<p>几行值得单独说一下：</p>
+<ul>
+<li><code>screen.tracer(0)</code> 配合最后的 <code>screen.update()</code>，是把所有笔画先在内存里画好、再一次性刷新。不这么写，5 颗星会一笔一笔地慢慢挤出来。</li>
+<li><code>pen.hideturtle()</code> 把那个小海龟图标藏掉，最终画面只剩星。</li>
+<li><code>zip(XS, COLORS)</code> 让位置和颜色一一配对，比写两个索引循环清楚。</li>
+<li><code>y = 10 - 0.00025 * x * x</code> 是一个开口向下的抛物线，中间最高、两端略低，五颗星就自然形成一条弧线，不会像用尺子比着一样死板。</li>
+</ul>
+<h2 id="五、运行结果"><a href="#五、运行结果" class="headerlink" title="五、运行结果"></a>五、运行结果</h2><p><img src="/images/turtle-%E4%BA%94%E4%B8%AA%E5%BD%A9%E8%89%B2%E4%BA%94%E8%A7%92%E6%98%9F.png" alt="turtle 绘制的 5 个彩色五角星（红、橙、金、青、蓝）"></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+<th>取值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R</td>
+<td>五角星外接圆半径</td>
+<td>80 px</td>
+</tr>
+<tr>
+<td>side</td>
+<td>单条边长 &#x3D; 2R sin72°</td>
+<td>≈ 152 px</td>
+</tr>
+<tr>
+<td>星间距</td>
+<td>相邻两颗星心的距离</td>
+<td>170 px（留约 18 px 空隙）</td>
+</tr>
+<tr>
+<td>y</td>
+<td>纵向位置 10 - 0.00025x²</td>
+<td>中间 10，两端约 -19</td>
+</tr>
+<tr>
+<td>pensize</td>
+<td>线条粗细</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<h2 id="六、踩过的坑"><a href="#六、踩过的坑" class="headerlink" title="六、踩过的坑"></a>六、踩过的坑</h2><ol>
+<li><strong>用 72° 画出来是五边形</strong>。这是最容易犯的错误——72° 是正五边形的转角，五角星要跳点连线，必须用 144°。</li>
+<li><strong>从圆心起笔画，星会偏到右下角</strong>。因为 turtle 是从当前点开始”走”的，起点不在顶点上，整个图形就整体错位了。</li>
+<li>**<code>tracer(0)</code> 之后忘了 <code>update()</code>**，窗口一片空白，还以为代码没运行。</li>
+<li><strong>画完看不到画笔</strong>。默认海龟停在最后一个顶点上，用 <code>hideturtle()</code> 藏起来画面才干净。</li>
+<li><strong>想直接导出图片</strong>。<code>screen.getcanvas().postscript()</code> 得到的是 EPS，转 PNG 需要 Ghostscript；本机没装，最后改用 PIL 截屏保存：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> ImageGrab</span><br><span class="line"></span><br><span class="line">canvas = screen.getcanvas()</span><br><span class="line">root = canvas.winfo_toplevel()</span><br><span class="line">root.attributes(<span class="string">&#x27;-topmost&#x27;</span>, <span class="literal">True</span>)   <span class="comment"># 置顶，避免被其他窗口挡住</span></span><br><span class="line">root.update()</span><br><span class="line"></span><br><span class="line">x, y = canvas.winfo_rootx(), canvas.winfo_rooty()</span><br><span class="line">w, h = canvas.winfo_width(), canvas.winfo_height()</span><br><span class="line">img = ImageGrab.grab(bbox=(x, y, x + w, y + h))</span><br><span class="line">img.save(<span class="string">&#x27;五角星.png&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><strong>画布比窗口小一点</strong>。<code>setup(900, 430)</code> 设的是窗口尺寸，实际画布会少几个像素，所以星尖要离边界留出余量，不然最左边那颗会被裁掉一角。</li>
+</ol>
+<h2 id="七、还能怎么玩"><a href="#七、还能怎么玩" class="headerlink" title="七、还能怎么玩"></a>七、还能怎么玩</h2><ul>
+<li><strong>彩虹色</strong>：用 <code>colorsys.hsv_to_rgb</code> 按色相均分，5 颗星就是一条完整的渐变。</li>
+<li><strong>大小渐变</strong>：R 从 60 递增到 100，排出来像一串音符。</li>
+<li><strong>环形轨迹</strong>：把 5 颗星摆在一个大圆周上，每颗星的朝向再转 72°，就是一朵”星花”。</li>
+<li><strong>随机星空</strong>：随机位置、随机半径、随机颜色，配黑色背景，几十颗星铺满画布。</li>
+<li><strong>动画</strong>：保留 <code>tracer(1)</code>，配合 <code>time.sleep</code>，能看清海龟一笔一笔把星画出来的过程。</li>
+</ul>
+<h2 id="八、小结"><a href="#八、小结" class="headerlink" title="八、小结"></a>八、小结</h2><p>turtle 的好处是把几何参数”可视化”了：转角、边长、朝向，这些在纸上要靠脑补的量，画出来立刻就能看出对错。这个实验里真正需要想清楚的只有两件事——<strong>144° 的跳点转角，和从正上方顶点起笔的初始朝向</strong>；其余都是排版问题。</p>
+<p>下一版准备试试用循环画一片随机星空，把半径、颜色、位置全部打散，应该比五个整齐的星更有意思。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python-%E5%AE%9E%E9%AA%8C-turtle/" rel="tag">python 实验 turtle</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-python实验-统计十五五发展规划报告热词频率（词云）"
   class="article article-type-post"
   itemscope
@@ -1859,95 +2010,13 @@ private static String formatSize(long bytes) &#123;
 </article>
 
     
-    <article
-  id="post-hello-world"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/05/24/hello-world/"
-    >Hello World</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/05/24/hello-world/" class="article-date">
-  <time datetime="2026-05-24T06:52:12.605Z" itemprop="datePublished">2026-05-24</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
   </nav>
   
 </section>
