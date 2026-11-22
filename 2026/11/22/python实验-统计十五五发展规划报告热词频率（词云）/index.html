@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客,编程,Hexo" />
+       
+      <meta name="description" content="一名计算机专业学生的技术博客" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>python实验-统计十五五发展规划报告热词频率（词云） |  Shipanxs的博客</title>
+  <meta name="generator" content="hexo-theme-ayeria">
+      
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      
+      <link rel="preconnect" href="https://fonts.font.im" crossorigin />
+      <link rel="preconnect" href="https://fonts.gstatic.font.im" crossorigin />
+      <link rel="stylesheet" href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400&display=swap" />
+      
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/ayeria-layout.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+
+      
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      
+
+      <!-- mermaid -->
+      
+      
+      <!-- 随机句子功能 -->
+      
+      <script src="/js/random-sentences.js"></script>
+      
+    </head>
+
+
+<body class="darkmode">
+  <div id="app">
+    
+    
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-python实验-统计十五五发展规划报告热词频率（词云）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  python实验-统计十五五发展规划报告热词频率（词云）
+</h1>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/22/python%E5%AE%9E%E9%AA%8C-%E7%BB%9F%E8%AE%A1%E5%8D%81%E4%BA%94%E4%BA%94%E5%8F%91%E5%B1%95%E8%A7%84%E5%88%92%E6%8A%A5%E5%91%8A%E7%83%AD%E8%AF%8D%E9%A2%91%E7%8E%87%EF%BC%88%E8%AF%8D%E4%BA%91%EF%BC%89/" class="article-date">
+  <time datetime="2026-11-22T08:35:00.000Z" itemprop="datePublished">2026-11-22</time>
+</a>
+      
+      
+        
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>这次实验想验证一个直觉：一份政策文件里反复出现的词，能不能反映它真正关心的事。文本选了《中华人民共和国国民经济和社会发展第十五个五年规划纲要》全文（中国政府网 2026 年 3 月 13 日受权播发），完整走了一遍”抓取—清洗—分词—统计—词云”的流程，最后得到一张能直接看的热词图。</p>
+<h2 id="一、数据与工具"><a href="#一、数据与工具" class="headerlink" title="一、数据与工具"></a>一、数据与工具</h2><ul>
+<li>文本：十五五规划纲要全文，清洗后正文 57,454 字（已剔除文首目录、表格图片与页脚导航）。</li>
+<li>环境：Python 3.13、jieba 0.42.1、wordcloud 1.9.6、matplotlib 3.11.2，Windows 11。</li>
+<li>产出：词频表（前 300 词，存 CSV）+ 词云图（前 160 词）。</li>
+</ul>
+<h2 id="二、处理流程"><a href="#二、处理流程" class="headerlink" title="二、处理流程"></a>二、处理流程</h2><p>整个流程可以拆成四步：</p>
+<ol>
+<li><strong>抓取与清洗</strong>：下载页面后定位正文容器（<code>class=&quot;pages_content&quot;</code>），去掉 script&#x2F;style 与所有标签，反转义 HTML 实体，压缩空白；再把文首的目录整段切掉，避免 18 篇 62 章的标题被重复计数一次。</li>
+<li><strong>分词</strong>：jieba 精确模式。先把”中国式现代化””新质生产力””高质量发展””现代化产业体系””全国统一大市场””数字经济””一带一路”等短语加进自定义词典，否则它们会被切成”新质 &#x2F; 生产力””中国式 &#x2F; 现代化”这种碎片。</li>
+<li><strong>过滤</strong>：去掉单字、纯数字和标点；停用词分两类——一类是虚词（的、了、和、及、为、以……），另一类是政策文本里的”万能动词”（推进、加快、加强、坚持、建设、推动、完善、深化、健全、统筹……）。第二类不删，词云会被它们铺满，真正的主体词根本露不出来。</li>
+<li><strong>统计与可视化</strong>：<code>Counter</code> 计数后取前 160 个词，用 wordcloud 渲染成 1400×900 的图。</li>
+</ol>
+<h2 id="三、核心代码"><a href="#三、核心代码" class="headerlink" title="三、核心代码"></a>三、核心代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"><span class="keyword">from</span> wordcloud <span class="keyword">import</span> WordCloud</span><br><span class="line"></span><br><span class="line">text = <span class="built_in">open</span>(<span class="string">&#x27;十五五规划纲要全文.txt&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>).read()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1) 政策短语入词典，避免被切碎</span></span><br><span class="line">terms = [<span class="string">&#x27;中国式现代化&#x27;</span>, <span class="string">&#x27;新质生产力&#x27;</span>, <span class="string">&#x27;高质量发展&#x27;</span>, <span class="string">&#x27;现代化产业体系&#x27;</span>,</span><br><span class="line">         <span class="string">&#x27;全国统一大市场&#x27;</span>, <span class="string">&#x27;数字经济&#x27;</span>, <span class="string">&#x27;一带一路&#x27;</span>, <span class="string">&#x27;十五五&#x27;</span>]</span><br><span class="line"><span class="keyword">for</span> w <span class="keyword">in</span> terms:</span><br><span class="line">    jieba.add_word(w, freq=<span class="number">100000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 停用词：虚词 + 政策文本里的万能动词</span></span><br><span class="line">stop = <span class="built_in">set</span>(<span class="string">&#x27;&#x27;&#x27;的 了 和 是 在 与 及 等 为 以 对 把 被 向 从 到 于 并 而 其 该 各 这 那</span></span><br><span class="line"><span class="string">之 也 都 就 要 将 使 让 所 着 过 又 更 最 很 不 无 非 上 下 中 内 外 前 后 全 每 第</span></span><br><span class="line"><span class="string">推进 加快 加强 坚持 建设 推动 完善 深化 健全 统筹 着力 持续 积极 不断 全面 深入</span></span><br><span class="line"><span class="string">扎实 稳步 明显 显著 进一步 切实 提高 增强 提升 优化 强化 建立 构建 形成 实现 促进</span></span><br><span class="line"><span class="string">加大 落实 贯彻 突出 有效 大力 广泛 实施 支持 保护 扩大 有序 重大 水平</span></span><br><span class="line"><span class="string">纲要 新华社 北京 目录 日电&#x27;&#x27;&#x27;</span>.split())</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 分词计数</span></span><br><span class="line">words = [w <span class="keyword">for</span> w <span class="keyword">in</span> jieba.cut(text)</span><br><span class="line">         <span class="keyword">if</span> <span class="built_in">len</span>(w) &gt;= <span class="number">2</span> <span class="keyword">and</span> w <span class="keyword">not</span> <span class="keyword">in</span> stop</span><br><span class="line">         <span class="keyword">and</span> <span class="keyword">not</span> re.fullmatch(<span class="string">r&#x27;[\d\.％%]+&#x27;</span>, w)]</span><br><span class="line">counter = Counter(words)</span><br><span class="line"><span class="built_in">print</span>(counter.most_common(<span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4) 词云</span></span><br><span class="line">wc = WordCloud(</span><br><span class="line">    font_path=<span class="string">r&#x27;C:\Windows\Fonts\simhei.ttf&#x27;</span>,  <span class="comment"># 中文必须指定字体</span></span><br><span class="line">    width=<span class="number">1400</span>, height=<span class="number">900</span>,</span><br><span class="line">    background_color=<span class="string">&#x27;white&#x27;</span>,</span><br><span class="line">    max_words=<span class="number">160</span>,</span><br><span class="line">    collocations=<span class="literal">False</span>,        <span class="comment"># 关掉自动二元组，用我们自己统计的词频</span></span><br><span class="line">    colormap=<span class="string">&#x27;viridis&#x27;</span>,</span><br><span class="line">    random_state=<span class="number">42</span>,</span><br><span class="line">)</span><br><span class="line">wc.generate_from_frequencies(<span class="built_in">dict</span>(counter.most_common(<span class="number">160</span>)))</span><br><span class="line">wc.to_file(<span class="string">&#x27;十五五规划词云.png&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、统计结果"><a href="#四、统计结果" class="headerlink" title="四、统计结果"></a>四、统计结果</h2><p>全文过滤后有效词次 <strong>17,003</strong>，唯一词 <strong>4,237</strong>。频次前 20：</p>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>热词</th>
+<th>次数</th>
+<th>排名</th>
+<th>热词</th>
+<th>次数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>发展</td>
+<td>350</td>
+<td>11</td>
+<td>治理</td>
+<td>96</td>
+</tr>
+<tr>
+<td>2</td>
+<td>体系</td>
+<td>194</td>
+<td>12</td>
+<td>创新</td>
+<td>94</td>
+</tr>
+<tr>
+<td>3</td>
+<td>机制</td>
+<td>154</td>
+<td>13</td>
+<td>能力</td>
+<td>88</td>
+</tr>
+<tr>
+<td>4</td>
+<td>国家</td>
+<td>134</td>
+<td>14</td>
+<td>国际</td>
+<td>81</td>
+</tr>
+<tr>
+<td>5</td>
+<td>制度</td>
+<td>129</td>
+<td>15</td>
+<td>产业</td>
+<td>78</td>
+</tr>
+<tr>
+<td>6</td>
+<td>服务</td>
+<td>128</td>
+<td>16</td>
+<td>管理</td>
+<td>77</td>
+</tr>
+<tr>
+<td>7</td>
+<td>政策</td>
+<td>116</td>
+<td>17</td>
+<td>文化</td>
+<td>73</td>
+</tr>
+<tr>
+<td>8</td>
+<td>安全</td>
+<td>110</td>
+<td>18</td>
+<td>社会</td>
+<td>72</td>
+</tr>
+<tr>
+<td>9</td>
+<td>领域</td>
+<td>103</td>
+<td>19</td>
+<td>战略</td>
+<td>71</td>
+</tr>
+<tr>
+<td>10</td>
+<td>保障</td>
+<td>100</td>
+<td>20</td>
+<td>企业</td>
+<td>71</td>
+</tr>
+</tbody></table>
+<p><img src="/images/%E5%8D%81%E4%BA%94%E4%BA%94%E8%A7%84%E5%88%92%E8%AF%8D%E4%BA%91.png" alt="十五五规划纲要热词词云（前160词）"></p>
+<h2 id="五、这张词云能看出什么"><a href="#五、这张词云能看出什么" class="headerlink" title="五、这张词云能看出什么"></a>五、这张词云能看出什么</h2><ul>
+<li><strong>“发展”一家独大（350 次）</strong>，是全文当之无愧的第一热词；紧随其后的”体系、机制、制度、政策、治理”全是框架性词汇。这正是规划文本的文体特征：它不负责描述某个行业怎么做，而是先搭制度框架、定运行机制。</li>
+<li><strong>“安全”排到第 8（110 次），比”创新”（94）还高</strong>。再往下看，”风险”52 次、”监管”46 次也都在前列，与”统筹发展和安全”的定位是对得上的。</li>
+<li><strong>科技—产业—数字是一条明确的主线</strong>：”创新”94、”产业”78、”科技”59、”数据”47、”人工智能”29、”算力”19。单个看不算顶流，合起来分量很足。</li>
+<li><strong>民生侧靠”服务”和”保障”撑起来</strong>：”服务”128 次、”保障”100 次，具体落点是”就业”68、”文化”73、”教育”53、”养老”29。</li>
+<li><strong>绿色转型的词频不高</strong>：”生态”58、”绿色”37。但它单独占了一篇（第十三篇），还带约束性指标（单位 GDP 二氧化碳排放降低 17%、森林覆盖率 25.8%），显然不能只看词频下判断。</li>
+</ul>
+<p>按主题把词归并一下，会更直观：</p>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>代表词</th>
+<th>合计次数</th>
+<th>占有效词次</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>治理制度规划</td>
+<td>体系、机制、制度、政策、治理、规划、战略</td>
+<td>1,321</td>
+<td>7.8%</td>
+</tr>
+<tr>
+<td>发展改革开放</td>
+<td>发展、改革、开放、经济、市场、消费、投资、企业</td>
+<td>1,060</td>
+<td>6.2%</td>
+</tr>
+<tr>
+<td>民生社会文化</td>
+<td>服务、保障、就业、教育、文化、养老、社会</td>
+<td>621</td>
+<td>3.7%</td>
+</tr>
+<tr>
+<td>科技产业数字</td>
+<td>创新、科技、产业、技术、数据、人工智能、算力</td>
+<td>505</td>
+<td>3.0%</td>
+</tr>
+<tr>
+<td>安全绿色生态</td>
+<td>安全、风险、生态、绿色、能源</td>
+<td>348</td>
+<td>2.0%</td>
+</tr>
+</tbody></table>
+<p>需要提醒一句：<strong>词频不等于重要性</strong>。政策文本里”落实””机制”这类词天然高频，而真正的优先级往往藏在约束性指标、专章篇幅和资金安排里。词云只是入口，判断还得回到原文结构。</p>
+<h2 id="六、踩过的坑"><a href="#六、踩过的坑" class="headerlink" title="六、踩过的坑"></a>六、踩过的坑</h2><ol>
+<li><strong>短语被切碎</strong>。”新质生产力”会被切成”新质 &#x2F; 生产力”，”中国式现代化”会被切成”中国式 &#x2F; 现代化”，只能靠 <code>jieba.add_word()</code> 加词典解决。</li>
+<li><strong>万能动词霸榜</strong>。不删”推进、加快、加强、建设、推动”的话，它们能占到前几名，词云上全是大字空话。</li>
+<li><strong>中文变成方块</strong>。wordcloud 默认字体不含中文，必须指定 <code>font_path</code>，Windows 下用 <code>simhei.ttf</code> 或 <code>msyh.ttc</code>。</li>
+<li><strong><code>collocations</code> 要关</strong>。默认 True 时 wordcloud 会自己再组一遍二元词组，词频就不是我们统计的了。</li>
+<li><strong>目录造成重复计数</strong>。文首目录把 18 篇 62 章的标题又数了一遍，”体系””产业”等词会虚高；切掉目录后数据才干净。</li>
+<li><strong>词太多会糊</strong>。160 个词在 1400×900 的画布上密度刚好，再往上加小词就开始互相压字。</li>
+</ol>
+<h2 id="七、小结"><a href="#七、小结" class="headerlink" title="七、小结"></a>七、小结</h2><p>这次实验最大的收获不是词云本身，而是分词前的准备工作：**自定义词典决定短语能不能完整出现，停用词表决定词云里剩下的是”实词”还是”套话”**。同一份文本，停用词表差十个词，出来的图可能完全是两个样子。</p>
+<p>另外也确认了一个判断：政策文件的词频结构高度稳定——“发展”永远第一，”体系&#x2F;机制&#x2F;制度”永远靠前，具体行业的词反而很难冲进前十。想让词云讲出更多信息，下一步可以按篇、按章分别统计，看每一篇各自的词频差异，那比一张总图有意思得多。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+  <div class="wx-modal-close">
+    <i class="ri-close-line"></i>
+  </div>
+  <p class="wx-modal-caption">扫一扫，分享到微信</p>
+  <div class="wx-qrcode-frame">
+    <img class="wx-qrcode-img" src="" data-url="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshipanxs.github.io%2F2026%2F11%2F22%2Fpython%25E5%25AE%259E%25E9%25AA%258C-%25E7%25BB%259F%25E8%25AE%25A1%25E5%258D%2581%25E4%25BA%2594%25E4%25BA%2594%25E5%258F%2591%25E5%25B1%2595%25E8%25A7%2584%25E5%2588%2592%25E6%258A%25A5%25E5%2591%258A%25E7%2583%25AD%25E8%25AF%258D%25E9%25A2%2591%25E7%258E%2587%25EF%25BC%2588%25E8%25AF%258D%25E4%25BA%2591%25EF%25BC%2589%2F" alt="微信分享二维码">
+  </div>
+</div>
+
+<div id="share-mask"></div>
+
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python-%E5%AE%9E%E9%AA%8C-%E8%AF%8D%E4%BA%91-jieba/" rel="tag">python 实验 词云 jieba</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2026/11/22/python%E5%AE%9E%E9%AA%8C-%E8%92%99%E7%89%B9%E5%8D%A1%E7%BD%97%E6%96%B9%E6%B3%95%E6%89%8B%E6%90%93%E5%9B%BE%E5%BD%A2/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">python实验-蒙特卡罗方法手搓图形</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+    
+
+  
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2026
+        <i class="ri-heart-fill heart_icon"></i> Shipanxs
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+    <!-- 随机句子模块 -->
+    
+    <ul>
+      <li>
+        <div id="random-sentence" class="random-sentence" 
+             data-random-sentences-config='{"use_local_file": true}'></div>
+      </li>
+    </ul>
+    
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="float-btn totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="float-btn todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="float-btn navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/favicon.svg" alt="Shipanxs的博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/"
+         
+      >主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/archives"
+         
+      >全部文章</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/categories"
+         
+      >文章分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/tags"
+         
+      >全部标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link"
+         href="/about"
+         
+      >关于本站</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+
+
+<div id="reward" class="reward-modal">
+  <span class="reward-close"><i class="ri-close-line"></i></span>
+
+  <p class="reward-wording">
+    <i class="ri-cup-line"></i>如果这篇文章对你有帮助，可以请我喝杯茶
+  </p>
+
+  
+
+  <div class="reward-panels">
+    
+    <div class="reward-panel active" data-index="0">
+
+      
+
+      <div class="reward-qrcode-wrap">
+        <img class="reward-qrcode" src="/images/reward/alipay.jpg" alt="支付宝">
+      </div>
+      
+      <p class="reward-desc">支付宝扫一扫</p>
+      
+      
+      
+
+    </div>
+    
+  </div>
+</div>
+
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<!-- Tocbot -->
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    tocbot.init({
+      tocSelector: ".tocbot",
+      contentSelector: ".article-entry",
+      headingSelector: "h1, h2, h3, h4, h5, h6",
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollContainer: "main",
+      positionFixedSelector: ".tocbot",
+      positionFixedClass: "is-position-fixed",
+      fixedSidebarOffset: "auto",
+    });
+  </script>
+
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css" />
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/dist/main.js"></script>
+
+
+<!-- ImageViewer -->
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+<!-- MathJax -->
+
+
+<!-- Katex -->
+
+
+<!-- busuanzi -->
+
+  
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<!-- ClickLove -->
+
+  
+<script src="/js/clickLove.js"></script>
+
+
+
+<!-- ClickBoom1 -->
+
+
+<!-- ClickBoom2 -->
+
+
+<!-- CodeCopy -->
+
+  
+<link rel="stylesheet" href="/css/clipboard.css">
+
+  <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+<!-- CanvasBackground -->
+
+  
+<script src="/js/dz.js"></script>
+
+
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=2738145650&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

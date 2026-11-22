@@ -116,6 +116,245 @@
     
     
     <article
+  id="post-python实验-统计十五五发展规划报告热词频率（词云）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2026/11/22/python%E5%AE%9E%E9%AA%8C-%E7%BB%9F%E8%AE%A1%E5%8D%81%E4%BA%94%E4%BA%94%E5%8F%91%E5%B1%95%E8%A7%84%E5%88%92%E6%8A%A5%E5%91%8A%E7%83%AD%E8%AF%8D%E9%A2%91%E7%8E%87%EF%BC%88%E8%AF%8D%E4%BA%91%EF%BC%89/"
+    >python实验-统计十五五发展规划报告热词频率（词云）</a> 
+</h2>
+ 
+
+      
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2026/11/22/python%E5%AE%9E%E9%AA%8C-%E7%BB%9F%E8%AE%A1%E5%8D%81%E4%BA%94%E4%BA%94%E5%8F%91%E5%B1%95%E8%A7%84%E5%88%92%E6%8A%A5%E5%91%8A%E7%83%AD%E8%AF%8D%E9%A2%91%E7%8E%87%EF%BC%88%E8%AF%8D%E4%BA%91%EF%BC%89/" class="article-date">
+  <time datetime="2026-11-22T08:35:00.000Z" itemprop="datePublished">2026-11-22</time>
+</a>
+      
+      
+        
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+
+      
+        <p>这次实验想验证一个直觉：一份政策文件里反复出现的词，能不能反映它真正关心的事。文本选了《中华人民共和国国民经济和社会发展第十五个五年规划纲要》全文（中国政府网 2026 年 3 月 13 日受权播发），完整走了一遍”抓取—清洗—分词—统计—词云”的流程，最后得到一张能直接看的热词图。</p>
+<h2 id="一、数据与工具"><a href="#一、数据与工具" class="headerlink" title="一、数据与工具"></a>一、数据与工具</h2><ul>
+<li>文本：十五五规划纲要全文，清洗后正文 57,454 字（已剔除文首目录、表格图片与页脚导航）。</li>
+<li>环境：Python 3.13、jieba 0.42.1、wordcloud 1.9.6、matplotlib 3.11.2，Windows 11。</li>
+<li>产出：词频表（前 300 词，存 CSV）+ 词云图（前 160 词）。</li>
+</ul>
+<h2 id="二、处理流程"><a href="#二、处理流程" class="headerlink" title="二、处理流程"></a>二、处理流程</h2><p>整个流程可以拆成四步：</p>
+<ol>
+<li><strong>抓取与清洗</strong>：下载页面后定位正文容器（<code>class=&quot;pages_content&quot;</code>），去掉 script&#x2F;style 与所有标签，反转义 HTML 实体，压缩空白；再把文首的目录整段切掉，避免 18 篇 62 章的标题被重复计数一次。</li>
+<li><strong>分词</strong>：jieba 精确模式。先把”中国式现代化””新质生产力””高质量发展””现代化产业体系””全国统一大市场””数字经济””一带一路”等短语加进自定义词典，否则它们会被切成”新质 &#x2F; 生产力””中国式 &#x2F; 现代化”这种碎片。</li>
+<li><strong>过滤</strong>：去掉单字、纯数字和标点；停用词分两类——一类是虚词（的、了、和、及、为、以……），另一类是政策文本里的”万能动词”（推进、加快、加强、坚持、建设、推动、完善、深化、健全、统筹……）。第二类不删，词云会被它们铺满，真正的主体词根本露不出来。</li>
+<li><strong>统计与可视化</strong>：<code>Counter</code> 计数后取前 160 个词，用 wordcloud 渲染成 1400×900 的图。</li>
+</ol>
+<h2 id="三、核心代码"><a href="#三、核心代码" class="headerlink" title="三、核心代码"></a>三、核心代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"><span class="keyword">from</span> wordcloud <span class="keyword">import</span> WordCloud</span><br><span class="line"></span><br><span class="line">text = <span class="built_in">open</span>(<span class="string">&#x27;十五五规划纲要全文.txt&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>).read()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1) 政策短语入词典，避免被切碎</span></span><br><span class="line">terms = [<span class="string">&#x27;中国式现代化&#x27;</span>, <span class="string">&#x27;新质生产力&#x27;</span>, <span class="string">&#x27;高质量发展&#x27;</span>, <span class="string">&#x27;现代化产业体系&#x27;</span>,</span><br><span class="line">         <span class="string">&#x27;全国统一大市场&#x27;</span>, <span class="string">&#x27;数字经济&#x27;</span>, <span class="string">&#x27;一带一路&#x27;</span>, <span class="string">&#x27;十五五&#x27;</span>]</span><br><span class="line"><span class="keyword">for</span> w <span class="keyword">in</span> terms:</span><br><span class="line">    jieba.add_word(w, freq=<span class="number">100000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 停用词：虚词 + 政策文本里的万能动词</span></span><br><span class="line">stop = <span class="built_in">set</span>(<span class="string">&#x27;&#x27;&#x27;的 了 和 是 在 与 及 等 为 以 对 把 被 向 从 到 于 并 而 其 该 各 这 那</span></span><br><span class="line"><span class="string">之 也 都 就 要 将 使 让 所 着 过 又 更 最 很 不 无 非 上 下 中 内 外 前 后 全 每 第</span></span><br><span class="line"><span class="string">推进 加快 加强 坚持 建设 推动 完善 深化 健全 统筹 着力 持续 积极 不断 全面 深入</span></span><br><span class="line"><span class="string">扎实 稳步 明显 显著 进一步 切实 提高 增强 提升 优化 强化 建立 构建 形成 实现 促进</span></span><br><span class="line"><span class="string">加大 落实 贯彻 突出 有效 大力 广泛 实施 支持 保护 扩大 有序 重大 水平</span></span><br><span class="line"><span class="string">纲要 新华社 北京 目录 日电&#x27;&#x27;&#x27;</span>.split())</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 分词计数</span></span><br><span class="line">words = [w <span class="keyword">for</span> w <span class="keyword">in</span> jieba.cut(text)</span><br><span class="line">         <span class="keyword">if</span> <span class="built_in">len</span>(w) &gt;= <span class="number">2</span> <span class="keyword">and</span> w <span class="keyword">not</span> <span class="keyword">in</span> stop</span><br><span class="line">         <span class="keyword">and</span> <span class="keyword">not</span> re.fullmatch(<span class="string">r&#x27;[\d\.％%]+&#x27;</span>, w)]</span><br><span class="line">counter = Counter(words)</span><br><span class="line"><span class="built_in">print</span>(counter.most_common(<span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4) 词云</span></span><br><span class="line">wc = WordCloud(</span><br><span class="line">    font_path=<span class="string">r&#x27;C:\Windows\Fonts\simhei.ttf&#x27;</span>,  <span class="comment"># 中文必须指定字体</span></span><br><span class="line">    width=<span class="number">1400</span>, height=<span class="number">900</span>,</span><br><span class="line">    background_color=<span class="string">&#x27;white&#x27;</span>,</span><br><span class="line">    max_words=<span class="number">160</span>,</span><br><span class="line">    collocations=<span class="literal">False</span>,        <span class="comment"># 关掉自动二元组，用我们自己统计的词频</span></span><br><span class="line">    colormap=<span class="string">&#x27;viridis&#x27;</span>,</span><br><span class="line">    random_state=<span class="number">42</span>,</span><br><span class="line">)</span><br><span class="line">wc.generate_from_frequencies(<span class="built_in">dict</span>(counter.most_common(<span class="number">160</span>)))</span><br><span class="line">wc.to_file(<span class="string">&#x27;十五五规划词云.png&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、统计结果"><a href="#四、统计结果" class="headerlink" title="四、统计结果"></a>四、统计结果</h2><p>全文过滤后有效词次 <strong>17,003</strong>，唯一词 <strong>4,237</strong>。频次前 20：</p>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>热词</th>
+<th>次数</th>
+<th>排名</th>
+<th>热词</th>
+<th>次数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>发展</td>
+<td>350</td>
+<td>11</td>
+<td>治理</td>
+<td>96</td>
+</tr>
+<tr>
+<td>2</td>
+<td>体系</td>
+<td>194</td>
+<td>12</td>
+<td>创新</td>
+<td>94</td>
+</tr>
+<tr>
+<td>3</td>
+<td>机制</td>
+<td>154</td>
+<td>13</td>
+<td>能力</td>
+<td>88</td>
+</tr>
+<tr>
+<td>4</td>
+<td>国家</td>
+<td>134</td>
+<td>14</td>
+<td>国际</td>
+<td>81</td>
+</tr>
+<tr>
+<td>5</td>
+<td>制度</td>
+<td>129</td>
+<td>15</td>
+<td>产业</td>
+<td>78</td>
+</tr>
+<tr>
+<td>6</td>
+<td>服务</td>
+<td>128</td>
+<td>16</td>
+<td>管理</td>
+<td>77</td>
+</tr>
+<tr>
+<td>7</td>
+<td>政策</td>
+<td>116</td>
+<td>17</td>
+<td>文化</td>
+<td>73</td>
+</tr>
+<tr>
+<td>8</td>
+<td>安全</td>
+<td>110</td>
+<td>18</td>
+<td>社会</td>
+<td>72</td>
+</tr>
+<tr>
+<td>9</td>
+<td>领域</td>
+<td>103</td>
+<td>19</td>
+<td>战略</td>
+<td>71</td>
+</tr>
+<tr>
+<td>10</td>
+<td>保障</td>
+<td>100</td>
+<td>20</td>
+<td>企业</td>
+<td>71</td>
+</tr>
+</tbody></table>
+<p><img src="/images/%E5%8D%81%E4%BA%94%E4%BA%94%E8%A7%84%E5%88%92%E8%AF%8D%E4%BA%91.png" alt="十五五规划纲要热词词云（前160词）"></p>
+<h2 id="五、这张词云能看出什么"><a href="#五、这张词云能看出什么" class="headerlink" title="五、这张词云能看出什么"></a>五、这张词云能看出什么</h2><ul>
+<li><strong>“发展”一家独大（350 次）</strong>，是全文当之无愧的第一热词；紧随其后的”体系、机制、制度、政策、治理”全是框架性词汇。这正是规划文本的文体特征：它不负责描述某个行业怎么做，而是先搭制度框架、定运行机制。</li>
+<li><strong>“安全”排到第 8（110 次），比”创新”（94）还高</strong>。再往下看，”风险”52 次、”监管”46 次也都在前列，与”统筹发展和安全”的定位是对得上的。</li>
+<li><strong>科技—产业—数字是一条明确的主线</strong>：”创新”94、”产业”78、”科技”59、”数据”47、”人工智能”29、”算力”19。单个看不算顶流，合起来分量很足。</li>
+<li><strong>民生侧靠”服务”和”保障”撑起来</strong>：”服务”128 次、”保障”100 次，具体落点是”就业”68、”文化”73、”教育”53、”养老”29。</li>
+<li><strong>绿色转型的词频不高</strong>：”生态”58、”绿色”37。但它单独占了一篇（第十三篇），还带约束性指标（单位 GDP 二氧化碳排放降低 17%、森林覆盖率 25.8%），显然不能只看词频下判断。</li>
+</ul>
+<p>按主题把词归并一下，会更直观：</p>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>代表词</th>
+<th>合计次数</th>
+<th>占有效词次</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>治理制度规划</td>
+<td>体系、机制、制度、政策、治理、规划、战略</td>
+<td>1,321</td>
+<td>7.8%</td>
+</tr>
+<tr>
+<td>发展改革开放</td>
+<td>发展、改革、开放、经济、市场、消费、投资、企业</td>
+<td>1,060</td>
+<td>6.2%</td>
+</tr>
+<tr>
+<td>民生社会文化</td>
+<td>服务、保障、就业、教育、文化、养老、社会</td>
+<td>621</td>
+<td>3.7%</td>
+</tr>
+<tr>
+<td>科技产业数字</td>
+<td>创新、科技、产业、技术、数据、人工智能、算力</td>
+<td>505</td>
+<td>3.0%</td>
+</tr>
+<tr>
+<td>安全绿色生态</td>
+<td>安全、风险、生态、绿色、能源</td>
+<td>348</td>
+<td>2.0%</td>
+</tr>
+</tbody></table>
+<p>需要提醒一句：<strong>词频不等于重要性</strong>。政策文本里”落实””机制”这类词天然高频，而真正的优先级往往藏在约束性指标、专章篇幅和资金安排里。词云只是入口，判断还得回到原文结构。</p>
+<h2 id="六、踩过的坑"><a href="#六、踩过的坑" class="headerlink" title="六、踩过的坑"></a>六、踩过的坑</h2><ol>
+<li><strong>短语被切碎</strong>。”新质生产力”会被切成”新质 &#x2F; 生产力”，”中国式现代化”会被切成”中国式 &#x2F; 现代化”，只能靠 <code>jieba.add_word()</code> 加词典解决。</li>
+<li><strong>万能动词霸榜</strong>。不删”推进、加快、加强、建设、推动”的话，它们能占到前几名，词云上全是大字空话。</li>
+<li><strong>中文变成方块</strong>。wordcloud 默认字体不含中文，必须指定 <code>font_path</code>，Windows 下用 <code>simhei.ttf</code> 或 <code>msyh.ttc</code>。</li>
+<li><strong><code>collocations</code> 要关</strong>。默认 True 时 wordcloud 会自己再组一遍二元词组，词频就不是我们统计的了。</li>
+<li><strong>目录造成重复计数</strong>。文首目录把 18 篇 62 章的标题又数了一遍，”体系””产业”等词会虚高；切掉目录后数据才干净。</li>
+<li><strong>词太多会糊</strong>。160 个词在 1400×900 的画布上密度刚好，再往上加小词就开始互相压字。</li>
+</ol>
+<h2 id="七、小结"><a href="#七、小结" class="headerlink" title="七、小结"></a>七、小结</h2><p>这次实验最大的收获不是词云本身，而是分词前的准备工作：**自定义词典决定短语能不能完整出现，停用词表决定词云里剩下的是”实词”还是”套话”**。同一份文本，停用词表差十个词，出来的图可能完全是两个样子。</p>
+<p>另外也确认了一个判断：政策文件的词频结构高度稳定——“发展”永远第一，”体系&#x2F;机制&#x2F;制度”永远靠前，具体行业的词反而很难冲进前十。想让词云讲出更多信息，下一步可以按篇、按章分别统计，看每一篇各自的词频差异，那比一张总图有意思得多。</p>
+
+      
+
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python-%E5%AE%9E%E9%AA%8C-%E8%AF%8D%E4%BA%91-jieba/" rel="tag">python 实验 词云 jieba</a></li></ul>
+
+    </footer>
+  </div>
+
+  
+
+  
+
+  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
+
+  
+</article>
+
+    
+    <article
   id="post-python实验-蒙特卡罗方法手搓图形"
   class="article article-type-post"
   itemscope
@@ -1675,296 +1914,6 @@ private static String formatSize(long bytes) &#123;
 <h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
 
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-
-    <footer class="article-footer">
-      
-      
-    </footer>
-  </div>
-
-  
-
-  
-
-  <!-- [2026-03] 评论系统已从 Gitalk/Twikoo 迁移至 giscus，详见 doc/audit-report.md #1 #9 -->
-
-  
-</article>
-
-    
-    <article
-  id="post-JAVA作业：了解Java的反射机制"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2026/05/24/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%BA%86%E8%A7%A3Java%E7%9A%84%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/"
-    >JAVA作业：了解Java的反射机制</a> 
-</h2>
- 
-
-      
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2026/05/24/JAVA%E4%BD%9C%E4%B8%9A%EF%BC%9A%E4%BA%86%E8%A7%A3Java%E7%9A%84%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" class="article-date">
-  <time datetime="2026-05-24T05:39:24.000Z" itemprop="datePublished">2026-05-24</time>
-</a>
-      
-      
-        
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-
-      
-        <p>一、什么是反射？<br>1.1 定义<br>反射（Reflection） 是Java语言提供的一种强大机制，允许程序在运行时动态地获取类的完整信息（如成员变量、方法、构造方法等），并且可以动态地创建对象、调用方法、访问属性。</p>
-<p>通俗地说：反射就是在程序运行时，让Java程序能够“ introspection”（自省），看清自己的结构，甚至修改自己的行为。</p>
-<p>1.2 正常方式 vs 反射方式<br>对比项	正常方式	反射方式<br>时机	编译时确定	运行时动态确定<br>类的信息	写代码时已知	运行时才获取<br>对象创建	new 类名()	Class.forName(“类名”).newInstance()<br>方法调用	对象.方法名()	method.invoke(对象, 参数)<br>特点	高效、类型安全	灵活、但有一定性能开销<br>简单示例：</p>
-<p>&#x2F;&#x2F; 正常方式：编译时就知道要使用Student类<br>Student s &#x3D; new Student();<br>s.study();</p>
-<p>&#x2F;&#x2F; 反射方式：运行时才知道要使用哪个类<br>Class&lt;?&gt; clazz &#x3D; Class.forName(“com.example.Student”);<br>Object obj &#x3D; clazz.newInstance();<br>Method method &#x3D; clazz.getMethod(“study”);<br>method.invoke(obj);</p>
-<p>AI写代码<br>java<br>运行</p>
-<p>二、为什么需要反射？</p>
-<p>2.1 核心价值<br>反射机制使得Java程序从“静态”变为“动态”：</p>
-<p>能力	说明<br>动态加载类	运行时才决定加载哪个类<br>动态创建对象	类名作为字符串传入，无需硬编码<br>动态调用方法	方法名作为字符串传入<br>访问私有成员	可以绕过访问权限检查<br>2.2 典型应用场景<br>场景	说明<br>IDE自动提示	编辑器通过反射获取类的方法和属性<br>Spring框架	IoC容器通过反射创建和管理Bean<br>JUnit框架	通过反射识别@Test注解的方法并执行<br>Tomcat等Web容器	动态加载Servlet类<br>JSON解析库	通过反射将JSON数据映射到Java对象<br>注解处理器	运行时读取注解信息<br>三、反射的核心API<br>3.1 Class类<br>Class类是反射的入口，每个Java类在运行时都会对应一个Class对象。</p>
-<p>获取Class对象的三种方式：</p>
-<p>&#x2F;&#x2F; 方式1：通过类名.class<br>Class&lt;?&gt; clazz1 &#x3D; String.class;</p>
-<p>&#x2F;&#x2F; 方式2：通过对象.getClass()<br>String str &#x3D; “hello”;<br>Class&lt;?&gt; clazz2 &#x3D; str.getClass();</p>
-<p>&#x2F;&#x2F; 方式3：通过Class.forName()（最常用，动态加载）<br>Class&lt;?&gt; clazz3 &#x3D; Class.forName(“java.lang.String”);<br>AI写代码<br>java<br>运行<br>3.2 反射核心类</p>
-<p>类名	作用<br>Class	代表一个类或接口<br>Field	代表类的成员变量<br>Method	代表类的方法<br>Constructor	代表类的构造方法<br>Modifier	访问修饰符的工具类<br>3.3 常用方法一览<br>Class类常用方法：</p>
-<p>方法	说明<br>getName()	获取类全名（包名+类名）<br>getSimpleName()	获取类简单名称<br>getFields()	获取所有public成员变量<br>getDeclaredFields()	获取所有声明的成员变量（包括private）<br>getMethods()	获取所有public方法（包括继承的）<br>getDeclaredMethods()	获取所有声明的方法（不包括继承的）<br>getConstructors()	获取所有public构造方法<br>getDeclaredConstructors()	获取所有声明的构造方法<br>newInstance()	创建实例（调用无参构造）<br>四、反射的基本使用<br>4.1 准备工作：定义一个示例类<br>&#x2F;** </p>
-<ul>
-<li><p>示例类：用于演示反射机制<br> *&#x2F;<br>public class Person {<br> &#x2F;&#x2F; 成员变量<br> private String name;<br> public int age;</p>
-<p> &#x2F;&#x2F; 构造方法<br> public Person() {<br> System.out.println(“无参构造方法被调用”);<br> }</p>
-<p> private Person(String name) {<br> this.name &#x3D; name;<br> System.out.println(“私有构造方法被调用，name&#x3D;” + name);<br> }</p>
-<p> public Person(String name, int age) {<br> this.name &#x3D; name;<br> this.age &#x3D; age;<br> System.out.println(“有参构造方法被调用：” + name + “,” + age);<br> }</p>
-<p> &#x2F;&#x2F; 成员方法<br> public void sayHello() {<br> System.out.println(“Hello, I’m “ + name);<br> }</p>
-<p> private void secret() {<br> System.out.println(“这是一个私有方法”);<br> }</p>
-<p> public String getName() {<br> return name;<br> }</p>
-<p> public void setName(String name) {<br> this.name &#x3D; name;<br> }</p>
-<p> @Override<br> public String toString() {<br> return “Person{name&#x3D;’” + name + “‘, age&#x3D;” + age + “}”;<br> }</p>
-</li>
-</ul>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>4.2 获取类的信息</p>
-<p>import java.lang.reflect.*;</p>
-<p>public class ReflectionInfoDemo {<br>    public static void main(String[] args) throws ClassNotFoundException {<br>        &#x2F;&#x2F; 1. 获取Class对象<br>        Class&lt;?&gt; clazz &#x3D; Class.forName(“Person”);</p>
-<pre><code>    // 2. 获取类名
-    System.out.println(&quot;类全名：&quot; + clazz.getName());
-    System.out.println(&quot;简单类名：&quot; + clazz.getSimpleName());
-    
-    // 3. 获取所有public方法（包括继承的）
-    System.out.println(&quot;\n=== 所有public方法 ===&quot;);
-    Method[] methods = clazz.getMethods();
-    for (Method m : methods) &#123;
-        System.out.println(&quot;  &quot; + m.getName());
-    &#125;
-    
-    // 4. 获取所有声明的成员变量
-    System.out.println(&quot;\n=== 所有声明的成员变量 ===&quot;);
-    Field[] fields = clazz.getDeclaredFields();
-    for (Field f : fields) &#123;
-        System.out.println(&quot;  &quot; + Modifier.toString(f.getModifiers()) + &quot; &quot; + f.getName());
-    &#125;
-    
-    // 5. 获取所有构造方法
-    System.out.println(&quot;\n=== 所有构造方法 ===&quot;);
-    Constructor&lt;?&gt;[] constructors = clazz.getDeclaredConstructors();
-    for (Constructor&lt;?&gt; c : constructors) &#123;
-        System.out.println(&quot;  &quot; + c);
-    &#125;
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>4.3 通过反射创建对象</p>
-<p>import java.lang.reflect.*;</p>
-<p>public class ReflectionCreateDemo {<br>    public static void main(String[] args) throws Exception {<br>        Class&lt;?&gt; clazz &#x3D; Class.forName(“Person”);</p>
-<pre><code>    // 方式1：调用无参构造方法
-    System.out.println(&quot;=== 方式1：无参构造 ===&quot;);
-    Person p1 = (Person) clazz.newInstance();  // JDK9后可能过时
-    p1.setName(&quot;张三&quot;);
-    p1.sayHello();
-    
-    // 方式2：调用有参构造方法（推荐）
-    System.out.println(&quot;\n=== 方式2：有参构造 ===&quot;);
-    Constructor&lt;?&gt; constructor = clazz.getConstructor(String.class, int.class);
-    Person p2 = (Person) constructor.newInstance(&quot;李四&quot;, 20);
-    p2.sayHello();
-    
-    // 方式3：调用私有构造方法
-    System.out.println(&quot;\n=== 方式3：私有构造 ===&quot;);
-    Constructor&lt;?&gt; privateCon = clazz.getDeclaredConstructor(String.class);
-    privateCon.setAccessible(true);  // 突破私有访问限制
-    Person p3 = (Person) privateCon.newInstance(&quot;王五&quot;);
-    p3.sayHello();
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>4.4 通过反射调用方法</p>
-<p>import java.lang.reflect.*;</p>
-<p>public class ReflectionMethodDemo {<br>    public static void main(String[] args) throws Exception {<br>        &#x2F;&#x2F; 创建对象<br>        Class<?> clazz = Class.forName("Person");
-        Constructor<?> con &#x3D; clazz.getConstructor(String.class, int.class);<br>        Person person &#x3D; (Person) con.newInstance(“小明”, 18);</p>
-<pre><code>    // 调用public方法
-    System.out.println(&quot;=== 调用public方法 ===&quot;);
-    Method sayHello = clazz.getMethod(&quot;sayHello&quot;);
-    sayHello.invoke(person);
-    
-    // 调用带参数的方法
-    Method setName = clazz.getMethod(&quot;setName&quot;, String.class);
-    setName.invoke(person, &quot;小红&quot;);
-    sayHello.invoke(person);
-    
-    // 调用私有方法（需要setAccessible）
-    System.out.println(&quot;\n=== 调用私有方法 ===&quot;);
-    Method secret = clazz.getDeclaredMethod(&quot;secret&quot;);
-    secret.setAccessible(true);  // 突破私有权限
-    secret.invoke(person);
-    
-    // 调用有返回值的方法
-    Method getName = clazz.getMethod(&quot;getName&quot;);
-    String name = (String) getName.invoke(person);
-    System.out.println(&quot;getName返回值：&quot; + name);
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>4.5 通过反射访问成员变量<br>以下是整理后的代码块格式：</p>
-<p>import java.lang.reflect.*;</p>
-<p>public class ReflectionFieldDemo {<br>    public static void main(String[] args) throws Exception {<br>        &#x2F;&#x2F; 创建对象<br>        Class<?> clazz = Class.forName("Person");
-        Constructor<?> con &#x3D; clazz.getConstructor(String.class, int.class);<br>        Person person &#x3D; (Person) con.newInstance(“张三”, 25);</p>
-<pre><code>    System.out.println(&quot;原始对象：&quot; + person);
-    
-    // 访问public成员变量
-    System.out.println(&quot;\n=== 访问public成员变量 ===&quot;);
-    Field ageField = clazz.getField(&quot;age&quot;);
-    System.out.println(&quot;当前age：&quot; + ageField.get(person));
-    ageField.set(person, 30);
-    System.out.println(&quot;修改后age：&quot; + ageField.get(person));
-    
-    // 访问私有成员变量（需要setAccessible）
-    System.out.println(&quot;\n=== 访问私有成员变量 ===&quot;);
-    Field nameField = clazz.getDeclaredField(&quot;name&quot;);
-    nameField.setAccessible(true);
-    System.out.println(&quot;当前name：&quot; + nameField.get(person));
-    nameField.set(person, &quot;李四&quot;);
-    System.out.println(&quot;修改后name：&quot; + nameField.get(person));
-    System.out.println(&quot;最终对象：&quot; + person);
-&#125;
-</code></pre>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>五、反射的实际应用示例</p>
-<p>示例1：通用的toString方法<br>import java.lang.reflect.*;</p>
-<p>class ObjectUtil {<br>    public static String toString(Object obj) {<br>        if (obj &#x3D;&#x3D; null) return “null”;</p>
-<pre><code>    Class&lt;?&gt; clazz = obj.getClass();
-    StringBuilder sb = new StringBuilder();
-    sb.append(clazz.getSimpleName()).append(&quot; &#123; &quot;);
-    
-    Field[] fields = clazz.getDeclaredFields();
-    for (int i = 0; i &lt; fields.length; i++) &#123;
-        fields[i].setAccessible(true);
-        try &#123;
-            sb.append(fields[i].getName()).append(&quot;=&quot;);
-            sb.append(fields[i].get(obj));
-            if (i &lt; fields.length - 1) &#123;
-                sb.append(&quot;, &quot;);
-            &#125;
-        &#125; catch (IllegalAccessException e) &#123;
-            sb.append(&quot;?&quot;);
-        &#125;
-    &#125;
-    sb.append(&quot; &#125;&quot;);
-    return sb.toString();
-&#125;
-</code></pre>
-<p>}</p>
-<p>class Student {<br>    private String name;<br>    private int score;</p>
-<pre><code>Student(String name, int score) &#123;
-    this.name = name;
-    this.score = score;
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class GenericToStringDemo {<br>    public static void main(String[] args) {<br>        Student s &#x3D; new Student(“张三”, 95);<br>        System.out.println(ObjectUtil.toString(s));<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>示例2：动态调用任意方法<br>import java.lang.reflect.*;</p>
-<p>class DynamicInvoker {<br>    public static Object invoke(Object obj, String methodName, Object… args) {<br>        try {<br>            Class<?> clazz = obj.getClass();
-            Class<?>[] paramTypes &#x3D; new Class&lt;?&gt;[args.length];<br>            for (int i &#x3D; 0; i &lt; args.length; i++) {<br>                paramTypes[i] &#x3D; args[i].getClass();<br>            }<br>            Method method &#x3D; clazz.getMethod(methodName, paramTypes);<br>            return method.invoke(obj, args);<br>        } catch (Exception e) {<br>            e.printStackTrace();<br>            return null;<br>        }<br>    }<br>}</p>
-<p>class Calculator {<br>    public int add(int a, int b) {<br>        return a + b;<br>    }</p>
-<pre><code>public String greet(String name) &#123;
-    return &quot;Hello, &quot; + name;
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class DynamicInvokeDemo {<br>    public static void main(String[] args) {<br>        Calculator calc &#x3D; new Calculator();<br>        Object result1 &#x3D; DynamicInvoker.invoke(calc, “add”, 10, 20);<br>        System.out.println(“add结果：” + result1);<br>        Object result2 &#x3D; DynamicInvoker.invoke(calc, “greet”, “张三”);<br>        System.out.println(“greet结果：” + result2);<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>示例3：模拟JUnit的@Test注解<br>import java.lang.annotation.<em>;<br>import java.lang.reflect.</em>;</p>
-<p>@Retention(RetentionPolicy.RUNTIME)<br>@Target(ElementType.METHOD)<br>@interface Test {}</p>
-<p>class MyTestClass {<br>    @Test<br>    public void testMethod1() {<br>        System.out.println(“执行测试方法1”);<br>    }</p>
-<pre><code>@Test
-public void testMethod2() &#123;
-    System.out.println(&quot;执行测试方法2&quot;);
-&#125;
-
-public void normalMethod() &#123;
-    System.out.println(&quot;普通方法不会被自动执行&quot;);
-&#125;
-</code></pre>
-<p>}</p>
-<p>class TestRunner {<br>    public static void run(Class&lt;?&gt; testClass) throws Exception {<br>        Object instance &#x3D; testClass.newInstance();<br>        Method[] methods &#x3D; testClass.getDeclaredMethods();</p>
-<pre><code>    for (Method method : methods) &#123;
-        if (method.isAnnotationPresent(Test.class)) &#123;
-            System.out.print(&quot;正在执行：&quot;);
-            method.invoke(instance);
-        &#125;
-    &#125;
-&#125;
-</code></pre>
-<p>}</p>
-<p>public class AnnotationDemo {<br>    public static void main(String[] args) throws Exception {<br>        TestRunner.run(MyTestClass.class);<br>    }<br>}<br>AI写代码<br>java<br>运行</p>
-<p>运行结果<br>正在执行：执行测试方法1<br>正在执行：执行测试方法2<br>AI写代码<br>六、反射的优缺点<br>6.1 优点<br>优点	说明<br>动态性	运行时动态加载类，提高程序灵活性<br>通用性	可以编写通用的代码处理各种类型的对象<br>框架基础	几乎所有Java框架（Spring、Hibernate等）都依赖反射<br>绕过限制	可以访问私有成员，用于特殊场景（如调试工具）<br>6.2 缺点<br>缺点	说明<br>性能开销	反射调用比直接调用慢，因为需要动态解析<br>安全问题	可以绕过访问权限，破坏封装性<br>代码可读性	反射代码不如直接调用直观<br>编译时检查缺失	错误只能在运行时暴露<br>七、性能对比示例<br>以下是整理后的代码块格式：</p>
-<p>&#x2F;**</p>
-<ul>
-<li>对比直接调用与反射调用的性能<br> *&#x2F;<br>public class PerformanceCompare {<br> public static void main(String[] args) throws Exception {<br> Person person &#x3D; new Person(“张三”, 20);<br><br> &#x2F;&#x2F; 1. 直接调用<br> long start1 &#x3D; System.nanoTime();<br> for (int i &#x3D; 0; i &lt; 1000000; i++) {<br>     person.sayHello();<br> }<br> long end1 &#x3D; System.nanoTime();<br> System.out.println(“直接调用耗时：” + (end1 - start1) &#x2F; 1000000 + “ ms”);<br><br> &#x2F;&#x2F; 2. 反射调用<br> Method method &#x3D; Person.class.getMethod(“sayHello”);<br> long start2 &#x3D; System.nanoTime();<br> for (int i &#x3D; 0; i &lt; 1000000; i++) {<br>     method.invoke(person);<br> }<br> long end2 &#x3D; System.nanoTime();<br> System.out.println(“反射调用耗时：” + (end2 - start2) &#x2F; 1000000 + “ ms”);<br><br> &#x2F;&#x2F; 3. 反射调用（启用访问检查关闭）<br> method.setAccessible(true);<br> long start3 &#x3D; System.nanoTime();<br> for (int i &#x3D; 0; i &lt; 1000000; i++) {<br>     method.invoke(person);<br> }<br> long end3 &#x3D; System.nanoTime();<br> System.out.println(“反射(setAccessible)耗时：” + (end3 - start3) &#x2F; 1000000 + “ ms”);<br> }</li>
-</ul>
-<p>}<br>AI写代码<br>java<br>运行</p>
-<p>代码结构说明：</p>
-<p>完整保留了原始注释和逻辑结构<br>使用标准的Java代码块格式<br>保持了原有的三个测试部分（直接调用、反射调用、反射调用优化）<br>时间统计单位统一转换为毫秒(ms)<br>结论：反射调用通常比直接调用慢2-3倍，setAccessible(true)可以略微提升性能。</p>
-<p>八、总结<br>8.1 核心知识点回顾<br>知识点	要点<br>反射的定义	运行时动态获取类信息并操作对象<br>获取Class对象	.class、getClass()、Class.forName()<br>核心API	Class、Field、Method、Constructor<br>访问私有成员	setAccessible(true)<br>主要应用	Spring框架、JUnit、JSON解析等<br>8.2 使用建议<br>优先使用直接调用：除非确实需要动态性，否则不要滥用反射</p>
-<p>缓存反射对象：如果需要频繁调用，缓存Method、Field等对象</p>
-<p>注意安全性：反射可以破坏封装，谨慎使用</p>
-<p>考虑性能影响：对性能敏感的代码避免使用反射</p>
-<p>8.3 作业完成情况<br>理解反射机制的定义和作用</p>
-<p>掌握获取Class对象的三种方式</p>
-<p>能够通过反射创建对象、调用方法、访问属性</p>
-<p>了解反射的实际应用场景</p>
-<p>了解反射的优缺点</p>
-<p>九、课后练习<br>编写代码，通过反射获取ArrayList类的所有方法名称</p>
-<p>使用反射调用String类的toUpperCase()方法</p>
-<p>通过反射创建一个HashMap对象，并调用put和get方法</p>
-<p>尝试修改一个String对象的内容（利用反射突破不可变性）</p>
 
       
 
